@@ -39,6 +39,7 @@ import com.pulse.tracker.ui.home.TodayFragment;
 import com.pulse.tracker.ui.onboarding.OnboardingActivity;
 import com.pulse.tracker.ui.profile.ProfileFragment;
 import com.pulse.tracker.ui.water.WaterFragment;
+import com.pulse.tracker.util.HapticHelper;
 
 /**
  * Main application shell hosting Steps, Water, History, and Profile destinations
@@ -319,6 +320,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
+                if (currentPosition != position) {
+                    HapticHelper.performTick(MainActivity.this);
+                }
                 currentPosition = position;
                 if (!isUserDragging && (morphAnimator == null || !morphAnimator.isRunning())) {
                     applyTabExpansionInstant(position);
@@ -437,10 +441,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupNavigationListeners() {
-        if (tabSteps != null) tabSteps.setOnClickListener(v -> selectTab(POSITION_STEPS, true));
-        if (tabWater != null) tabWater.setOnClickListener(v -> selectTab(POSITION_WATER, true));
-        if (tabHistory != null) tabHistory.setOnClickListener(v -> selectTab(POSITION_HISTORY, true));
-        if (tabProfile != null) tabProfile.setOnClickListener(v -> selectTab(POSITION_PROFILE, true));
+        if (tabSteps != null) tabSteps.setOnClickListener(v -> {
+            HapticHelper.performTick(this);
+            selectTab(POSITION_STEPS, true);
+        });
+        if (tabWater != null) tabWater.setOnClickListener(v -> {
+            HapticHelper.performTick(this);
+            selectTab(POSITION_WATER, true);
+        });
+        if (tabHistory != null) tabHistory.setOnClickListener(v -> {
+            HapticHelper.performTick(this);
+            selectTab(POSITION_HISTORY, true);
+        });
+        if (tabProfile != null) tabProfile.setOnClickListener(v -> {
+            HapticHelper.performTick(this);
+            selectTab(POSITION_PROFILE, true);
+        });
     }
 
     /**
@@ -617,7 +633,7 @@ public class MainActivity extends AppCompatActivity {
 
             // 5. Subtle organic tactile scale swell on active icon
             if (iconTo != null) {
-                float bounceScale = 1.0f + 0.10f * (float) Math.sin(Math.PI * layoutF);
+                float bounceScale = 1.0f + 0.14f * (float) Math.sin(Math.PI * layoutF);
                 iconTo.setScaleX(bounceScale);
                 iconTo.setScaleY(bounceScale);
             }
@@ -629,6 +645,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAnimationCancel(Animator animation) {
                 isCancelled = true;
+                if (iconTo != null) {
+                    iconTo.setScaleX(1.0f);
+                    iconTo.setScaleY(1.0f);
+                }
             }
 
             @Override
@@ -637,6 +657,10 @@ public class MainActivity extends AppCompatActivity {
                     applyTabExpansionInstant(toPos);
                     updatePillContinuousPosition(toPos, 0f);
                     applyColorCrossfade(toPos);
+                }
+                if (iconTo != null) {
+                    iconTo.setScaleX(1.0f);
+                    iconTo.setScaleY(1.0f);
                 }
             }
         });
