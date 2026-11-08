@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App identity -->
+    <string name="app_name">Pulse</string>
+
+    <!-- Navigation items (Section 8) -->
+    <string name="nav_steps">Steps</string>
+    <string name="nav_today">Steps</string>
+    <string name="nav_water">Water</string>
+    <string name="nav_history">History</string>
+    <string name="nav_profile">Profile</string>
+
+    <!-- Water Screen -->
+    <string name="water_title">Water</string>
+    <string name="water_subtitle">Daily Hydration</string>
+    <string name="water_target_label">Daily Target</string>
+    <string name="water_target_val">2,500 ml</string>
+    <string name="water_target_format">%s ml</string>
+    <string name="water_current_val">0 ml</string>
+    <string name="water_card_progress_hint">0 of 2,500 ml</string>
+    <string name="water_status_percent">%d%% of daily goal reached</string>
+    <string name="water_remaining_format">%s ml remaining</string>
+    <string name="water_goal_reached">Daily goal reached</string>
+    <string name="water_quick_add_title">Quick Log</string>
+    <string name="water_quick_add_250">+250 ml</string>
+    <string name="water_quick_add_500">+500 ml</string>
+    <string name="water_quick_add_750">+750 ml</string>
+    <string name="water_tips_title">Hydration Insights</string>
+    <string name="water_tips_desc">Consistent water intake supports joint lubrication, muscle recovery, and stamina across active step sessions.</string>
+
+    <!-- Core metric descriptors & units -->
+    <string name="steps_label">Steps</string>
+    <string name="steps_unit">steps</string>
+    <string name="calories_label">Calories</string>
+    <string name="calories_unit">kcal</string>
+    <string name="distance_label">Distance</string>
+    <string name="distance_unit_km">km</string>
+    <string name="distance_unit_mi">mi</string>
+    <string name="active_time_label">Active Time</string>
+    <string name="active_time_unit">min</string>
+    <string name="goal_label">Daily Goal</string>
+    <string name="goal_reached">Goal Reached</string>
+
+    <!-- Tracking Status & Notification descriptors -->
+    <string name="status_tracking_active">Tracking active</string>
+    <string name="status_tracking_paused">Tracking paused</string>
+    <string name="status_tracking_permission_missing">Permission needed</string>
+    <string name="status_tracking_unsupported">Sensor unsupported</string>
+    <string name="notification_channel_name">Step Tracking</string>
+    <string name="notification_channel_description">Continuous background pedometer and daily activity updates</string>
+
+    <!-- State Banners (Section 11.3) -->
+    <string name="state_permission_title">Activity Permission Required</string>
+    <string name="state_permission_desc">Physical activity access is required to read your phone\'s step sensor.</string>
+    <string name="state_permission_action">Grant Permission</string>
+    <string name="state_sensor_title">Step Counter Unsupported</string>
+    <string name="state_sensor_desc">This device does not have a hardware step counter sensor.</string>
+    <string name="state_paused_title">Tracking is Paused</string>
+    <string name="state_paused_desc">Step counting is paused. Tap resume to continue tracking.</string>
+    <string name="state_paused_action">Resume</string>
+
+    <!-- Today Screen (Section 11.3) -->
+    <string name="today_header_date_default">Today, Nov 7</string>
+    <string name="today_greeting">Daily Activity</string>
+    <string name="today_hero_target_format">Daily target: %s steps</string>
+    <string name="today_hero_subtitle_default">of 10,000 target</string>
+    <string name="today_hero_subtitle_format">of %s target</string>
+    <string name="today_hero_a11y_format">%1$s of %2$s steps, %3$d percent</string>
+    <string name="today_metric_calories_label">Active kcal (estimate)</string>
+    <string name="today_metric_distance_subtitle">Estimated from steps</string>
+    <string name="today_metric_calories_subtitle">Estimated active energy</string>
+    <string name="today_metric_time_subtitle">Target 30 min</string>
+    <string name="today_chart_title">Weekly Activity</string>
+    <string name="today_chart_subtitle">Last 7 days</string>
+    <string name="today_chart_empty">No activity recorded yet for the last 7 days</string>
+
+    <!-- History Screen (Section 11.4) -->
+    <string name="history_title">Activity History</string>
+    <string name="history_month_default">November 2026</string>
+    <string name="history_summary_distance_label">Distance walked</string>
+    <string name="history_summary_goal_rate_label">Achieved</string>
+    <string name="history_summary_pb_label">PB Steps</string>
+    <string name="history_avg_pace">Average Pace</string>
+    <string name="history_avg_pace_unit">min/km</string>
+    <string name="history_avg_pace_unit_mi">min/mi</string>
+    <string name="history_avg_pace_subtitle">Pace across active days</string>
+    <string name="history_monthly_total">Monthly Total</string>
+    <string name="history_monthly_total_subtitle">Total steps this month</string>
+    <string name="history_personal_best">Personal Best</string>
+    <string name="history_personal_best_subtitle">Highest single-day steps</string>
+    <string name="history_personal_best_date_format">Achieved on %s</string>
+    <string name="history_empty_placeholder">—</string>
+    <string name="history_prev_month">Previous month</string>
+    <string name="history_next_month">Next month</string>
+    <string name="history_goal_achieved">Goal achieved</string>
+    <string name="history_goal_not_reached">Goal not reached</string>
+    <string name="history_selected_day_title">Day Details</string>
+    <string name="history_selected_day_no_record">No activity recorded for this day</string>
+    <string name="history_selected_day_goal_format">Goal: %s steps</string>
+    <string name="history_selected_day_goal_met">Goal Reached</string>
+    <string name="history_selected_day_goal_pending">%s steps remaining</string>
+    <string name="weekday_mon">Mon</string>
+    <string name="weekday_tue">Tue</string>
+    <string name="weekday_wed">Wed</string>
+    <string name="weekday_thu">Thu</string>
+    <string name="weekday_fri">Fri</string>
+    <string name="weekday_sat">Sat</string>
+    <string name="weekday_sun">Sun</string>
+
+    <!-- Profile Screen (Section 11.5) -->
+    <string name="profile_title">Profile &amp; Settings</string>
+    <string name="profile_subtitle">Physical metrics and tracking preferences</string>
+    <string name="profile_section_biometrics">Biometrics</string>
+    <string name="profile_section_calibration">Calibration &amp; Tracking</string>
+    <string name="profile_section_preferences">Goals &amp; Preferences</string>
+    <string name="profile_height">Height</string>
+    <string name="profile_height_val">175 cm</string>
+    <string name="profile_weight">Weight</string>
+    <string name="profile_weight_val">70.0 kg</string>
+    <string name="profile_age">Age</string>
+    <string name="profile_age_val">28 years</string>
+    <string name="profile_gender_title">Calorie Formula Gender</string>
+    <string name="profile_gender_note">Used only for calorie estimate formula</string>
+    <string name="profile_gender_male">Male</string>
+    <string name="profile_gender_female">Female</string>
+    <string name="profile_gender_unspecified">Other</string>
+    <string name="profile_energy_formula">Energy Formula</string>
+    <string name="profile_energy_formula_val">Standard MET</string>
+    <string name="profile_stride_length">Manual Stride Length</string>
+    <string name="profile_stride_val">75 cm</string>
+    <string name="profile_stride_helper_auto">Default estimate: %s (height × 0.415)</string>
+    <string name="profile_stride_helper_manual">Custom calibrated stride length</string>
+    <string name="profile_stride_reset_auto">Reset to auto estimate</string>
+    <string name="profile_tracking_mode">Tracking Update Mode</string>
+    <string name="profile_tracking_mode_val">Battery Efficient</string>
+    <string name="profile_tracking_latency_note">Hardware may still delay events; not guaranteed real-time.</string>
+    <string name="profile_latency_battery">Battery Efficient</string>
+    <string name="profile_latency_faster">Faster Updates</string>
+    <string name="profile_daily_goal">Daily Step Target</string>
+    <string name="profile_daily_goal_val">10,000 steps</string>
+    <string name="profile_units">Measurement Units</string>
+    <string name="profile_units_val">Metric</string>
+    <string name="profile_unit_metric">Metric</string>
+    <string name="profile_unit_imperial">Imperial</string>
+    <string name="unit_suffix_cm">cm</string>
+    <string name="unit_suffix_in">in</string>
+    <string name="unit_suffix_kg">kg</string>
+    <string name="unit_suffix_lb">lb</string>
+    <string name="unit_suffix_years">yrs</string>
+    <string name="unit_suffix_steps">steps</string>
+    <string name="error_height_metric">Enter 50–260 cm</string>
+    <string name="error_height_imperial">Enter 20–102 in</string>
+    <string name="error_weight_metric">Enter 20–350 kg</string>
+    <string name="error_weight_imperial">Enter 44–770 lb</string>
+    <string name="error_age">Enter 5–125 years</string>
+    <string name="error_stride_metric">Enter 20–160 cm</string>
+    <string name="error_stride_imperial">Enter 8–63 in</string>
+    <string name="error_daily_goal">Enter 500–100,000 steps</string>
+    <string name="profile_height_imperial_helper">%s (20–102 in)</string>
+    <string name="profile_height_metric_helper">Valid range: 50–260 cm</string>
+    <string name="profile_weight_imperial_helper">Valid range: 44–770 lb</string>
+    <string name="profile_weight_metric_helper">Valid range: 20–350 kg</string>
+
+    <!-- Onboarding Screen (Section 11.1) -->
+    <string name="onboarding_tagline">Your day, one step at a time.</string>
+    <string name="onboarding_step1_title">Welcome to Pulse</string>
+    <string name="onboarding_step1_subtitle">Minimal, battery-efficient movement &amp; hydration tracking with 100% on-device privacy.</string>
+    <string name="onboarding_name_label">What should we call you?</string>
+    <string name="onboarding_name_hint">Your Name</string>
+    <string name="onboarding_units_label">Preferred Units</string>
+    <string name="unit_metric_name">Metric System (Standard)</string>
+    <string name="unit_metric_example">e.g. Height in cm (175 cm) • Weight in kg (70 kg) • Distance in km</string>
+    <string name="unit_imperial_name">Imperial System (US / UK)</string>
+    <string name="unit_imperial_example">e.g. Height in ft/in (5\'9\") • Weight in lbs (154 lbs) • Distance in miles</string>
+    <string name="onboarding_step2_title">Body Calibration</string>
+    <string name="onboarding_step2_subtitle">Used to calculate your stride length, active energy, and scientific hydration baseline.</string>
+    <string name="onboarding_gender_label">Gender</string>
+    <string name="onboarding_age_label">Age</string>
+    <string name="onboarding_height_label">Height</string>
+    <string name="onboarding_weight_label">Weight</string>
+    <string name="onboarding_goals_label">Daily Step Goal</string>
+    <string name="onboarding_hydration_preview">Estimated Daily Hydration: %s</string>
+    <string name="onboarding_step3_title">Permissions &amp; Privacy</string>
+    <string name="onboarding_step3_subtitle">Pulse needs hardware sensor and notification access to count steps and deliver daytime reminders.</string>
+    <string name="onboarding_feature_sensor_title">Step Recognition</string>
+    <string name="onboarding_feature_sensor_desc">Reads steps directly from your device\'s dedicated low-power hardware step sensor.</string>
+    <string name="onboarding_feature_service_title">Ongoing Tracking</string>
+    <string name="onboarding_feature_service_desc">A visible foreground notification ensures continuous step tracking even with your screen turned off.</string>
+    <string name="onboarding_feature_privacy_title">100% Local Privacy</string>
+    <string name="onboarding_feature_privacy_desc">All movement and profile metrics stay strictly on your phone. Zero internet permissions, zero cloud telemetry.</string>
+    <string name="onboarding_btn_enable">Enable Tracking</string>
+    <string name="onboarding_btn_get_started">Enable &amp; Get Started</string>
+    <string name="onboarding_btn_back">Back</string>
+    <string name="onboarding_btn_retry">Grant Permissions</string>
+    <string name="onboarding_btn_settings">Open App Settings</string>
+    <string name="onboarding_btn_continue">Continue</string>
+    <string name="onboarding_status_denied_title">Permission Required</string>
+    <string name="onboarding_status_denied_desc">Physical Activity permission is required to read your phone\'s step counter. Please grant it to begin tracking.</string>
+    <string name="onboarding_status_blocked_title">Permission Blocked</string>
+    <string name="onboarding_status_blocked_desc">Activity permission is blocked in OS settings. Tap below to open Settings and enable Physical Activity.</string>
+    <string name="onboarding_status_no_sensor_title">Hardware Step Sensor Not Found</string>
+    <string name="onboarding_status_no_sensor_desc">This device does not have a hardware step counter sensor (Sensor.TYPE_STEP_COUNTER). Pulse requires hardware step detection for low-power tracking.</string>
+</resources>

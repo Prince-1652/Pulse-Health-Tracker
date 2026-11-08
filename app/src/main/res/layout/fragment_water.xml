@@ -1,0 +1,707 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/water_scroll_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:clipToPadding="false"
+    android:background="@color/pulse_background">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="0dp"
+        android:paddingTop="0dp"
+        android:paddingBottom="@dimen/scroll_clearance_bottom"
+        android:clipToPadding="false">
+
+        <!-- Top Header Bar: Title on left, Notification reminder toggle on right -->
+        <LinearLayout
+            android:id="@+id/header_top_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- Title & Subtitle (Far Left) -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/text_water_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Water"
+                    android:textSize="20sp"
+                    android:fontFamily="sans-serif"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF" />
+
+                <TextView
+                    android:id="@+id/text_water_subtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Daily Hydration"
+                    android:textSize="13sp"
+                    android:fontFamily="sans-serif"
+                    android:textColor="#8E8E93" />
+            </LinearLayout>
+
+            <!-- Circular Notification reminder toggle button (42dp x 42dp circle card) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btn_water_reminder_toggle"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                app:cardCornerRadius="21dp"
+                app:cardElevation="0dp"
+                app:cardMaxElevation="0dp"
+                app:strokeWidth="0dp"
+                app:cardBackgroundColor="#FFFFFF"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Toggle Hydration Reminders">
+
+                <ImageView
+                    android:id="@+id/icon_water_reminder_toggle"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_notification"
+                    app:tint="#121212"
+                    android:contentDescription="@null" />
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+
+        <!-- Top Sky Blue Hero Box: 16dp horizontal, 18dp top, 32dp radius, Sky Blue (#8BA0FF) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_water_hero"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="18dp"
+            app:cardCornerRadius="32dp"
+            app:cardElevation="0dp"
+            app:cardMaxElevation="0dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="@color/pulse_sky_blue">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="210dp"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="18dp">
+
+                <!-- LEFT SIDE (Ring): CircularProgressView with thick 19dp ring & center percentage only -->
+                <com.pulse.tracker.ui.common.CircularProgressView
+                    android:id="@+id/hero_water_progress_view"
+                    android:layout_width="156dp"
+                    android:layout_height="156dp"
+                    android:layout_marginEnd="36dp"
+                    app:cpv_max="2500"
+                    app:cpv_currentSteps="0"
+                    app:cpv_progress="0.0"
+                    app:cpv_strokeWidth="19dp"
+                    app:cpv_trackColor="#26000000"
+                    app:cpv_progressColor="#121212"
+                    app:cpv_percentTextColor="#121212"
+                    app:cpv_percentTextSize="28sp"
+                    app:cpv_centerPercentageOnly="true" />
+
+                <!-- RIGHT SIDE (Text Column): "Intake today", big current ml, "out of X ml" -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/label_hero_water"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Intake today"
+                        android:textSize="15sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="#333333" />
+
+                    <TextView
+                        android:id="@+id/text_water_current"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:textSize="46sp"
+                        android:fontFamily="sans-serif"
+                        android:textStyle="bold"
+                        android:fontFeatureSettings="tnum"
+                        android:textColor="#121212"
+                        android:includeFontPadding="false"
+                        tools:text="0" />
+
+                    <!-- Target Row under current ml number -->
+                    <LinearLayout
+                        android:id="@+id/row_water_target"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:id="@+id/text_water_out_of"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="out of "
+                            android:textSize="14sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="#444444" />
+
+                        <TextView
+                            android:id="@+id/text_water_target"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="22sp"
+                            android:fontFamily="sans-serif"
+                            android:textStyle="bold"
+                            android:textColor="#121212"
+                            tools:text="2,500 ml" />
+                    </LinearLayout>
+
+                    <!-- Remaining Target Subtitle -->
+                    <TextView
+                        android:id="@+id/text_water_remaining"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        tools:text="2,500 ml remaining"
+                        android:textSize="13sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="#333333" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Quick Log Bento Section -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="22dp"
+            android:layout_marginBottom="12dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="QUICK LOG"
+                android:textSize="11sp"
+                android:letterSpacing="0.08"
+                android:fontFamily="sans-serif-medium"
+                android:textColor="@color/pulse_text_secondary" />
+
+            <!-- Proper Reset Today Button -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btn_water_reset"
+                android:layout_width="wrap_content"
+                android:layout_height="34dp"
+                app:cardCornerRadius="17dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="#333333"
+                app:cardBackgroundColor="@color/pulse_surface"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:paddingHorizontal="14dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Reset Today"
+                        android:textSize="12sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:textStyle="bold"
+                        android:textColor="#FFFFFF" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+
+        <!-- 3 Quick Add Bento Cards: +250 ml (Drop), +500 ml (Glass), +750 ml (Bottle) - White as bottom nav -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp"
+            android:baselineAligned="false">
+
+            <!-- Card 1: 250 ml (Water Drop Icon) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btn_add_250"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp"
+                app:cardBackgroundColor="#FFFFFF"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:paddingVertical="16dp"
+                    android:paddingHorizontal="8dp">
+
+                    <ImageView
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:src="@drawable/ic_water_drop"
+                        app:tint="#121212"
+                        android:layout_marginBottom="8dp"
+                        android:contentDescription="@null" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="+250 ml"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif"
+                        android:textColor="#121212" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Small glass"
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="#666666" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Card 2: 500 ml (Water Glass Icon) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btn_add_500"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp"
+                app:cardBackgroundColor="#FFFFFF"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:paddingVertical="16dp"
+                    android:paddingHorizontal="8dp">
+
+                    <ImageView
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:src="@drawable/ic_water_glass"
+                        app:tint="#121212"
+                        android:layout_marginBottom="8dp"
+                        android:contentDescription="@null" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="+500 ml"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif"
+                        android:textColor="#121212" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Large glass"
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="#666666" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Card 3: 750 ml (Water Bottle Icon) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btn_add_750"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp"
+                app:cardBackgroundColor="#FFFFFF"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:paddingVertical="16dp"
+                    android:paddingHorizontal="8dp">
+
+                    <ImageView
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:src="@drawable/ic_water_bottle"
+                        app:tint="#121212"
+                        android:layout_marginBottom="8dp"
+                        android:contentDescription="@null" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="+750 ml"
+                        android:textSize="15sp"
+                        android:textStyle="bold"
+                        android:fontFamily="sans-serif"
+                        android:textColor="#121212" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Bottle"
+                        android:textSize="11sp"
+                        android:fontFamily="sans-serif"
+                        android:textColor="#666666" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+
+        <!-- Section Label: Scientific Hydration Breakdown -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="12dp"
+            android:text="SCIENTIFIC HYDRATION BREAKDOWN"
+            android:textSize="11sp"
+            android:letterSpacing="0.08"
+            android:fontFamily="sans-serif-medium"
+            android:textColor="@color/pulse_text_secondary" />
+
+        <!-- Metric / Insight Bento Card (#222222, 28dp radius, #333333 stroke) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_water_breakdown"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            app:cardCornerRadius="28dp"
+            app:cardElevation="0dp"
+            app:cardMaxElevation="0dp"
+            app:cardBackgroundColor="@color/pulse_yellow">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <!-- Header: Title on Left, Methodology Pill on Right -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="6dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Target Formula"
+                        android:textSize="20sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="#121212"
+                        android:textStyle="bold" />
+
+                    <!-- Formula Pill: "EFSA / IOM" -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="0dp"
+                        app:cardBackgroundColor="@color/pulse_accent">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="4dp"
+                            android:text="EFSA / IOM"
+                            android:textSize="11sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:textStyle="bold"
+                            android:textColor="#121212" />
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Evidence-based baseline calculated from body composition and physical movement."
+                    android:textSize="13sp"
+                    android:fontFamily="sans-serif"
+                    android:textColor="#444444"
+                    android:layout_marginBottom="18dp" />
+
+                <!-- Row 1: Base Intake (Weight & Gender) -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Base Metabolic Fluid"
+                            android:textSize="14sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="#121212" />
+
+                        <TextView
+                            android:id="@+id/text_breakdown_base_sub"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            tools:text="70.0 kg • Male (35 ml/kg)"
+                            android:textSize="12sp"
+                            android:fontFamily="sans-serif"
+                            android:textColor="#444444" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/text_breakdown_base_val"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text="2,450 ml"
+                        android:textSize="15sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:textStyle="bold"
+                        android:textColor="#121212" />
+                </LinearLayout>
+
+                <!-- Row 2: Body Surface Area (BSA) Evaporative Loss -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Surface Evaporation (BSA)"
+                            android:textSize="14sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="#121212" />
+
+                        <TextView
+                            android:id="@+id/text_breakdown_bsa_sub"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            tools:text="170 cm • DuBois formula"
+                            android:textSize="12sp"
+                            android:fontFamily="sans-serif"
+                            android:textColor="#444444" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/text_breakdown_bsa_val"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text="+35 ml"
+                        android:textSize="15sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:textStyle="bold"
+                        android:textColor="#121212" />
+                </LinearLayout>
+
+                <!-- Row 3: Age Demographic Factor -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Age Demographic"
+                            android:textSize="14sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="#121212" />
+
+                        <TextView
+                            android:id="@+id/text_breakdown_age_sub"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            tools:text="30 years • Standard adult"
+                            android:textSize="12sp"
+                            android:fontFamily="sans-serif"
+                            android:textColor="#444444" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/text_breakdown_age_val"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text="0 ml"
+                        android:textSize="15sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:textStyle="bold"
+                        android:textColor="#121212" />
+                </LinearLayout>
+
+                <!-- Row 4: Step Activity Compensation -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Activity Compensation"
+                            android:textSize="14sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="#121212" />
+
+                        <TextView
+                            android:id="@+id/text_breakdown_steps_sub"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            tools:text="Daily physical movement"
+                            android:textSize="12sp"
+                            android:fontFamily="sans-serif"
+                            android:textColor="#444444" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/text_breakdown_steps_val"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text="0 ml"
+                        android:textSize="15sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:textStyle="bold"
+                        android:textColor="#121212" />
+                </LinearLayout>
+
+                <!-- Divider line -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/pulse_outline"
+                    android:layout_marginBottom="14dp" />
+
+                <!-- Total Row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Total Daily Target"
+                        android:textSize="16sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:textStyle="bold"
+                        android:textColor="#121212" />
+
+                    <TextView
+                        android:id="@+id/text_breakdown_total_val"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text="2,500 ml"
+                        android:textSize="20sp"
+                        android:fontFamily="sans-serif"
+                        android:textStyle="bold"
+                        android:textColor="#121212" />
+                </LinearLayout>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

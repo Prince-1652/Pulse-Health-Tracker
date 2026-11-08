@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Data-First Typography Hierarchy (Section 4.2) -->
+    <style name="TextAppearance.Pulse.DisplayStepCount" parent="TextAppearance.Material3.DisplayLarge">
+        <item name="android:textSize">40sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/pulse_text_primary</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="TextAppearance.Pulse.BentoMetricValue" parent="TextAppearance.Material3.HeadlineLarge">
+        <item name="android:textSize">32sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/pulse_text_primary</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="TextAppearance.Pulse.HeadlineLarge" parent="TextAppearance.Material3.HeadlineLarge">
+        <item name="android:textSize">28sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/pulse_text_primary</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="TextAppearance.Pulse.HeadlineMedium" parent="TextAppearance.Material3.HeadlineMedium">
+        <item name="android:textSize">24sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/pulse_text_primary</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="TextAppearance.Pulse.TitleLarge" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textSize">20sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/pulse_text_primary</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="TextAppearance.Pulse.TitleMedium" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/pulse_text_primary</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="TextAppearance.Pulse.BodyLarge" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:textSize">16sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">@color/pulse_text_primary</item>
+    </style>
+
+    <style name="TextAppearance.Pulse.BodyMedium" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textColor">@color/pulse_text_secondary</item>
+    </style>
+
+    <style name="TextAppearance.Pulse.LabelMedium" parent="TextAppearance.Material3.LabelMedium">
+        <item name="android:textSize">12sp</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">@color/pulse_text_secondary</item>
+    </style>
+
+    <!-- Shape Appearance: Normal container, 28dp tactile squircles on all 4 corners -->
+    <style name="ShapeAppearance.Pulse.HeroCard" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">@dimen/card_radius</item>
+    </style>
+
+    <!-- Bento Modular Shapes & Minimalist Tactility Component Styles -->
+    <!-- Base Card: Zero drop shadows, squircle corner radius, solid fill -->
+    <style name="Widget.Pulse.Card" parent="Widget.Material3.CardView.Filled">
+        <item name="cardCornerRadius">@dimen/card_radius</item>
+        <item name="cardElevation">0dp</item>
+        <item name="cardMaxElevation">0dp</item>
+        <item name="cardBackgroundColor">@color/pulse_surface</item>
+        <item name="strokeWidth">0dp</item>
+    </style>
+
+    <!-- Hero Card: Solid Green Fill (#76BB7C), 28dp all corners -->
+    <style name="Widget.Pulse.Card.Hero" parent="Widget.Material3.CardView.Filled">
+        <item name="shapeAppearance">@style/ShapeAppearance.Pulse.HeroCard</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Pulse.HeroCard</item>
+        <item name="cardCornerRadius">@dimen/card_radius</item>
+        <item name="cardBackgroundColor">@color/pulse_green</item>
+        <item name="cardElevation">0dp</item>
+        <item name="cardMaxElevation">0dp</item>
+        <item name="strokeWidth">0dp</item>
+    </style>
+
+    <!-- Semantic Card Styles extending Widget.Material3.CardView.Filled -->
+    <style name="Widget.Pulse.Card.Neutral" parent="Widget.Material3.CardView.Filled">
+        <item name="cardCornerRadius">@dimen/card_radius</item>
+        <item name="cardElevation">0dp</item>
+        <item name="cardMaxElevation">0dp</item>
+        <item name="cardBackgroundColor">@color/pulse_surface</item>
+        <item name="strokeWidth">0dp</item>
+    </style>
+
+    <style name="Widget.Pulse.Card.Primary" parent="Widget.Material3.CardView.Filled">
+        <item name="cardCornerRadius">@dimen/card_radius</item>
+        <item name="cardElevation">0dp</item>
+        <item name="cardMaxElevation">0dp</item>
+        <item name="cardBackgroundColor">@color/pulse_primary</item>
+        <item name="strokeWidth">0dp</item>
+    </style>
+
+    <style name="Widget.Pulse.Card.Secondary" parent="Widget.Material3.CardView.Filled">
+        <item name="cardCornerRadius">@dimen/card_radius</item>
+        <item name="cardElevation">0dp</item>
+        <item name="cardMaxElevation">0dp</item>
+        <item name="cardBackgroundColor">@color/pulse_secondary</item>
+        <item name="strokeWidth">0dp</item>
+    </style>
+
+    <style name="Widget.Pulse.Card.Contrast" parent="Widget.Material3.CardView.Filled">
+        <item name="cardCornerRadius">@dimen/card_radius</item>
+        <item name="cardElevation">0dp</item>
+        <item name="cardMaxElevation">0dp</item>
+        <item name="cardBackgroundColor">@color/pulse_surface_contrast</item>
+        <item name="strokeWidth">0dp</item>
+    </style>
+
+    <style name="Widget.Pulse.Card.Inner" parent="Widget.Material3.CardView.Filled">
+        <item name="cardCornerRadius">@dimen/inner_card_radius</item>
+        <item name="cardElevation">0dp</item>
+        <item name="cardMaxElevation">0dp</item>
+        <item name="cardBackgroundColor">@color/pulse_surface_alt</item>
+        <item name="strokeWidth">0dp</item>
+    </style>
+
+    <!-- Pill Button: Exaggerated rounded corners, clean tactile action -->
+    <style name="Widget.Pulse.Button" parent="Widget.Material3.Button">
+        <item name="cornerRadius">@dimen/pill_radius</item>
+        <item name="android:minHeight">@dimen/button_height</item>
+        <item name="elevation">0dp</item>
+        <item name="android:stateListAnimator">@null</item>
+        <item name="backgroundTint">@color/pulse_primary</item>
+        <item name="android:textColor">@color/pulse_on_primary</item>
+    </style>
+
+    <!-- Profile Outlined Text Input -->
+    <style name="Widget.Pulse.TextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxCornerRadiusTopStart">@dimen/inner_card_radius</item>
+        <item name="boxCornerRadiusTopEnd">@dimen/inner_card_radius</item>
+        <item name="boxCornerRadiusBottomStart">@dimen/inner_card_radius</item>
+        <item name="boxCornerRadiusBottomEnd">@dimen/inner_card_radius</item>
+        <item name="boxStrokeColor">@color/pulse_outline</item>
+        <item name="boxBackgroundColor">@color/pulse_surface_alt</item>
+        <item name="android:textColorHint">@color/pulse_text_secondary</item>
+        <item name="hintTextColor">@color/pulse_primary</item>
+        <item name="suffixTextColor">@color/pulse_text_secondary</item>
+    </style>
+
+    <!-- Profile Nested Borderless Squircle Text Input -->
+    <style name="Widget.Pulse.TextInputLayout.Nested" parent="Widget.Material3.TextInputLayout.FilledBox">
+        <item name="boxBackgroundMode">none</item>
+        <item name="boxStrokeWidth">0dp</item>
+        <item name="boxStrokeWidthFocused">0dp</item>
+        <item name="boxBackgroundColor">@android:color/transparent</item>
+        <item name="android:textColorHint">@color/pulse_text_secondary</item>
+        <item name="hintTextColor">@color/pulse_primary</item>
+        <item name="suffixTextColor">@color/pulse_text_secondary</item>
+    </style>
+
+    <!-- Capsule Segmented Button inside MaterialButtonToggleGroup -->
+    <style name="Widget.Pulse.Button.Toggle" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:minHeight">@dimen/minimum_touch_target</item>
+        <item name="cornerRadius">@dimen/inner_card_radius</item>
+        <item name="backgroundTint">@color/btn_toggle_bg</item>
+        <item name="android:textColor">@color/btn_toggle_text</item>
+        <item name="strokeColor">@color/btn_toggle_stroke</item>
+        <item name="strokeWidth">1dp</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:paddingHorizontal">8dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+    </style>
+
+    <!-- Stride & Calibration Green Toggle Selector -->
+    <style name="Widget.Pulse.Button.Toggle.Green" parent="Widget.Pulse.Button.Toggle">
+        <item name="backgroundTint">@color/btn_toggle_bg_green</item>
+        <item name="android:textColor">@color/btn_toggle_text_green</item>
+        <item name="strokeColor">@color/btn_toggle_stroke_green</item>
+    </style>
+
+    <!-- Daily Target & Units Yellow Toggle Selector -->
+    <style name="Widget.Pulse.Button.Toggle.Yellow" parent="Widget.Pulse.Button.Toggle">
+        <item name="backgroundTint">@color/btn_toggle_bg_yellow</item>
+        <item name="android:textColor">@color/btn_toggle_text_yellow</item>
+        <item name="strokeColor">@color/btn_toggle_stroke_yellow</item>
+    </style>
+
+    <!-- Material 3 Slider with Pulse Accent -->
+    <style name="Widget.Pulse.Slider" parent="Widget.Material3.Slider">
+        <item name="thumbColor">@color/pulse_primary</item>
+        <item name="trackColorActive">@color/pulse_primary</item>
+        <item name="trackColorInactive">@color/pulse_outline</item>
+        <item name="haloColor">@color/pulse_primary_container</item>
+        <item name="labelBehavior">gone</item>
+        <item name="tickVisible">false</item>
+    </style>
+</resources>

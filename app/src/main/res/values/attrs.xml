@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CircularProgressView">
+        <attr name="cpv_trackColor" format="color" />
+        <attr name="cpv_progressColor" format="color" />
+        <attr name="cpv_strokeWidth" format="dimension" />
+        <attr name="cpv_stepTextColor" format="color" />
+        <attr name="cpv_subtitleTextColor" format="color" />
+        <attr name="cpv_percentTextColor" format="color" />
+        <attr name="cpv_percentPillColor" format="color" />
+        <attr name="cpv_percentTextSize" format="dimension" />
+        <attr name="cpv_stepTextSize" format="dimension" />
+        <attr name="cpv_subtitleTextSize" format="dimension" />
+        <attr name="cpv_progress" format="float" />
+        <attr name="cpv_max" format="integer" />
+        <attr name="cpv_currentSteps" format="integer" />
+        <attr name="cpv_subtitle" format="string" />
+        <attr name="cpv_centerPercentageOnly" format="boolean" />
+    </declare-styleable>
+</resources>

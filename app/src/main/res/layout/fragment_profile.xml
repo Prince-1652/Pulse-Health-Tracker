@@ -1,0 +1,752 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/profile_scroll_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:clipToPadding="false"
+    android:background="@color/pulse_background">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/screen_horizontal_padding"
+        android:paddingTop="@dimen/space_16"
+        android:paddingBottom="120dp">
+
+        <!-- Top Header Greeting Bar -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="4dp"
+            android:layout_marginTop="@dimen/space_8"
+            android:layout_marginBottom="@dimen/space_16">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/text_profile_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Profile &amp; Settings"
+                    android:textColor="@color/pulse_text_primary"
+                    android:textStyle="bold"
+                    android:textSize="20sp"
+                    android:fontFamily="sans-serif-medium" />
+
+                <TextView
+                    android:id="@+id/text_profile_subtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Personal biometrics &amp; preferences"
+                    android:textColor="@color/pulse_text_secondary"
+                    android:textSize="13sp"
+                    android:fontFamily="sans-serif" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Bento Card 0: Profile Identity / Name (Solid Neutral #222222, 28dp radius) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_profile_identity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/space_12"
+            app:cardCornerRadius="28dp"
+            app:cardElevation="0dp"
+            app:cardMaxElevation="0dp"
+            app:cardBackgroundColor="@color/pulse_surface">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/card_padding">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="@dimen/space_12">
+
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:src="@drawable/ic_tab_profile"
+                        app:tint="@color/pulse_sky_blue"
+                        android:contentDescription="Profile name"
+                        android:layout_marginEnd="@dimen/space_12" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Display Name"
+                            android:textAppearance="@style/TextAppearance.Pulse.TitleLarge"
+                            android:textStyle="bold"
+                            android:textColor="@color/pulse_text_primary" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- Clean Name Input Container -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="18dp"
+                    app:cardElevation="0dp"
+                    app:cardMaxElevation="0dp"
+                    app:strokeWidth="0dp"
+                    app:cardBackgroundColor="@color/pulse_surface_alt">
+
+                    <EditText
+                        android:id="@+id/edit_profile_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="@dimen/minimum_touch_target"
+                        android:background="@android:color/transparent"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="12dp"
+                        android:hint="Your Name"
+                        android:textColorHint="#666666"
+                        android:textColor="@color/pulse_text_primary"
+                        android:textSize="16sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:textStyle="bold"
+                        android:inputType="textPersonName|textCapWords"
+                        android:imeOptions="actionDone"
+                        android:maxLines="1" />
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Bento Card 1: Biometrics (Solid Neutral #222222, 28dp radius) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_profile_biometrics"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/space_12"
+            app:cardCornerRadius="28dp"
+            app:cardElevation="0dp"
+            app:cardMaxElevation="0dp"
+            app:cardBackgroundColor="@color/pulse_surface">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/card_padding">
+
+                <!-- Header Row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="@dimen/space_16">
+
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:src="@drawable/ic_heart"
+                        app:tint="@color/pulse_orange"
+                        android:contentDescription="@string/profile_section_biometrics"
+                        android:layout_marginEnd="@dimen/space_12" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/profile_section_biometrics"
+                        android:textAppearance="@style/TextAppearance.Pulse.TitleLarge"
+                        android:textStyle="bold"
+                        android:textColor="@color/pulse_text_primary" />
+                </LinearLayout>
+
+                <!-- Height Measuring Tape Bento Block -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/space_12"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:cardMaxElevation="0dp"
+                    app:strokeWidth="0dp"
+                    app:cardBackgroundColor="@color/pulse_surface_alt">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/profile_height"
+                                android:textAppearance="@style/TextAppearance.Pulse.TitleMedium"
+                                android:textColor="#8E8E93"
+                                android:textStyle="bold" />
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:baselineAligned="true">
+
+                                <TextView
+                                    android:id="@+id/text_profile_height_value"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    tools:text="170"
+                                    android:textSize="28sp"
+                                    android:fontFamily="sans-serif"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/pulse_text_primary"
+                                    android:includeFontPadding="false" />
+
+                                <TextView
+                                    android:id="@+id/text_profile_height_unit"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text=" cm"
+                                    android:textSize="13sp"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:textStyle="bold"
+                                    android:textColor="#8E8E93"
+                                    android:includeFontPadding="false"
+                                    android:layout_marginStart="2dp" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <!-- Measuring Tape Ruler Slider (Height) -->
+                        <com.pulse.tracker.ui.common.RulerTapeView
+                            android:id="@+id/ruler_profile_height"
+                            android:layout_width="match_parent"
+                            android:layout_height="70dp"
+                            android:layout_marginTop="8dp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Weight Measuring Tape Bento Block -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/space_12"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:cardMaxElevation="0dp"
+                    app:strokeWidth="0dp"
+                    app:cardBackgroundColor="@color/pulse_surface_alt">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/profile_weight"
+                                android:textAppearance="@style/TextAppearance.Pulse.TitleMedium"
+                                android:textColor="#8E8E93"
+                                android:textStyle="bold" />
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:baselineAligned="true">
+
+                                <TextView
+                                    android:id="@+id/text_profile_weight_value"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    tools:text="70.0"
+                                    android:textSize="28sp"
+                                    android:fontFamily="sans-serif"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/pulse_text_primary"
+                                    android:includeFontPadding="false" />
+
+                                <TextView
+                                    android:id="@+id/text_profile_weight_unit"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text=" kg"
+                                    android:textSize="13sp"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:textStyle="bold"
+                                    android:textColor="#8E8E93"
+                                    android:includeFontPadding="false"
+                                    android:layout_marginStart="2dp" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <!-- Measuring Tape Ruler Slider (Weight) -->
+                        <com.pulse.tracker.ui.common.RulerTapeView
+                            android:id="@+id/ruler_profile_weight"
+                            android:layout_width="match_parent"
+                            android:layout_height="70dp"
+                            android:layout_marginTop="8dp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Age Bento Block -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/card_profile_age"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/space_16"
+                    app:cardCornerRadius="18dp"
+                    app:cardElevation="0dp"
+                    app:cardMaxElevation="0dp"
+                    app:strokeWidth="0dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    app:cardBackgroundColor="@color/pulse_surface_alt">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="12dp">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/profile_age"
+                            android:textAppearance="@style/TextAppearance.Pulse.TitleMedium"
+                            android:textColor="#8E8E93"
+                            android:textStyle="bold" />
+
+                        <EditText
+                            android:id="@+id/edit_profile_age"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@android:color/transparent"
+                            android:gravity="end"
+                            android:inputType="number"
+                            android:imeOptions="actionDone"
+                            android:maxLines="1"
+                            android:minWidth="48dp"
+                            android:textColor="@color/pulse_text_primary"
+                            android:textSize="20sp"
+                            android:fontFamily="sans-serif"
+                            android:textStyle="bold"
+                            android:includeFontPadding="false"
+                            tools:text="30" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=" yrs"
+                            android:textColor="#8E8E93"
+                            android:textSize="13sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:textStyle="bold"
+                            android:layout_marginStart="4dp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Gender Section -->
+                <TextView
+                    android:id="@+id/text_profile_gender_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/profile_gender_title"
+                    android:textAppearance="@style/TextAppearance.Pulse.TitleMedium"
+                    android:textStyle="bold"
+                    android:textColor="@color/pulse_text_primary"
+                    android:layout_marginBottom="@dimen/space_8" />
+
+                <com.google.android.material.button.MaterialButtonToggleGroup
+                    android:id="@+id/toggle_group_gender"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:singleSelection="true"
+                    app:selectionRequired="true">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_gender_male"
+                        style="@style/Widget.Pulse.Button.Toggle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/profile_gender_male" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_gender_female"
+                        style="@style/Widget.Pulse.Button.Toggle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/profile_gender_female" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_gender_unspecified"
+                        style="@style/Widget.Pulse.Button.Toggle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/profile_gender_unspecified" />
+                </com.google.android.material.button.MaterialButtonToggleGroup>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Bento Card 2: Calibration & Tracking (Solid Neutral #222222, 28dp radius) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_profile_calibration"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/space_12"
+            app:cardCornerRadius="28dp"
+            app:cardElevation="0dp"
+            app:cardMaxElevation="0dp"
+            app:cardBackgroundColor="@color/pulse_surface">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/card_padding">
+
+                <!-- Header Row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="@dimen/space_16">
+
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:src="@drawable/ic_sliders"
+                        app:tint="@color/pulse_green"
+                        android:contentDescription="@string/profile_section_calibration"
+                        android:layout_marginEnd="@dimen/space_12" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Stride &amp; Calibration"
+                        android:textAppearance="@style/TextAppearance.Pulse.TitleLarge"
+                        android:textStyle="bold"
+                        android:textColor="@color/pulse_text_primary" />
+                </LinearLayout>
+
+                <!-- Stride Length Nested Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/space_16"
+                    app:cardCornerRadius="18dp"
+                    app:cardElevation="0dp"
+                    app:cardMaxElevation="0dp"
+                    app:strokeWidth="0dp"
+                    app:cardBackgroundColor="@color/pulse_surface_alt">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="12dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/profile_stride_length"
+                                android:textAppearance="@style/TextAppearance.Pulse.TitleMedium"
+                                android:textColor="#8E8E93"
+                                android:textStyle="bold" />
+
+                            <EditText
+                                android:id="@+id/edit_profile_stride"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@android:color/transparent"
+                                android:gravity="end"
+                                android:inputType="numberDecimal"
+                                android:imeOptions="actionDone"
+                                android:maxLines="1"
+                                android:minWidth="60dp"
+                                android:textColor="@color/pulse_text_primary"
+                                android:textSize="20sp"
+                                android:fontFamily="sans-serif"
+                                android:textStyle="bold"
+                                android:includeFontPadding="false"
+                                tools:text="70.6" />
+
+                            <TextView
+                                android:id="@+id/text_profile_stride_unit"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text=" cm"
+                                android:textColor="#8E8E93"
+                                android:textSize="13sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textStyle="bold"
+                                android:layout_marginStart="4dp" />
+                        </LinearLayout>
+
+                        <!-- Reset to auto stride button -->
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btn_reset_stride"
+                            style="@style/Widget.Material3.Button.TextButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:minHeight="@dimen/minimum_touch_target"
+                            android:layout_gravity="end"
+                            android:text="@string/profile_stride_reset_auto"
+                            android:textSize="12sp"
+                            android:textColor="@color/pulse_primary"
+                            android:visibility="gone" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Tracking Update Mode Section -->
+                <TextView
+                    android:id="@+id/text_profile_mode_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/profile_tracking_mode"
+                    android:textAppearance="@style/TextAppearance.Pulse.TitleMedium"
+                    android:textStyle="bold"
+                    android:textColor="@color/pulse_text_primary"
+                    android:layout_marginBottom="@dimen/space_8" />
+
+                <com.google.android.material.button.MaterialButtonToggleGroup
+                    android:id="@+id/toggle_group_latency"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:singleSelection="true"
+                    app:selectionRequired="true">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_latency_battery"
+                        style="@style/Widget.Pulse.Button.Toggle.Green"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/profile_latency_battery" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_latency_faster"
+                        style="@style/Widget.Pulse.Button.Toggle.Green"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/profile_latency_faster" />
+                </com.google.android.material.button.MaterialButtonToggleGroup>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Bento Card 3: Goals & Display Preferences (Solid Neutral #222222, 28dp radius) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_profile_goals"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/space_16"
+            app:cardCornerRadius="28dp"
+            app:cardElevation="0dp"
+            app:cardMaxElevation="0dp"
+            app:cardBackgroundColor="@color/pulse_surface">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/card_padding">
+
+                <!-- Header Row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="@dimen/space_16">
+
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:src="@drawable/ic_target"
+                        app:tint="@color/pulse_yellow"
+                        android:contentDescription="@string/profile_section_preferences"
+                        android:layout_marginEnd="@dimen/space_12" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Daily Target &amp; Units"
+                        android:textAppearance="@style/TextAppearance.Pulse.TitleLarge"
+                        android:textStyle="bold"
+                        android:textColor="@color/pulse_text_primary" />
+                </LinearLayout>
+
+                <!-- Daily Step Target Nested Squircle Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/space_16"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:cardMaxElevation="0dp"
+                    app:strokeWidth="0dp"
+                    app:cardBackgroundColor="@color/pulse_surface_alt">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/profile_daily_goal"
+                                android:textAppearance="@style/TextAppearance.Pulse.TitleMedium"
+                                android:textColor="#8E8E93"
+                                android:textStyle="bold" />
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:baselineAligned="true">
+
+                                <EditText
+                                    android:id="@+id/edit_profile_goal"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:background="@android:color/transparent"
+                                    android:inputType="number"
+                                    android:imeOptions="actionDone"
+                                    android:maxLines="1"
+                                    android:minWidth="60dp"
+                                    android:gravity="end"
+                                    android:textSize="28sp"
+                                    android:fontFamily="sans-serif"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/pulse_text_primary"
+                                    android:includeFontPadding="false"
+                                    tools:text="10,000" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text=" steps"
+                                    android:textSize="13sp"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:textStyle="bold"
+                                    android:textColor="#8E8E93"
+                                    android:includeFontPadding="false"
+                                    android:layout_marginStart="2dp" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <!-- Daily Target Slider in #E0D56C Yellow -->
+                        <com.google.android.material.slider.Slider
+                            android:id="@+id/slider_profile_goal"
+                            style="@style/Widget.Pulse.Slider"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:valueFrom="500"
+                            android:valueTo="100000"
+                            android:value="10000"
+                            android:stepSize="500"
+                            app:thumbColor="@color/pulse_yellow"
+                            app:trackColorActive="@color/pulse_yellow"
+                            app:trackColorInactive="#333333"
+                            app:haloColor="@color/pulse_yellow_halo"
+                            android:layout_marginTop="@dimen/space_8" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Measurement Units Section -->
+                <TextView
+                    android:id="@+id/text_profile_units_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/profile_units"
+                    android:textAppearance="@style/TextAppearance.Pulse.TitleMedium"
+                    android:textStyle="bold"
+                    android:textColor="@color/pulse_text_primary"
+                    android:layout_marginBottom="@dimen/space_8" />
+
+                <com.google.android.material.button.MaterialButtonToggleGroup
+                    android:id="@+id/toggle_group_units"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:singleSelection="true"
+                    app:selectionRequired="true">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_unit_metric"
+                        style="@style/Widget.Pulse.Button.Toggle.Yellow"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/profile_unit_metric" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_unit_imperial"
+                        style="@style/Widget.Pulse.Button.Toggle.Yellow"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/profile_unit_imperial" />
+                </com.google.android.material.button.MaterialButtonToggleGroup>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

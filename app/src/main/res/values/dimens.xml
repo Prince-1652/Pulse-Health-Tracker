@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Spacing tokens (Section 4.3) -->
+    <dimen name="space_4">4dp</dimen>
+    <dimen name="space_6">6dp</dimen>
+    <dimen name="space_8">8dp</dimen>
+    <dimen name="space_12">12dp</dimen>
+    <dimen name="space_16">16dp</dimen>
+    <dimen name="space_20">20dp</dimen>
+    <dimen name="space_24">24dp</dimen>
+    <dimen name="space_32">32dp</dimen>
+
+    <!-- Layout & Component Dimensions -->
+    <dimen name="screen_horizontal_padding">16dp</dimen>
+    <dimen name="card_padding">20dp</dimen>
+    <dimen name="button_height">52dp</dimen>
+    <dimen name="minimum_touch_target">48dp</dimen>
+    <dimen name="bottom_navigation_height">58dp</dimen>
+    <dimen name="nav_icon_size">24dp</dimen>
+    <dimen name="nav_label_text_size">13sp</dimen>
+    <dimen name="scroll_clearance_bottom">112dp</dimen>
+    <dimen name="hero_card_min_height">400dp</dimen>
+
+    <!-- Shape Tokens (Squircles, Bento nested containers & Pills) -->
+    <dimen name="card_radius">28dp</dimen>
+    <dimen name="inner_card_radius">18dp</dimen>
+    <dimen name="pill_radius">32dp</dimen>
+    <dimen name="small_control_radius">14dp</dimen>
+</resources>

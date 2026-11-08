@@ -1,0 +1,647 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/today_scroll_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:clipToPadding="false"
+    android:background="@color/pulse_background">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="0dp"
+        android:paddingTop="0dp"
+        android:paddingBottom="@dimen/scroll_clearance_bottom"
+        android:clipToPadding="false">
+
+        <!-- Top Header Bar: Greeting on left, Notification toggle on right -->
+        <LinearLayout
+            android:id="@+id/header_top_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- Greeting Text (Far Left) -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/text_greeting_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Hi Prince!"
+                    android:textSize="20sp"
+                    android:fontFamily="sans-serif"
+                    android:textStyle="bold"
+                    android:textColor="#FFFFFF" />
+
+                <TextView
+                    android:id="@+id/text_greeting_subtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Welcome back"
+                    android:textSize="13sp"
+                    android:fontFamily="sans-serif"
+                    android:textColor="#8E8E93" />
+            </LinearLayout>
+
+            <!-- Circular Notification toggle button (42dp x 42dp circle card) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btn_notification_toggle"
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                app:cardCornerRadius="21dp"
+                app:cardElevation="0dp"
+                app:cardMaxElevation="0dp"
+                app:strokeWidth="0dp"
+                app:cardBackgroundColor="#FFFFFF"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Toggle Step Tracking Notification">
+
+                <ImageView
+                    android:id="@+id/icon_notification_toggle"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_notification"
+                    app:tint="#121212"
+                    android:contentDescription="@null" />
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+
+        <!-- Top Green Hero Box: 16dp horizontal, 18dp top, 28dp radius, Green (#76BB7C) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_hero_progress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="18dp"
+            app:cardCornerRadius="28dp"
+            app:cardElevation="0dp"
+            app:cardMaxElevation="0dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="@color/pulse_green">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="210dp"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="18dp">
+
+                <!-- LEFT SIDE (Ring): CircularProgressView with thick 19dp ring & center percentage only -->
+                <com.pulse.tracker.ui.common.CircularProgressView
+                    android:id="@+id/hero_progress_view"
+                    android:layout_width="156dp"
+                    android:layout_height="156dp"
+                    android:layout_marginEnd="36dp"
+                    app:cpv_max="10000"
+                    app:cpv_currentSteps="0"
+                    app:cpv_progress="0.0"
+                    app:cpv_strokeWidth="19dp"
+                    app:cpv_trackColor="#26000000"
+                    app:cpv_progressColor="#121212"
+                    app:cpv_percentTextColor="#121212"
+                    app:cpv_percentTextSize="28sp"
+                    app:cpv_centerPercentageOnly="true" />
+
+                <!-- RIGHT SIDE (Text Column): "Steps today", big steps, "out of 10,000" -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/label_hero_steps"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Steps today"
+                        android:textSize="15sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="#333333" />
+
+                    <TextView
+                        android:id="@+id/text_hero_steps"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:textSize="46sp"
+                        android:fontFamily="sans-serif"
+                        android:textStyle="bold"
+                        android:fontFeatureSettings="tnum"
+                        android:textColor="#121212"
+                        android:includeFontPadding="false"
+                        tools:text="0" />
+
+                    <!-- Target Row under steps number -->
+                    <LinearLayout
+                        android:id="@+id/row_hero_target"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:id="@+id/text_hero_out_of"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="out of "
+                            android:textSize="14sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="#444444" />
+
+                        <TextView
+                            android:id="@+id/text_hero_goal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="22sp"
+                            android:fontFamily="sans-serif"
+                            android:textStyle="bold"
+                            android:textColor="#121212"
+                            tools:text="10,000" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Dynamic State Banner: Permission Missing (16dp Horizontal Margin) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_state_permission"
+            style="@style/Widget.Pulse.Card.Inner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="18dp"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/space_16">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_shield_check"
+                        app:tint="@color/pulse_coral"
+                        android:layout_marginEnd="@dimen/space_12"
+                        android:contentDescription="@null" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/state_permission_title"
+                        android:textAppearance="@style/TextAppearance.Pulse.TitleMedium"
+                        android:textColor="@color/pulse_text_primary" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/state_permission_desc"
+                    android:textAppearance="@style/TextAppearance.Pulse.BodyMedium"
+                    android:layout_marginTop="@dimen/space_8"
+                    android:layout_marginBottom="@dimen/space_12" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_grant_permission"
+                    style="@style/Widget.Pulse.Button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minHeight="@dimen/minimum_touch_target"
+                    android:text="@string/state_permission_action"
+                    android:paddingHorizontal="@dimen/space_20"
+                    android:backgroundTint="@color/pulse_primary" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Dynamic State Banner: Step Sensor Unsupported (16dp Horizontal Margin) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_state_sensor_unsupported"
+            style="@style/Widget.Pulse.Card.Inner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="18dp"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="@dimen/space_16">
+
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:src="@drawable/ic_warning_circle"
+                    app:tint="@color/pulse_error"
+                    android:layout_marginEnd="@dimen/space_12"
+                    android:contentDescription="@null" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/state_sensor_title"
+                        android:textAppearance="@style/TextAppearance.Pulse.TitleMedium"
+                        android:textColor="@color/pulse_error" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/state_sensor_desc"
+                        android:textAppearance="@style/TextAppearance.Pulse.BodyMedium"
+                        android:layout_marginTop="@dimen/space_4" />
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Dynamic State Banner: Tracking Paused (16dp Horizontal Margin) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_state_paused"
+            style="@style/Widget.Pulse.Card.Inner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="18dp"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/space_16">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_tab_today"
+                        app:tint="@color/pulse_primary"
+                        android:layout_marginEnd="@dimen/space_12"
+                        android:contentDescription="@null" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/state_paused_title"
+                        android:textAppearance="@style/TextAppearance.Pulse.TitleMedium"
+                        android:textColor="@color/pulse_text_primary" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/state_paused_desc"
+                    android:textAppearance="@style/TextAppearance.Pulse.BodyMedium"
+                    android:layout_marginTop="@dimen/space_8"
+                    android:layout_marginBottom="@dimen/space_12" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_resume_tracking"
+                    style="@style/Widget.Pulse.Button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:minHeight="@dimen/minimum_touch_target"
+                    android:text="@string/state_paused_action"
+                    android:paddingHorizontal="@dimen/space_20"
+                    android:backgroundTint="@color/pulse_primary" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 3 Small Equal Metric Cards Row (Calories, Distance, Active Time) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp"
+            android:layout_marginTop="18dp"
+            android:baselineAligned="false">
+
+            <!-- Card 1: Calories (Soft Pastel Salmon #FFA58B) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_metric_calories"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="4dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:cardMaxElevation="0dp"
+                app:strokeWidth="0dp"
+                app:cardBackgroundColor="@color/pulse_orange">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:src="@drawable/ic_calories"
+                        app:tint="#121212"
+                        android:contentDescription="@string/calories_label"
+                        android:layout_marginBottom="12dp" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:baselineAligned="true">
+
+                        <TextView
+                            android:id="@+id/text_calories_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            tools:text="0"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            android:fontFamily="sans-serif"
+                            android:textColor="#121212"
+                            android:fontFeatureSettings="tnum"
+                            android:includeFontPadding="false" />
+
+                        <TextView
+                            android:id="@+id/text_calories_unit"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=" kcal"
+                            android:layout_marginStart="2dp"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="#2D2D2D"
+                            android:includeFontPadding="false" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Card 2: Distance (Soft Pastel Sky Blue #8BA0FF) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_metric_distance"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:cardMaxElevation="0dp"
+                app:strokeWidth="0dp"
+                app:cardBackgroundColor="@color/pulse_sky_blue">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:src="@drawable/ic_distance"
+                        app:tint="#121212"
+                        android:contentDescription="@string/distance_label"
+                        android:layout_marginBottom="12dp" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:baselineAligned="true">
+
+                        <TextView
+                            android:id="@+id/text_distance_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            tools:text="0.00"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            android:fontFamily="sans-serif"
+                            android:textColor="#121212"
+                            android:fontFeatureSettings="tnum"
+                            android:includeFontPadding="false" />
+
+                        <TextView
+                            android:id="@+id/text_distance_unit"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            tools:text=" km"
+                            android:layout_marginStart="2dp"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="#2D2D2D"
+                            android:includeFontPadding="false" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Card 3: Active Time (Soft Pastel Yellow #E0D56C) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_metric_active_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:cardMaxElevation="0dp"
+                app:strokeWidth="0dp"
+                app:cardBackgroundColor="@color/pulse_yellow">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
+                        android:src="@drawable/ic_active_time"
+                        app:tint="#121212"
+                        android:contentDescription="@string/active_time_label"
+                        android:layout_marginBottom="12dp" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:baselineAligned="true">
+
+                        <TextView
+                            android:id="@+id/text_active_time_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            tools:text="0"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            android:fontFamily="sans-serif"
+                            android:textColor="#121212"
+                            android:fontFeatureSettings="tnum"
+                            android:includeFontPadding="false" />
+
+                        <TextView
+                            android:id="@+id/text_active_time_unit"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=" min"
+                            android:layout_marginStart="2dp"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="#2D2D2D"
+                            android:includeFontPadding="false" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+
+        <!-- Weekly Activity Card (Deep Charcoal #222222 Neutral Card) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_weekly_chart"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="18dp"
+            app:cardCornerRadius="28dp"
+            app:cardElevation="0dp"
+            app:cardMaxElevation="0dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="@color/pulse_surface">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <!-- Header: Title on Left, Range Pill on Right -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/today_chart_title"
+                        android:textSize="20sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/pulse_text_primary"
+                        android:textStyle="bold" />
+
+                    <!-- Range Pill: "Last 7 days" -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="0dp"
+                        app:cardBackgroundColor="@color/pulse_surface_alt">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/today_chart_subtitle"
+                            android:textSize="12sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="@color/pulse_text_secondary"
+                            android:textStyle="bold"
+                            android:paddingHorizontal="12dp"
+                            android:paddingVertical="6dp" />
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp">
+
+                    <com.github.mikephil.charting.charts.BarChart
+                        android:id="@+id/weekly_bar_chart"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:visibility="visible" />
+
+                    <!-- Modern Empty Overlay Pill when 0 steps recorded -->
+                    <LinearLayout
+                        android:id="@+id/chart_empty_placeholder"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:visibility="gone">
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:cardCornerRadius="20dp"
+                            app:cardElevation="0dp"
+                            app:strokeWidth="1dp"
+                            app:strokeColor="#33FFFFFF"
+                            app:cardBackgroundColor="#2A2A2E">
+
+                            <TextView
+                                android:id="@+id/text_chart_empty"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="No activity recorded yet • Start walking"
+                                android:textSize="12sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textColor="#8E8E93"
+                                android:paddingHorizontal="16dp"
+                                android:paddingVertical="8dp" />
+                        </com.google.android.material.card.MaterialCardView>
+                    </LinearLayout>
+                </FrameLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

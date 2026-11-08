@@ -1,0 +1,35 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme (Dark mode). -->
+    <style name="Base.Theme.Pulse" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Brand & Functional Color Mapping -->
+        <item name="colorPrimary">@color/pulse_primary</item>
+        <item name="colorOnPrimary">@color/pulse_on_primary</item>
+        <item name="colorPrimaryContainer">@color/pulse_primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/pulse_on_primary_container</item>
+        <item name="colorSecondary">@color/pulse_secondary</item>
+        <item name="colorOnSecondary">@color/pulse_on_secondary</item>
+        <item name="colorSecondaryContainer">@color/pulse_secondary_container</item>
+        <item name="colorOnSecondaryContainer">@color/pulse_on_secondary_container</item>
+        <item name="android:colorBackground">@color/pulse_background</item>
+        <item name="colorSurface">@color/pulse_surface</item>
+        <item name="colorOnSurface">@color/pulse_text_primary</item>
+        <item name="colorSurfaceVariant">@color/pulse_surface_alt</item>
+        <item name="colorOnSurfaceVariant">@color/pulse_text_secondary</item>
+        <item name="colorOutline">@color/pulse_outline</item>
+        <item name="colorError">@color/pulse_error</item>
+
+        <!-- Text Colors -->
+        <item name="android:textColorPrimary">@color/pulse_text_primary</item>
+        <item name="android:textColorSecondary">@color/pulse_text_secondary</item>
+
+        <!-- System Bar Edge-to-Edge Configuration (Dark icons disabled) -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+        <item name="android:windowLayoutInDisplayCutoutMode" tools:targetApi="p">shortEdges</item>
+
+        <!-- Default Component Styling for Bento Tactility -->
+        <item name="materialCardViewStyle">@style/Widget.Pulse.Card.Neutral</item>
+    </style>
+</resources>

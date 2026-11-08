@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/scroll_onboarding_page6"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:clipToPadding="false"
+    android:overScrollMode="never">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/screen_horizontal_padding"
+        android:paddingTop="24dp"
+        android:paddingBottom="130dp">
+
+        <!-- Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="24dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Daily Hydration"
+                android:textSize="28sp"
+                android:fontFamily="sans-serif"
+                android:textStyle="bold"
+                android:textColor="@color/pulse_text_primary" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="Evidence-based water turnover tailored specifically to your body mass, stature, and target steps."
+                android:textSize="14sp"
+                android:fontFamily="sans-serif"
+                android:lineSpacingExtra="2dp"
+                android:textColor="@color/pulse_text_secondary" />
+        </LinearLayout>
+
+        <!-- Hero Hydration Bento Card (Solid Sky Blue #98B0F2, 28dp radius) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_onboarding_hydration_hero"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/space_12"
+            app:cardCornerRadius="28dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="@color/pulse_sky_blue">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="12dp">
+
+                    <ImageView
+                        android:layout_width="28dp"
+                        android:layout_height="28dp"
+                        android:src="@drawable/ic_water_drop"
+                        app:tint="#121212"
+                        android:contentDescription="@null"
+                        android:layout_marginEnd="12dp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Estimated Intake"
+                        android:textSize="18sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:textStyle="bold"
+                        android:textColor="#121212" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_onboarding_hydration_hero"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="2,500 ml / day"
+                    android:textSize="38sp"
+                    android:fontFamily="sans-serif"
+                    android:textStyle="bold"
+                    android:textColor="#121212"
+                    android:includeFontPadding="false" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Optimal daily fluid replacement target"
+                    android:textSize="13sp"
+                    android:fontFamily="sans-serif"
+                    android:textColor="#333333" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Bento Card: Scientific Clinical Breakdown (Solid Neutral #222222, 28dp radius) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_onboarding_hydration_breakdown"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/space_12"
+            app:cardCornerRadius="28dp"
+            app:cardElevation="0dp"
+            app:cardMaxElevation="0dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="@color/pulse_surface">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/card_padding">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Clinical Calculation Breakdown"
+                    android:textAppearance="@style/TextAppearance.Pulse.TitleLarge"
+                    android:textStyle="bold"
+                    android:textColor="@color/pulse_text_primary"
+                    android:layout_marginBottom="16dp" />
+
+                <!-- 3 Metric Columns Row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <!-- Col 1: Base Mass Need -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="4dp"
+                        app:cardCornerRadius="18dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="0dp"
+                        app:cardBackgroundColor="@color/pulse_surface_alt">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="12dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="BASE NEED"
+                                android:textSize="10sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textColor="#8E8E93" />
+
+                            <TextView
+                                android:id="@+id/tv_hydration_base"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                tools:text="2,450 ml"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/pulse_text_primary" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Col 2: Step Sweat Comp -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginHorizontal="2dp"
+                        app:cardCornerRadius="18dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="0dp"
+                        app:cardBackgroundColor="@color/pulse_surface_alt">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="12dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="ACTIVITY"
+                                android:textSize="10sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textColor="#8E8E93" />
+
+                            <TextView
+                                android:id="@+id/tv_hydration_activity"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                tools:text="+350 ml"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/pulse_sky_blue" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Col 3: BSA & Age Adjustment -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="4dp"
+                        app:cardCornerRadius="18dp"
+                        app:cardElevation="0dp"
+                        app:strokeWidth="0dp"
+                        app:cardBackgroundColor="@color/pulse_surface_alt">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="12dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="BODY SURFACE"
+                                android:textSize="10sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textColor="#8E8E93" />
+
+                            <TextView
+                                android:id="@+id/tv_hydration_bsa_age"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="4dp"
+                                tools:text="+0 ml"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/pulse_green" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:text="Formulated in accordance with European Food Safety Authority (EFSA) and IOM Dietary Reference Intakes."
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif"
+                    android:lineSpacingExtra="2dp"
+                    android:textColor="@color/pulse_text_secondary" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>
+

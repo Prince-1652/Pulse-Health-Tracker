@@ -1,0 +1,831 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/history_scroll_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:clipToPadding="false"
+    android:background="@color/pulse_background">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:focusableInTouchMode="true"
+        android:descendantFocusability="beforeDescendants"
+        android:paddingHorizontal="@dimen/screen_horizontal_padding"
+        android:paddingTop="@dimen/space_16"
+        android:paddingBottom="120dp">
+
+        <!-- Top Header Greeting Bar -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingHorizontal="4dp"
+            android:layout_marginTop="@dimen/space_8"
+            android:layout_marginBottom="@dimen/space_16">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Activity History"
+                    android:textColor="@color/pulse_text_primary"
+                    android:textStyle="bold"
+                    android:textSize="20sp"
+                    android:fontFamily="sans-serif-medium" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Monthly steps &amp; performance logs"
+                    android:textColor="@color/pulse_text_secondary"
+                    android:textSize="13sp"
+                    android:fontFamily="sans-serif" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Month Navigation Selector Card (Solid Neutral Squircle #222222) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_month_selector"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/space_12"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="0dp"
+            app:cardMaxElevation="0dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="#1FFFFFFF"
+            app:cardBackgroundColor="@color/pulse_yellow">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="@dimen/card_padding"
+                android:paddingVertical="@dimen/space_12">
+
+                <ImageButton
+                    android:id="@+id/btn_prev_month"
+                    android:layout_width="@dimen/minimum_touch_target"
+                    android:layout_height="@dimen/minimum_touch_target"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_chevron_left"
+                    app:tint="#121212"
+                    android:contentDescription="@string/history_prev_month" />
+
+                <TextView
+                    android:id="@+id/text_selected_month"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/history_month_default"
+                    android:textAppearance="@style/TextAppearance.Pulse.TitleLarge"
+                    android:textColor="#121212"
+                    android:textStyle="bold"
+                    android:textAlignment="center" />
+
+                <ImageButton
+                    android:id="@+id/btn_next_month"
+                    android:layout_width="@dimen/minimum_touch_target"
+                    android:layout_height="@dimen/minimum_touch_target"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_chevron_right"
+                    app:tint="#121212"
+                    android:contentDescription="@string/history_next_month" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Calendar Container Card (Hero Block Green Style #76BB7C) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_calendar_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/space_12"
+            app:cardCornerRadius="28dp"
+            app:cardElevation="0dp"
+            app:cardMaxElevation="0dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="@color/pulse_green">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/card_padding">
+
+                <!-- Weekday Headers (7 columns: Mon to Sun) in dark charcoal #333333 for contrast on green -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="@dimen/space_8">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/weekday_mon"
+                        android:textAlignment="center"
+                        android:textColor="#333333"
+                        android:textStyle="bold"
+                        android:textSize="12sp"
+                        android:fontFamily="sans-serif-medium" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/weekday_tue"
+                        android:textAlignment="center"
+                        android:textColor="#333333"
+                        android:textStyle="bold"
+                        android:textSize="12sp"
+                        android:fontFamily="sans-serif-medium" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/weekday_wed"
+                        android:textAlignment="center"
+                        android:textColor="#333333"
+                        android:textStyle="bold"
+                        android:textSize="12sp"
+                        android:fontFamily="sans-serif-medium" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/weekday_thu"
+                        android:textAlignment="center"
+                        android:textColor="#333333"
+                        android:textStyle="bold"
+                        android:textSize="12sp"
+                        android:fontFamily="sans-serif-medium" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/weekday_fri"
+                        android:textAlignment="center"
+                        android:textColor="#333333"
+                        android:textStyle="bold"
+                        android:textSize="12sp"
+                        android:fontFamily="sans-serif-medium" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/weekday_sat"
+                        android:textAlignment="center"
+                        android:textColor="#333333"
+                        android:textStyle="bold"
+                        android:textSize="12sp"
+                        android:fontFamily="sans-serif-medium" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/weekday_sun"
+                        android:textAlignment="center"
+                        android:textColor="#333333"
+                        android:textStyle="bold"
+                        android:textSize="12sp"
+                        android:fontFamily="sans-serif-medium" />
+                </LinearLayout>
+
+                <!-- Clean Calendar Grid Container (7 columns) -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recycler_calendar_days"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Selected Day Detail Bento Card (Solid Neutral Container with Punchy Sub-Metrics) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_selected_day_detail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/space_12"
+            app:cardCornerRadius="28dp"
+            app:cardElevation="0dp"
+            app:cardMaxElevation="0dp"
+            app:cardBackgroundColor="@color/pulse_surface">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/card_padding">
+
+                <!-- Header Row: Date & Goal Badge -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="@dimen/space_12">
+
+                    <TextView
+                        android:id="@+id/text_selected_day_date"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        tools:text="Wednesday, Nov 4"
+                        android:textAppearance="@style/TextAppearance.Pulse.TitleMedium"
+                        android:textStyle="bold"
+                        android:textColor="@color/pulse_text_primary" />
+
+                    <!-- Goal status badge -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/badge_selected_day_goal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:cardCornerRadius="@dimen/small_control_radius"
+                        app:cardElevation="0dp"
+                        app:cardMaxElevation="0dp"
+                        app:strokeWidth="0dp"
+                        app:cardBackgroundColor="@color/pulse_surface_alt">
+
+                        <TextView
+                            android:id="@+id/text_selected_day_goal_status"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            tools:text="Goal: 10,000 steps"
+                            android:textAppearance="@style/TextAppearance.Pulse.LabelMedium"
+                            android:textColor="@color/pulse_text_secondary"
+                            android:textStyle="bold"
+                            android:paddingHorizontal="@dimen/space_12"
+                            android:paddingVertical="@dimen/space_4" />
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+
+                <!-- Big Step Count Row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="bottom"
+                    android:layout_marginBottom="@dimen/space_16">
+
+                    <TextView
+                        android:id="@+id/text_selected_day_steps"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        tools:text="0"
+                        android:textSize="38sp"
+                        android:fontFamily="sans-serif"
+                        android:textStyle="bold"
+                        android:fontFeatureSettings="tnum"
+                        android:includeFontPadding="false"
+                        android:textColor="@color/pulse_text_primary" />
+
+                    <TextView
+                        android:id="@+id/text_selected_day_steps_unit"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=" steps"
+                        android:layout_marginStart="@dimen/space_4"
+                        android:layout_marginBottom="6dp"
+                        android:textSize="15sp"
+                        android:fontFamily="sans-serif-medium"
+                        android:textColor="@color/pulse_text_secondary" />
+                </LinearLayout>
+
+                <!-- 3 Equal Bento Metric Cards (Matching Today Page: Calories, Distance, Time) -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:baselineAligned="false">
+
+                    <!-- Card 1: Active Calories (Soft Pastel Salmon #FFA58B) -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/card_selected_day_calories"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="4dp"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="0dp"
+                        app:cardMaxElevation="0dp"
+                        app:strokeWidth="0dp"
+                        app:cardBackgroundColor="@color/pulse_orange">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="14dp">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_calories"
+                                app:tint="#121212"
+                                android:layout_marginBottom="10dp"
+                                android:contentDescription="@string/calories_label" />
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:baselineAligned="true">
+
+                                <TextView
+                                    android:id="@+id/text_selected_day_calories"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    tools:text="0"
+                                    android:textSize="19sp"
+                                    android:textStyle="bold"
+                                    android:fontFamily="sans-serif"
+                                    android:textColor="#121212"
+                                    android:fontFeatureSettings="tnum"
+                                    android:includeFontPadding="false" />
+
+                                <TextView
+                                    android:id="@+id/text_selected_day_calories_unit"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text=" kcal"
+                                    android:layout_marginStart="2dp"
+                                    android:textSize="11sp"
+                                    android:textStyle="bold"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:textColor="#121212"
+                                    android:includeFontPadding="false" />
+                            </LinearLayout>
+
+                            <TextView
+                                android:id="@+id/text_selected_day_calories_label"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Active kcal"
+                                android:textSize="11sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textColor="#121212"
+                                android:layout_marginTop="4dp" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Card 2: Distance (Soft Pastel Sky Blue #8BA0FF) -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/card_selected_day_distance"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="2dp"
+                        android:layout_marginEnd="2dp"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="0dp"
+                        app:cardMaxElevation="0dp"
+                        app:strokeWidth="0dp"
+                        app:cardBackgroundColor="@color/pulse_sky_blue">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="14dp">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_distance"
+                                app:tint="#121212"
+                                android:layout_marginBottom="10dp"
+                                android:contentDescription="@string/distance_label" />
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:baselineAligned="true">
+
+                                <TextView
+                                    android:id="@+id/text_selected_day_distance"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    tools:text="0.00"
+                                    android:textSize="19sp"
+                                    android:textStyle="bold"
+                                    android:fontFamily="sans-serif"
+                                    android:textColor="#121212"
+                                    android:fontFeatureSettings="tnum"
+                                    android:includeFontPadding="false" />
+
+                                <TextView
+                                    android:id="@+id/text_selected_day_distance_unit"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text=" km"
+                                    android:layout_marginStart="2dp"
+                                    android:textSize="11sp"
+                                    android:textStyle="bold"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:textColor="#121212"
+                                    android:includeFontPadding="false" />
+                            </LinearLayout>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/distance_label"
+                                android:textSize="11sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textColor="#121212"
+                                android:layout_marginTop="4dp" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <!-- Card 3: Active Time (Soft Pastel Yellow #E0D56C) -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/card_selected_day_time"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="4dp"
+                        app:cardCornerRadius="20dp"
+                        app:cardElevation="0dp"
+                        app:cardMaxElevation="0dp"
+                        app:strokeWidth="0dp"
+                        app:cardBackgroundColor="@color/pulse_yellow">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="14dp">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_active_time"
+                                app:tint="#121212"
+                                android:layout_marginBottom="10dp"
+                                android:contentDescription="@string/active_time_label" />
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:baselineAligned="true">
+
+                                <TextView
+                                    android:id="@+id/text_selected_day_active_time"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    tools:text="0"
+                                    android:textSize="19sp"
+                                    android:textStyle="bold"
+                                    android:fontFamily="sans-serif"
+                                    android:textColor="#121212"
+                                    android:fontFeatureSettings="tnum"
+                                    android:includeFontPadding="false" />
+
+                                <TextView
+                                    android:id="@+id/text_selected_day_active_time_unit"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text=" min"
+                                    android:layout_marginStart="2dp"
+                                    android:textSize="11sp"
+                                    android:textStyle="bold"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:textColor="#121212"
+                                    android:includeFontPadding="false" />
+                            </LinearLayout>
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Active Time"
+                                android:textSize="11sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textColor="#121212"
+                                android:layout_marginTop="4dp" />
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- 3-Column Sleek Charcoal Summary Bento Card (#222222) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_history_monthly_summary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/space_12"
+            app:cardCornerRadius="28dp"
+            app:cardElevation="0dp"
+            app:cardMaxElevation="0dp"
+
+            app:cardBackgroundColor="@color/pulse_surface">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/card_padding">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Monthly Performance"
+                    android:textColor="#8E8E93"
+                    android:textSize="13sp"
+                    android:fontFamily="sans-serif-medium"
+                    android:layout_marginBottom="@dimen/space_12" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:baselineAligned="false">
+
+                    <!-- Col 1: Monthly Distance Walked -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center">
+
+                        <TextView
+                            android:id="@+id/text_summary_monthly_distance"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            tools:text="0.0 km"
+                            android:textColor="@color/pulse_text_primary"
+                            android:textSize="22sp"
+                            android:fontFamily="sans-serif"
+                            android:textStyle="bold"
+                            android:includeFontPadding="false" />
+
+                        <TextView
+                            android:id="@+id/text_summary_monthly_distance_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/history_summary_distance_label"
+                            android:textColor="#8E8E93"
+                            android:textSize="11sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:layout_marginTop="@dimen/space_4"
+                            android:textAlignment="center" />
+                    </LinearLayout>
+
+                    <!-- Vertical Divider -->
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="36dp"
+                        android:background="#33FFFFFF"
+                        android:layout_marginHorizontal="6dp" />
+
+                    <!-- Col 2: Goal Achievement Rate -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center">
+
+                        <TextView
+                            android:id="@+id/text_summary_goal_rate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            tools:text="0%"
+                            android:textColor="@color/pulse_green"
+                            android:textSize="22sp"
+                            android:fontFamily="sans-serif"
+                            android:textStyle="bold"
+                            android:includeFontPadding="false" />
+
+                        <TextView
+                            android:id="@+id/text_summary_goal_rate_label"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/history_summary_goal_rate_label"
+                            android:textColor="#8E8E93"
+                            android:textSize="11sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:layout_marginTop="@dimen/space_4"
+                            android:textAlignment="center" />
+                    </LinearLayout>
+
+                    <!-- Vertical Divider -->
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="36dp"
+                        android:background="#33FFFFFF"
+                        android:layout_marginHorizontal="6dp" />
+
+                    <!-- Col 3: Personal Best Steps -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center">
+
+                        <TextView
+                            android:id="@+id/text_history_personal_best_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            tools:text="—"
+                            android:textColor="@color/pulse_yellow"
+                            android:textSize="22sp"
+                            android:fontFamily="sans-serif"
+                            android:textStyle="bold"
+                            android:includeFontPadding="false" />
+
+                        <TextView
+                            android:id="@+id/text_history_personal_best_subtitle"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/history_summary_pb_label"
+                            android:textColor="#8E8E93"
+                            android:textSize="11sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:layout_marginTop="@dimen/space_4"
+                            android:textAlignment="center" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Bento Row: Monthly Total & Average Pace Cards (Side by Side) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:baselineAligned="false"
+            android:layout_marginBottom="@dimen/space_12">
+
+            <!-- Bento Metric 1: Monthly Total (Charcoal Squircle with Sky Blue Accent) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_history_monthly_total"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="6dp"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
+                app:cardMaxElevation="0dp"
+                app:cardBackgroundColor="@color/pulse_surface">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/card_padding">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_footprints"
+                        app:tint="@color/pulse_sky_blue"
+                        android:layout_marginBottom="@dimen/space_8"
+                        android:contentDescription="@string/history_monthly_total" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/history_monthly_total"
+                        android:textColor="@color/pulse_text_primary"
+                        android:fontFamily="sans-serif-medium"
+                        android:textStyle="bold"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/history_monthly_total_subtitle"
+                        android:textColor="#8E8E93"
+                        android:textSize="11sp"
+                        android:layout_marginBottom="@dimen/space_12" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="bottom">
+
+                        <TextView
+                            android:id="@+id/text_history_monthly_total_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            tools:text="0"
+                            android:textColor="@color/pulse_text_primary"
+                            android:textSize="22sp"
+                            android:fontFamily="sans-serif"
+                            android:textStyle="bold"
+                            android:includeFontPadding="false" />
+
+                        <TextView
+                            android:id="@+id/text_history_monthly_total_unit"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=" steps"
+                            android:layout_marginStart="@dimen/space_4"
+                            android:textColor="#8E8E93"
+                            android:textSize="11sp"
+                            android:layout_marginBottom="2dp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Bento Metric 2: Average Pace (Charcoal Squircle with Pastel Green Accent) -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_history_pace"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="6dp"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
+                app:cardMaxElevation="0dp"
+                app:cardBackgroundColor="@color/pulse_surface">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/card_padding">
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_path"
+                        app:tint="@color/pulse_green"
+                        android:layout_marginBottom="@dimen/space_8"
+                        android:contentDescription="@string/history_avg_pace" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/history_avg_pace"
+                        android:textAppearance="@style/TextAppearance.Pulse.TitleMedium"
+                        android:textColor="@color/pulse_text_primary"
+                        android:textStyle="bold"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/history_avg_pace_subtitle"
+                        android:textColor="#8E8E93"
+                        android:textSize="11sp"
+                        android:layout_marginBottom="@dimen/space_12" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="bottom">
+
+                        <TextView
+                            android:id="@+id/text_history_pace_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/history_empty_placeholder"
+                            android:textColor="@color/pulse_text_primary"
+                            android:textSize="22sp"
+                            android:fontFamily="sans-serif"
+                            android:textStyle="bold"
+                            android:includeFontPadding="false" />
+
+                        <TextView
+                            android:id="@+id/text_history_pace_unit"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=" min/km"
+                            android:layout_marginStart="@dimen/space_4"
+                            android:textColor="#8E8E93"
+                            android:textSize="11sp"
+                            android:layout_marginBottom="2dp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

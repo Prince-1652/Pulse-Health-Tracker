@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/scroll_onboarding_page2"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:clipToPadding="false"
+    android:overScrollMode="never">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/screen_horizontal_padding"
+        android:paddingTop="24dp"
+        android:paddingBottom="130dp">
+
+        <!-- Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="24dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="About You"
+                android:textSize="28sp"
+                android:fontFamily="sans-serif"
+                android:textStyle="bold"
+                android:textColor="@color/pulse_text_primary" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="Calibrates your baseline calorie expenditure and stride proportion."
+                android:textSize="14sp"
+                android:fontFamily="sans-serif"
+                android:lineSpacingExtra="2dp"
+                android:textColor="@color/pulse_text_secondary" />
+        </LinearLayout>
+
+
+
+        <!-- Bento Card: Age Selector (Solid Neutral #222222, 28dp radius) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_onboarding_age_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/space_12"
+            app:cardCornerRadius="28dp"
+            app:cardElevation="0dp"
+            app:cardMaxElevation="0dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="@color/pulse_surface">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/card_padding">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="@dimen/space_12">
+
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:src="@drawable/ic_sliders"
+                        app:tint="@color/pulse_green"
+                        android:contentDescription="@null"
+                        android:layout_marginEnd="@dimen/space_12" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Age"
+                        android:textAppearance="@style/TextAppearance.Pulse.TitleLarge"
+                        android:textStyle="bold"
+                        android:textColor="@color/pulse_text_primary" />
+                </LinearLayout>
+
+                <!-- Interactive Age Squircle Container with Steppers -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/card_onboarding_age"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp"
+                    app:cardBackgroundColor="@color/pulse_surface_alt">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:padding="16dp">
+
+                        <!-- Decrement button -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/btn_age_minus"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            app:cardCornerRadius="16dp"
+                            app:cardElevation="0dp"
+                            app:strokeWidth="0dp"
+                            app:cardBackgroundColor="@color/pulse_surface"
+                            android:clickable="true"
+                            android:focusable="true">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:text="-"
+                                android:textSize="24sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/pulse_text_primary" />
+                        </com.google.android.material.card.MaterialCardView>
+
+                        <!-- Centered Age Value -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:gravity="center"
+                            android:orientation="horizontal">
+
+                            <EditText
+                                android:id="@+id/input_onboarding_age"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@android:color/transparent"
+                                android:gravity="center"
+                                android:inputType="number"
+                                android:imeOptions="actionDone"
+                                android:maxLines="1"
+                                android:minWidth="54dp"
+                                android:textColor="@color/pulse_text_primary"
+                                android:textSize="36sp"
+                                android:fontFamily="sans-serif"
+                                android:textStyle="bold"
+                                android:includeFontPadding="false"
+                                tools:text="30" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text=" yrs"
+                                android:textColor="#8E8E93"
+                                android:textSize="16sp"
+                                android:fontFamily="sans-serif-medium"
+                                android:textStyle="bold"
+                                android:layout_marginStart="4dp" />
+                        </LinearLayout>
+
+                        <!-- Increment button -->
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/btn_age_plus"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            app:cardCornerRadius="16dp"
+                            app:cardElevation="0dp"
+                            app:strokeWidth="0dp"
+                            app:cardBackgroundColor="@color/pulse_surface"
+                            android:clickable="true"
+                            android:focusable="true">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:text="+"
+                                android:textSize="22sp"
+                                android:textStyle="bold"
+                                android:textColor="@color/pulse_text_primary" />
+                        </com.google.android.material.card.MaterialCardView>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Bento Card: Gender Selection (Solid Neutral #222222, 28dp radius) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_onboarding_gender"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/space_12"
+            app:cardCornerRadius="28dp"
+            app:cardElevation="0dp"
+            app:cardMaxElevation="0dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="@color/pulse_surface">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/card_padding">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="@dimen/space_12">
+
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:src="@drawable/ic_heart"
+                        app:tint="@color/pulse_orange"
+                        android:contentDescription="@null"
+                        android:layout_marginEnd="@dimen/space_12" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/profile_gender_title"
+                        android:textAppearance="@style/TextAppearance.Pulse.TitleLarge"
+                        android:textStyle="bold"
+                        android:textColor="@color/pulse_text_primary" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/profile_gender_note"
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif"
+                    android:textColor="@color/pulse_text_secondary"
+                    android:layout_marginBottom="@dimen/space_12" />
+
+                <com.google.android.material.button.MaterialButtonToggleGroup
+                    android:id="@+id/toggle_onboarding_gender"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:singleSelection="true"
+                    app:selectionRequired="true"
+                    app:checkedButton="@+id/btn_onboarding_gender_male">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_onboarding_gender_male"
+                        style="@style/Widget.Pulse.Button.Toggle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/profile_gender_male" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_onboarding_gender_female"
+                        style="@style/Widget.Pulse.Button.Toggle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/profile_gender_female" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_onboarding_gender_other"
+                        style="@style/Widget.Pulse.Button.Toggle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/profile_gender_unspecified" />
+                </com.google.android.material.button.MaterialButtonToggleGroup>
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

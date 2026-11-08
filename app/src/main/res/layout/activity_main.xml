@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/pulse_background"
+    tools:context=".MainActivity">
+
+    <!-- ViewPager2 for Smooth Swiping between destinations -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/view_pager"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Floating Pill Navigation Card -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/nav_pill_container"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/bottom_navigation_height"
+        android:layout_marginStart="@dimen/screen_horizontal_padding"
+        android:layout_marginEnd="@dimen/screen_horizontal_padding"
+        android:layout_marginBottom="@dimen/space_16"
+        app:cardCornerRadius="@dimen/pill_radius"
+        app:cardElevation="8dp"
+        app:cardMaxElevation="8dp"
+        app:cardBackgroundColor="@color/pulse_surface"
+        app:strokeWidth="1dp"
+        app:strokeColor="@color/pulse_outline"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <FrameLayout
+            android:id="@+id/nav_dock_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingHorizontal="@dimen/space_8">
+
+            <!-- Real Sliding White Pill Indicator (slides horizontally smoothly between tabs) -->
+            <View
+                android:id="@+id/nav_sliding_pill"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/minimum_touch_target"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/bg_nav_pill_active" />
+
+            <!-- Tabs Layer -->
+            <LinearLayout
+                android:id="@+id/nav_tabs_row"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <!-- Steps Tab -->
+                <FrameLayout
+                    android:id="@+id/nav_tab_today"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1.65"
+                    android:background="@android:color/transparent"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:contentDescription="@string/nav_steps">
+
+                    <View
+                        android:id="@+id/indicator_tab_today"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@android:color/transparent"
+                        android:visibility="visible" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal"
+                        android:gravity="center">
+
+                        <ImageView
+                            android:id="@+id/icon_tab_today"
+                            android:layout_width="@dimen/nav_icon_size"
+                            android:layout_height="@dimen/nav_icon_size"
+                            android:src="@drawable/ic_footprints"
+                            app:tint="@color/pulse_on_nav_active"
+                            android:contentDescription="@null" />
+
+                        <TextView
+                            android:id="@+id/label_tab_today"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:text="@string/nav_steps"
+                            android:textSize="@dimen/nav_label_text_size"
+                            android:fontFamily="sans-serif-medium"
+                            android:textStyle="bold"
+                            android:singleLine="true"
+                            android:ellipsize="none"
+                            android:scrollHorizontally="true"
+                            android:textColor="@color/pulse_on_nav_active"
+                            android:visibility="visible" />
+                    </LinearLayout>
+                </FrameLayout>
+
+                <!-- Water Tab -->
+                <FrameLayout
+                    android:id="@+id/nav_tab_water"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@android:color/transparent"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:contentDescription="@string/nav_water">
+
+                    <View
+                        android:id="@+id/indicator_tab_water"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@android:color/transparent"
+                        android:visibility="invisible" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal"
+                        android:gravity="center">
+
+                        <ImageView
+                            android:id="@+id/icon_tab_water"
+                            android:layout_width="@dimen/nav_icon_size"
+                            android:layout_height="@dimen/nav_icon_size"
+                            android:src="@drawable/ic_tab_water"
+                            app:tint="@color/pulse_text_secondary"
+                            android:contentDescription="@null" />
+
+                        <TextView
+                            android:id="@+id/label_tab_water"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:text="@string/nav_water"
+                            android:textSize="@dimen/nav_label_text_size"
+                            android:fontFamily="sans-serif-medium"
+                            android:textStyle="bold"
+                            android:singleLine="true"
+                            android:ellipsize="none"
+                            android:scrollHorizontally="true"
+                            android:textColor="@color/pulse_text_secondary"
+                            android:visibility="gone" />
+                    </LinearLayout>
+                </FrameLayout>
+
+                <!-- History Tab -->
+                <FrameLayout
+                    android:id="@+id/nav_tab_history"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@android:color/transparent"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:contentDescription="@string/nav_history">
+
+                    <View
+                        android:id="@+id/indicator_tab_history"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@android:color/transparent"
+                        android:visibility="invisible" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal"
+                        android:gravity="center">
+
+                        <ImageView
+                            android:id="@+id/icon_tab_history"
+                            android:layout_width="@dimen/nav_icon_size"
+                            android:layout_height="@dimen/nav_icon_size"
+                            android:src="@drawable/ic_tab_history"
+                            app:tint="@color/pulse_text_secondary"
+                            android:contentDescription="@null" />
+
+                        <TextView
+                            android:id="@+id/label_tab_history"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:text="@string/nav_history"
+                            android:textSize="@dimen/nav_label_text_size"
+                            android:fontFamily="sans-serif-medium"
+                            android:textStyle="bold"
+                            android:singleLine="true"
+                            android:ellipsize="none"
+                            android:scrollHorizontally="true"
+                            android:textColor="@color/pulse_text_secondary"
+                            android:visibility="gone" />
+                    </LinearLayout>
+                </FrameLayout>
+
+                <!-- Profile Tab -->
+                <FrameLayout
+                    android:id="@+id/nav_tab_profile"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@android:color/transparent"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:contentDescription="@string/nav_profile">
+
+                    <View
+                        android:id="@+id/indicator_tab_profile"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@android:color/transparent"
+                        android:visibility="invisible" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal"
+                        android:gravity="center">
+
+                        <ImageView
+                            android:id="@+id/icon_tab_profile"
+                            android:layout_width="@dimen/nav_icon_size"
+                            android:layout_height="@dimen/nav_icon_size"
+                            android:src="@drawable/ic_tab_profile"
+                            app:tint="@color/pulse_text_secondary"
+                            android:contentDescription="@null" />
+
+                        <TextView
+                            android:id="@+id/label_tab_profile"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="6dp"
+                            android:text="@string/nav_profile"
+                            android:textSize="@dimen/nav_label_text_size"
+                            android:fontFamily="sans-serif-medium"
+                            android:textStyle="bold"
+                            android:singleLine="true"
+                            android:ellipsize="none"
+                            android:scrollHorizontally="true"
+                            android:textColor="@color/pulse_text_secondary"
+                            android:visibility="gone" />
+                    </LinearLayout>
+                </FrameLayout>
+
+            </LinearLayout>
+        </FrameLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

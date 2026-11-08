@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root_onboarding"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/pulse_background">
+
+    <!-- ViewPager2 with 7 dedicated onboarding pages -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/view_pager_onboarding"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipChildren="true"
+        android:clipToPadding="true"
+        android:overScrollMode="never" />
+
+    <!-- Bottom Pinned Controls Dock (Overlay) -->
+    <LinearLayout
+        android:id="@+id/bottom_controls_dock"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="vertical"
+        android:paddingHorizontal="20dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="24dp"
+        android:background="@drawable/bg_bottom_gradient">
+
+        <!-- 7 Step Indicator Dots with fluid width morphing -->
+        <LinearLayout
+            android:id="@+id/layout_step_indicators"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <!-- Dot 0 (Active initially) -->
+            <View
+                android:id="@+id/indicator_dot_0"
+                android:layout_width="24dp"
+                android:layout_height="8dp"
+                android:layout_marginHorizontal="3dp"
+                android:background="@drawable/bg_indicator_active" />
+
+            <!-- Dot 1 -->
+            <View
+                android:id="@+id/indicator_dot_1"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:layout_marginHorizontal="3dp"
+                android:background="@drawable/bg_indicator_inactive" />
+
+            <!-- Dot 2 -->
+            <View
+                android:id="@+id/indicator_dot_2"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:layout_marginHorizontal="3dp"
+                android:background="@drawable/bg_indicator_inactive" />
+
+            <!-- Dot 3 -->
+            <View
+                android:id="@+id/indicator_dot_3"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:layout_marginHorizontal="3dp"
+                android:background="@drawable/bg_indicator_inactive" />
+
+            <!-- Dot 4 -->
+            <View
+                android:id="@+id/indicator_dot_4"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:layout_marginHorizontal="3dp"
+                android:background="@drawable/bg_indicator_inactive" />
+
+            <!-- Dot 5 -->
+            <View
+                android:id="@+id/indicator_dot_5"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:layout_marginHorizontal="3dp"
+                android:background="@drawable/bg_indicator_inactive" />
+
+            <!-- Dot 6 -->
+            <View
+                android:id="@+id/indicator_dot_6"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:layout_marginHorizontal="3dp"
+                android:background="@drawable/bg_indicator_inactive" />
+        </LinearLayout>
+
+        <!-- Primary Action Button: Pure white pill with dark text matching app style -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/btn_primary_action"
+            android:layout_width="match_parent"
+            android:layout_height="54dp"
+            app:cardCornerRadius="27dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="#FFFFFF"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground">
+
+            <TextView
+                android:id="@+id/text_primary_action"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/onboarding_btn_continue"
+                android:textSize="16sp"
+                android:fontFamily="sans-serif-medium"
+                android:textStyle="bold"
+                android:textColor="#121212" />
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Secondary Action Button: Back -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_secondary_action"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:layout_marginTop="4dp"
+            android:text="@string/onboarding_btn_back"
+            android:textSize="14sp"
+            android:fontFamily="sans-serif-medium"
+            android:textColor="@color/pulse_text_secondary"
+            android:visibility="gone"
+            tools:visibility="visible" />
+    </LinearLayout>
+
+</FrameLayout>

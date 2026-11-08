@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/scroll_onboarding_page5"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:clipToPadding="false"
+    android:overScrollMode="never">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="@dimen/screen_horizontal_padding"
+        android:paddingTop="24dp"
+        android:paddingBottom="130dp">
+
+        <!-- Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="24dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Daily Step Goal"
+                android:textSize="28sp"
+                android:fontFamily="sans-serif"
+                android:textStyle="bold"
+                android:textColor="@color/pulse_text_primary" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="Set your daily movement benchmark. 10,000 steps is recommended for active vitality."
+                android:textSize="14sp"
+                android:fontFamily="sans-serif"
+                android:lineSpacingExtra="2dp"
+                android:textColor="@color/pulse_text_secondary" />
+        </LinearLayout>
+
+        <!-- Bento Card: Daily Goal (Solid Neutral #222222, 28dp radius) -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_onboarding_goals"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/space_12"
+            app:cardCornerRadius="28dp"
+            app:cardElevation="0dp"
+            app:cardMaxElevation="0dp"
+            app:strokeWidth="0dp"
+            app:cardBackgroundColor="@color/pulse_surface">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/card_padding">
+
+                <!-- Header Row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="@dimen/space_16">
+
+                    <ImageView
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:src="@drawable/ic_target"
+                        app:tint="@color/pulse_yellow"
+                        android:contentDescription="@null"
+                        android:layout_marginEnd="@dimen/space_12" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Movement Benchmark"
+                        android:textAppearance="@style/TextAppearance.Pulse.TitleLarge"
+                        android:textStyle="bold"
+                        android:textColor="@color/pulse_text_primary" />
+                </LinearLayout>
+
+                <!-- Daily Step Target Squircle Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:cardMaxElevation="0dp"
+                    app:strokeWidth="0dp"
+                    app:cardBackgroundColor="@color/pulse_surface_alt">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/profile_daily_goal"
+                                android:textAppearance="@style/TextAppearance.Pulse.TitleMedium"
+                                android:textColor="#8E8E93"
+                                android:textStyle="bold" />
+
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:baselineAligned="true">
+
+                                <TextView
+                                    android:id="@+id/text_onboarding_goal_value"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textSize="40sp"
+                                    android:fontFamily="sans-serif"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/pulse_text_primary"
+                                    android:includeFontPadding="false"
+                                    tools:text="10,000" />
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text=" steps"
+                                    android:textSize="16sp"
+                                    android:fontFamily="sans-serif-medium"
+                                    android:textStyle="bold"
+                                    android:textColor="#8E8E93"
+                                    android:includeFontPadding="false"
+                                    android:layout_marginStart="4dp" />
+                            </LinearLayout>
+                        </LinearLayout>
+
+                        <!-- Equivalent distance/time pill -->
+                        <TextView
+                            android:id="@+id/text_onboarding_goal_equivalent"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:text="~7.1 km • ~75 active minutes"
+                            android:textSize="13sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:textColor="@color/pulse_yellow" />
+
+                        <!-- Daily Target Slider in #E0D56C Yellow -->
+                        <com.google.android.material.slider.Slider
+                            android:id="@+id/slider_onboarding_goal"
+                            style="@style/Widget.Pulse.Slider"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:valueFrom="500"
+                            android:valueTo="100000"
+                            android:value="10000"
+                            android:stepSize="500"
+                            app:thumbColor="@color/pulse_yellow"
+                            app:trackColorActive="@color/pulse_yellow"
+                            app:trackColorInactive="#333333"
+                            app:haloColor="@color/pulse_yellow_halo"
+                            android:layout_marginTop="16dp" />
+
+                        <!-- Quick Preset Chips Row: 6k, 8k, 10k, 12k -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginTop="12dp">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btn_preset_6k"
+                                style="@style/Widget.Pulse.Button.Toggle.Yellow"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginEnd="4dp"
+                                android:text="6k" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btn_preset_8k"
+                                style="@style/Widget.Pulse.Button.Toggle.Yellow"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginHorizontal="2dp"
+                                android:text="8k" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btn_preset_10k"
+                                style="@style/Widget.Pulse.Button.Toggle.Yellow"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginHorizontal="2dp"
+                                android:text="10k" />
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btn_preset_12k"
+                                style="@style/Widget.Pulse.Button.Toggle.Yellow"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="4dp"
+                                android:text="12k" />
+                        </LinearLayout>
+
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>
+

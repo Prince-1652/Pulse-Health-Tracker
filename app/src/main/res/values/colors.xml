@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base utility colors -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- Pulse brand tokens (Lighter, softer pastel shades) -->
+    <color name="pulse_primary">#F48B6E</color>
+    <color name="pulse_orange">#F48B6E</color>
+    <color name="pulse_on_primary">#121212</color>
+    <color name="pulse_on_orange">#121212</color>
+    <color name="pulse_primary_container">#3D1B10</color>
+    <color name="pulse_on_primary_container">#F48B6E</color>
+    <color name="pulse_accent">#F48B6E</color>
+
+    <!-- Sky Blue Secondary Tokens -->
+    <color name="pulse_secondary">#7CB5FF</color>
+    <color name="pulse_sky_blue">#7CB5FF</color>
+    <color name="pulse_on_secondary">#121212</color>
+    <color name="pulse_on_sky_blue">#121212</color>
+    <color name="pulse_secondary_container">#0C4A6E</color>
+    <color name="pulse_on_secondary_container">#BAE6FD</color>
+
+    <!-- Green Metric & Hero Tokens -->
+    <color name="pulse_green">#9FE870</color>
+    <color name="pulse_on_green">#121212</color>
+    <color name="pulse_green_container">#DCFCE7</color>
+    <color name="pulse_on_green_container">#121212</color>
+    <color name="pulse_green_dark_contrast">#121212</color>
+
+    <!-- Yellow Metric Tokens -->
+    <color name="pulse_yellow">#F9D359</color>
+    <color name="pulse_yellow_halo">#33F9D359</color>
+    <color name="pulse_on_yellow">#121212</color>
+    <color name="pulse_yellow_container">#FEF9C3</color>
+    <color name="pulse_on_yellow_container">#121212</color>
+    <color name="pulse_yellow_dark_contrast">#121212</color>
+
+    <!-- Background, Surface & Canvas Tokens (Clean Dark Canvas) -->
+    <color name="pulse_background">#171717</color>
+    <color name="pulse_surface">#222222</color>
+    <color name="pulse_surface_alt">#2C2C2E</color>
+    <color name="pulse_surface_contrast">#222222</color>
+    <color name="pulse_on_surface_contrast">#FFFFFF</color>
+
+    <!-- Floating Navigation Dock Tokens -->
+    <color name="pulse_nav_active">#FFFFFF</color>
+    <color name="pulse_on_nav_active">#121212</color>
+
+    <!-- Text & Outline Tokens -->
+    <color name="pulse_text_primary">#FFFFFF</color>
+    <color name="pulse_text_secondary">#8E8E93</color>
+    <color name="pulse_outline">#2C2C2E</color>
+    <color name="pulse_charcoal">#222222</color>
+    <color name="pulse_error">#F2B8B5</color>
+
+    <!-- Bento Privacy Badge Accent Tokens -->
+    <color name="pulse_privacy_badge_bg">#2C2C2E</color>
+    <color name="pulse_privacy_badge_fg">#FFFFFF</color>
+
+    <!-- Punchy color blocking accents (Bento modular metrics) -->
+    <color name="pulse_coral">#F48B6E</color>
+    <color name="pulse_cobalt">#7CB5FF</color>
+    <color name="pulse_cream">#FBF4D8</color>
+</resources>
