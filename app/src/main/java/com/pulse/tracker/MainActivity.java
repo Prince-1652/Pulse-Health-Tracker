@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -30,7 +29,6 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -43,10 +41,9 @@ import com.pulse.tracker.ui.profile.ProfileFragment;
 import com.pulse.tracker.ui.water.WaterFragment;
 
 /**
- * Main application shell hosting Steps, Water, History, and Profile destinations.
- * Features an icon-only split bottom navigation dock:
- * 3 primary tabs (Steps, Water, History) grouped on the left with 60fps sliding white pill glide,
- * and a separated circular Profile tab on the right clicked independently.
+ * Main application shell hosting Steps, Water, History, and Profile destinations
+ * with smooth swiping (ViewPager2), 60fps dynamic fluid morphing,
+ * unnoticeable color crossfades (zero snapping), and an edge-to-edge 4-tab floating pill navigation dock.
  */
 public class MainActivity extends AppCompatActivity {
 
@@ -64,6 +61,10 @@ public class MainActivity extends AppCompatActivity {
     public static final int POSITION_HISTORY = 2;
     public static final int POSITION_PROFILE = 3;
 
+    private static final float ACTIVE_TAB_WEIGHT = 1.65f;
+    private static final float INACTIVE_TAB_WEIGHT = 1.0f;
+    private static final float TOTAL_WEIGHTS = ACTIVE_TAB_WEIGHT + 3 * INACTIVE_TAB_WEIGHT; // 4.65f
+
     private static final boolean IS_TEST = "robolectric".equals(Build.FINGERPRINT)
             || "robolectric".equals(Build.HARDWARE)
             || (Build.FINGERPRINT != null && Build.FINGERPRINT.contains("robolectric"));
@@ -72,11 +73,13 @@ public class MainActivity extends AppCompatActivity {
     private MainPagerAdapter pagerAdapter;
 
     private MaterialCardView navPillContainer;
-    private MaterialCardView navProfileCard;
     private View navSlidingPill;
     private LinearLayout navTabsRow;
     private float activeTabWidth = 0f;
+    private float inactiveTabWidth = 0f;
 
+    private int margin6dp;
+    private final int[] labelFullWidths = new int[4];
     private ValueAnimator morphAnimator;
 
     private final ArgbEvaluator argbEvaluator = new ArgbEvaluator();
@@ -158,6 +161,7 @@ public class MainActivity extends AppCompatActivity {
         bindViews();
         colorInactive = ContextCompat.getColor(this, R.color.pulse_text_secondary);
         colorActive = ContextCompat.getColor(this, R.color.pulse_on_nav_active);
+        margin6dp = getResources().getDimensionPixelSize(R.dimen.space_6);
         setupWindowInsets();
         setupViewPager(savedInstanceState);
         setupNavigationListeners();
@@ -180,7 +184,6 @@ public class MainActivity extends AppCompatActivity {
     private void bindViews() {
         viewPager = findViewById(R.id.view_pager);
         navPillContainer = findViewById(R.id.nav_pill_container);
-        navProfileCard = findViewById(R.id.nav_profile_card);
         navSlidingPill = findViewById(R.id.nav_sliding_pill);
         navTabsRow = findViewById(R.id.nav_tabs_row);
 
@@ -214,7 +217,7 @@ public class MainActivity extends AppCompatActivity {
             Insets systemBars = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars());
             Insets ime = windowInsets.getInsets(WindowInsetsCompat.Type.ime());
 
-            // Root main top padding = systemBars.top so content starts cleanly below visible status bar
+            // 1. Root main top padding = systemBars.top so content starts cleanly below visible status bar
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
 
             int imeBottom = ime.bottom;
@@ -225,28 +228,17 @@ public class MainActivity extends AppCompatActivity {
                 if (navPillContainer != null) {
                     navPillContainer.setVisibility(View.GONE);
                 }
-                if (navProfileCard != null) {
-                    navProfileCard.setVisibility(View.GONE);
-                }
                 if (viewPager != null) {
                     viewPager.setPadding(0, 0, 0, imeBottom);
                 }
             } else {
-                // Position floating navigation cards cleanly 16dp above system gesture bar/insets
-                int margin16 = getResources().getDimensionPixelSize(R.dimen.space_16);
-                int targetMargin = systemBars.bottom + margin16;
-
+                // Position floating pill navigation cleanly 16dp above system gesture bar/insets
                 if (navPillContainer != null) {
                     navPillContainer.setVisibility(View.VISIBLE);
                     ViewGroup.MarginLayoutParams pillParams = (ViewGroup.MarginLayoutParams) navPillContainer.getLayoutParams();
-                    pillParams.bottomMargin = targetMargin;
+                    int margin16 = getResources().getDimensionPixelSize(R.dimen.space_16);
+                    pillParams.bottomMargin = systemBars.bottom + margin16;
                     navPillContainer.setLayoutParams(pillParams);
-                }
-                if (navProfileCard != null) {
-                    navProfileCard.setVisibility(View.VISIBLE);
-                    ViewGroup.MarginLayoutParams profileParams = (ViewGroup.MarginLayoutParams) navProfileCard.getLayoutParams();
-                    profileParams.bottomMargin = targetMargin;
-                    navProfileCard.setLayoutParams(profileParams);
                 }
                 if (viewPager != null) {
                     viewPager.setPadding(0, 0, 0, 0);
@@ -287,37 +279,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Restrict horizontal swiping: allow swipe between Steps (0), Water (1), History (2).
-        // Disallow swiping from History (2) into Profile (3), and disallow swiping when on Profile (3).
-        View child = viewPager.getChildAt(0);
-        if (child instanceof RecyclerView) {
-            ((RecyclerView) child).addOnItemTouchListener(new RecyclerView.SimpleOnItemTouchListener() {
-                private float startX = 0f;
-                private float startY = 0f;
-
-                @Override
-                public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
-                    if (currentPosition == POSITION_PROFILE) {
-                        return true; // Disallow swipe completely on profile
-                    }
-                    if (currentPosition == POSITION_HISTORY) {
-                        if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                            startX = e.getX();
-                            startY = e.getY();
-                        } else if (e.getAction() == MotionEvent.ACTION_MOVE) {
-                            float dx = e.getX() - startX;
-                            float dy = e.getY() - startY;
-                            // Finger dragging left (dx < -15) tries to swipe to Profile -> intercept & block
-                            if (Math.abs(dx) > Math.abs(dy) && dx < -15f) {
-                                return true;
-                            }
-                        }
-                    }
-                    return false;
-                }
-            });
-        }
-
         int initialPos = POSITION_STEPS;
         Intent launchIntent = getIntent();
         if (launchIntent != null && launchIntent.hasExtra(KEY_ACTIVE_POSITION)) {
@@ -342,7 +303,7 @@ public class MainActivity extends AppCompatActivity {
 
         currentPosition = initialPos;
         viewPager.setCurrentItem(initialPos, false);
-        updateNavState(initialPos, false);
+        updateTabVisuals(initialPos);
         setupSlidingPill();
 
         viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
@@ -350,14 +311,8 @@ public class MainActivity extends AppCompatActivity {
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                 super.onPageScrolled(position, positionOffset, positionOffsetPixels);
                 if (isUserDragging) {
-                    if (position < 2) {
-                        float continuousPos = position + positionOffset;
-                        updatePillContinuousPosition(continuousPos);
-                        applyColorCrossfade(continuousPos);
-                    } else if (position == 2) {
-                        updatePillContinuousPosition(2f);
-                        applyColorCrossfade(2f);
-                    }
+                    updateMorphContinuous(position, positionOffset);
+                    applyColorCrossfade(position + positionOffset);
                 }
             }
 
@@ -365,7 +320,9 @@ public class MainActivity extends AppCompatActivity {
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
                 currentPosition = position;
-                updateNavState(position, false);
+                if (!isUserDragging && (morphAnimator == null || !morphAnimator.isRunning())) {
+                    applyTabExpansionInstant(position);
+                }
                 animateFragmentEntrance(position);
                 if (position == POSITION_STEPS) {
                     Fragment frag = getFragmentForPosition(POSITION_STEPS);
@@ -386,7 +343,9 @@ public class MainActivity extends AppCompatActivity {
                 } else if (state == ViewPager2.SCROLL_STATE_IDLE) {
                     if (isUserDragging) {
                         isUserDragging = false;
-                        updateNavState(currentPosition, false);
+                        applyTabExpansionInstant(currentPosition);
+                        updatePillContinuousPosition(currentPosition, 0f);
+                        applyColorCrossfade(currentPosition);
                     }
                 }
             }
@@ -400,7 +359,9 @@ public class MainActivity extends AppCompatActivity {
             int totalWidth = right - left;
             if (totalWidth > 0 && totalWidth != (oldRight - oldLeft)) {
                 calculateTabDimensions(totalWidth);
-                updateNavState(currentPosition, false);
+                measureLabelWidths();
+                updatePillContinuousPosition(currentPosition, 0f);
+                applyColorCrossfade(currentPosition);
             }
         });
 
@@ -408,21 +369,38 @@ public class MainActivity extends AppCompatActivity {
             int totalWidth = navTabsRow.getWidth();
             if (totalWidth > 0) {
                 calculateTabDimensions(totalWidth);
-                updateNavState(currentPosition, false);
+                measureLabelWidths();
+                updatePillContinuousPosition(currentPosition, 0f);
+                applyColorCrossfade(currentPosition);
             }
         });
     }
 
-    private void calculateTabDimensions(float totalWidth) {
-        if (totalWidth <= 0f) return;
-        activeTabWidth = totalWidth / 3f;
+    private void measureLabelWidths() {
+        int unspecified = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+        float density = getResources().getDisplayMetrics().density;
+        int defaultWidth = Math.round(45 * density);
+        for (int i = 0; i < 4; i++) {
+            TextView label = getTabLabel(i);
+            if (label != null) {
+                label.measure(unspecified, unspecified);
+                int measured = label.getMeasuredWidth();
+                labelFullWidths[i] = measured > 0 ? measured : defaultWidth;
+            }
+        }
     }
 
-    private void updatePillContinuousPosition(float continuousPos) {
-        if (navSlidingPill == null || activeTabWidth <= 0f) return;
-        float clampedPos = Math.max(0f, Math.min(2f, continuousPos));
-        float pillX = clampedPos * activeTabWidth;
-        navSlidingPill.setTranslationX(pillX);
+    private void calculateTabDimensions(float totalWidth) {
+        if (totalWidth <= 0f) return;
+        activeTabWidth = (ACTIVE_TAB_WEIGHT / TOTAL_WEIGHTS) * totalWidth;
+        inactiveTabWidth = (INACTIVE_TAB_WEIGHT / TOTAL_WEIGHTS) * totalWidth;
+    }
+
+    private void updatePillContinuousPosition(int position, float positionOffset) {
+        if (navSlidingPill == null || inactiveTabWidth <= 0f) return;
+        float continuousPos = position + positionOffset;
+        float continuousX = continuousPos * inactiveTabWidth;
+        navSlidingPill.setTranslationX(continuousX);
 
         int targetWidth = Math.round(activeTabWidth);
         ViewGroup.LayoutParams lp = navSlidingPill.getLayoutParams();
@@ -433,23 +411,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Continuously interpolates icon tints for the 3 left tabs using ArgbEvaluator
-     * with smoothstep Hermite curve. Pure GPU color transform (zero layout requests).
+     * Continuously interpolates icon tint and text color for all 4 tabs
+     * based on white pill proximity using ArgbEvaluator with smoothstep Hermite curve.
+     * Absolutely zero color snapping. Does not trigger relayout during scroll.
      */
     private void applyColorCrossfade(float continuousPos) {
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 4; i++) {
             float dist = Math.abs(continuousPos - i);
             float coverage = Math.max(0f, 1f - dist);
+            // Smooth Hermite interpolation (smoothstep) for unnoticeable premium blend
             float smoothCoverage = coverage * coverage * (3f - 2f * coverage);
+
             int blendedColor = (Integer) argbEvaluator.evaluate(smoothCoverage, colorInactive, colorActive);
 
             ImageView icon = getTabIcon(i);
+            TextView label = getTabLabel(i);
+
             if (icon != null) {
                 icon.setImageTintList(ColorStateList.valueOf(blendedColor));
             }
-        }
-        if (iconProfile != null) {
-            iconProfile.setImageTintList(ColorStateList.valueOf(colorInactive));
+            if (label != null) {
+                label.setTextColor(blendedColor);
+            }
         }
     }
 
@@ -464,138 +447,25 @@ public class MainActivity extends AppCompatActivity {
      * Programmatically select tab destination with fluid morphing.
      */
     public void selectTab(int position, boolean smoothScroll) {
-        if (viewPager == null) return;
-        if (currentPosition == position && !smoothScroll) return;
+        if (viewPager != null) {
+            if (currentPosition == position && !smoothScroll) {
+                return;
+            }
+            int fromPos = currentPosition;
+            int toPos = position;
+            currentPosition = position;
+            isUserDragging = false;
 
-        currentPosition = position;
-        isUserDragging = false;
-
-        if (IS_TEST || !smoothScroll || navTabsRow == null || !navTabsRow.isLaidOut()) {
-            updateNavState(position, false);
-            viewPager.setCurrentItem(position, false);
-        } else {
-            updateNavState(position, true);
-            viewPager.setCurrentItem(position, true);
+            if (IS_TEST || !smoothScroll || navTabsRow == null || !navTabsRow.isLaidOut()) {
+                applyTabExpansionInstant(position);
+                viewPager.setCurrentItem(position, false);
+                updatePillContinuousPosition(position, 0f);
+                applyColorCrossfade(position);
+            } else {
+                startTabMorphAnimation(fromPos, toPos);
+                viewPager.setCurrentItem(position, true);
+            }
         }
-    }
-
-    /**
-     * Updates active navigation state between the left 3 tabs and the separated Profile button.
-     */
-    public void updateNavState(int targetPosition, boolean animate) {
-        currentPosition = targetPosition;
-
-        if (targetPosition == POSITION_PROFILE) {
-            // Profile active on right
-            if (indicatorProfile != null) {
-                indicatorProfile.setVisibility(View.VISIBLE);
-                if (animate && !IS_TEST) {
-                    indicatorProfile.setAlpha(0f);
-                    indicatorProfile.animate().alpha(1f).setDuration(220).start();
-                } else {
-                    indicatorProfile.setAlpha(1f);
-                }
-            }
-            if (iconProfile != null) {
-                iconProfile.setImageTintList(ColorStateList.valueOf(colorActive));
-            }
-
-            // Left dock inactive
-            if (navSlidingPill != null) {
-                if (animate && !IS_TEST) {
-                    navSlidingPill.animate().alpha(0f).setDuration(180)
-                            .withEndAction(() -> navSlidingPill.setVisibility(View.INVISIBLE)).start();
-                } else {
-                    navSlidingPill.setVisibility(View.INVISIBLE);
-                    navSlidingPill.setAlpha(0f);
-                }
-            }
-            if (indicatorToday != null) indicatorToday.setVisibility(View.INVISIBLE);
-            if (indicatorWater != null) indicatorWater.setVisibility(View.INVISIBLE);
-            if (indicatorHistory != null) indicatorHistory.setVisibility(View.INVISIBLE);
-
-            if (iconToday != null) iconToday.setImageTintList(ColorStateList.valueOf(colorInactive));
-            if (iconWater != null) iconWater.setImageTintList(ColorStateList.valueOf(colorInactive));
-            if (iconHistory != null) iconHistory.setImageTintList(ColorStateList.valueOf(colorInactive));
-
-        } else {
-            // One of Steps, Water, History active on left
-            if (indicatorProfile != null) {
-                if (animate && !IS_TEST) {
-                    indicatorProfile.animate().alpha(0f).setDuration(180)
-                            .withEndAction(() -> indicatorProfile.setVisibility(View.INVISIBLE)).start();
-                } else {
-                    indicatorProfile.setVisibility(View.INVISIBLE);
-                    indicatorProfile.setAlpha(0f);
-                }
-            }
-            if (iconProfile != null) {
-                iconProfile.setImageTintList(ColorStateList.valueOf(colorInactive));
-            }
-
-            if (indicatorToday != null) {
-                indicatorToday.setVisibility(targetPosition == POSITION_STEPS ? View.VISIBLE : View.INVISIBLE);
-            }
-            if (indicatorWater != null) {
-                indicatorWater.setVisibility(targetPosition == POSITION_WATER ? View.VISIBLE : View.INVISIBLE);
-            }
-            if (indicatorHistory != null) {
-                indicatorHistory.setVisibility(targetPosition == POSITION_HISTORY ? View.VISIBLE : View.INVISIBLE);
-            }
-
-            if (navSlidingPill != null) {
-                navSlidingPill.setVisibility(View.VISIBLE);
-                int targetWidth = Math.round(activeTabWidth);
-                ViewGroup.LayoutParams lp = navSlidingPill.getLayoutParams();
-                if (lp != null && lp.width != targetWidth && targetWidth > 0) {
-                    lp.width = targetWidth;
-                    navSlidingPill.setLayoutParams(lp);
-                }
-
-                float targetX = targetPosition * activeTabWidth;
-                if (animate && !IS_TEST) {
-                    if (navSlidingPill.getAlpha() < 0.9f) {
-                        navSlidingPill.setTranslationX(targetX);
-                        navSlidingPill.animate().alpha(1f).setDuration(220).start();
-                    } else {
-                        animatePillTranslation(navSlidingPill.getTranslationX(), targetX, targetPosition);
-                    }
-                } else {
-                    navSlidingPill.setAlpha(1f);
-                    navSlidingPill.setTranslationX(targetX);
-                }
-            }
-
-            applyColorCrossfade(targetPosition);
-        }
-    }
-
-    private void animatePillTranslation(float startX, float targetX, int targetPos) {
-        if (morphAnimator != null && morphAnimator.isRunning()) {
-            morphAnimator.cancel();
-        }
-        final SpringInterpolator springInterpolator = new SpringInterpolator(5.5f, 5.2f);
-        morphAnimator = ValueAnimator.ofFloat(0f, 1f);
-        morphAnimator.setDuration(280);
-        morphAnimator.addUpdateListener(animation -> {
-            float fraction = animation.getAnimatedFraction();
-            float springF = springInterpolator.getInterpolation(fraction);
-            float currentX = startX + (targetX - startX) * springF;
-            navSlidingPill.setTranslationX(currentX);
-
-            if (activeTabWidth > 0f) {
-                float pos = Math.max(0f, Math.min(2f, currentX / activeTabWidth));
-                applyColorCrossfade(pos);
-            }
-        });
-        morphAnimator.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                navSlidingPill.setTranslationX(targetX);
-                applyColorCrossfade(targetPos);
-            }
-        });
-        morphAnimator.start();
     }
 
     /**
@@ -604,6 +474,243 @@ public class MainActivity extends AppCompatActivity {
      */
     public void switchToProfileTab() {
         selectTab(POSITION_PROFILE, true);
+    }
+
+    /**
+     * Instant tab state setup for tests, orientation changes, or synchronous layouts.
+     */
+    private void applyTabExpansionInstant(int activePosition) {
+        currentPosition = activePosition;
+        if (morphAnimator != null && morphAnimator.isRunning()) {
+            morphAnimator.cancel();
+        }
+        for (int i = 0; i < 4; i++) {
+            View tab = getTabContainerForPosition(i);
+            if (tab != null) {
+                LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) tab.getLayoutParams();
+                float weight = (i == activePosition) ? ACTIVE_TAB_WEIGHT : INACTIVE_TAB_WEIGHT;
+                if (Math.abs(lp.weight - weight) > 0.001f) {
+                    lp.weight = weight;
+                    tab.setLayoutParams(lp);
+                }
+            }
+            View indicator = getTabIndicator(i);
+            if (indicator != null) {
+                indicator.setVisibility(i == activePosition ? View.VISIBLE : View.INVISIBLE);
+            }
+            TextView label = getTabLabel(i);
+            if (label != null) {
+                ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) label.getLayoutParams();
+                mlp.width = ViewGroup.LayoutParams.WRAP_CONTENT;
+                mlp.leftMargin = margin6dp;
+                label.setLayoutParams(mlp);
+                if (i == activePosition) {
+                    label.setVisibility(View.VISIBLE);
+                    label.setAlpha(1.0f);
+                } else {
+                    label.setVisibility(View.GONE);
+                    label.setAlpha(0.0f);
+                }
+            }
+            ImageView icon = getTabIcon(i);
+            if (icon != null) {
+                icon.setScaleX(1.0f);
+                icon.setScaleY(1.0f);
+            }
+        }
+    }
+
+    /**
+     * Smooth 60fps dynamic morphing of tab weights, label expansion, sliding pill glide,
+     * and icon positioning using Apple-grade spring physics without snapping or popping.
+     */
+    private void startTabMorphAnimation(final int fromPos, final int toPos) {
+        if (navTabsRow == null || navSlidingPill == null) return;
+        if (fromPos == toPos) return;
+
+        if (morphAnimator != null && morphAnimator.isRunning()) {
+            morphAnimator.cancel();
+        }
+
+        measureLabelWidths();
+
+        final View tabFrom = getTabContainerForPosition(fromPos);
+        final View tabTo = getTabContainerForPosition(toPos);
+        final TextView labelFrom = getTabLabel(fromPos);
+        final TextView labelTo = getTabLabel(toPos);
+        final ImageView iconTo = getTabIcon(toPos);
+
+        final View indicatorFrom = getTabIndicator(fromPos);
+        final View indicatorTo = getTabIndicator(toPos);
+
+        if (indicatorFrom != null) indicatorFrom.setVisibility(View.INVISIBLE);
+        if (indicatorTo != null) indicatorTo.setVisibility(View.VISIBLE);
+
+        if (labelFrom != null) {
+            labelFrom.setVisibility(View.VISIBLE);
+        }
+        if (labelTo != null) {
+            labelTo.setVisibility(View.VISIBLE);
+            labelTo.setAlpha(0f);
+            ViewGroup.MarginLayoutParams mlpTo = (ViewGroup.MarginLayoutParams) labelTo.getLayoutParams();
+            mlpTo.width = 0;
+            mlpTo.leftMargin = 0;
+            labelTo.setLayoutParams(mlpTo);
+        }
+
+        final int targetWidthFrom = labelFullWidths[fromPos];
+        final int targetWidthTo = labelFullWidths[toPos];
+
+        final float startPillX = fromPos * inactiveTabWidth;
+        final float targetPillX = toPos * inactiveTabWidth;
+        final int targetPillWidth = Math.round(activeTabWidth);
+
+        ViewGroup.LayoutParams pillLp = navSlidingPill.getLayoutParams();
+        if (pillLp != null && pillLp.width != targetPillWidth && targetPillWidth > 0) {
+            pillLp.width = targetPillWidth;
+            navSlidingPill.setLayoutParams(pillLp);
+        }
+
+        final SpringInterpolator springInterpolator = new SpringInterpolator(5.5f, 5.2f);
+
+        morphAnimator = ValueAnimator.ofFloat(0f, 1f);
+        morphAnimator.setDuration(320);
+        morphAnimator.addUpdateListener(animation -> {
+            float t = animation.getAnimatedFraction();
+            float springF = springInterpolator.getInterpolation(t);
+            float layoutF = Math.max(0f, Math.min(1f, springF));
+
+            // 1. Sliding white pill glides and overshoots organically
+            float pillX = startPillX + (targetPillX - startPillX) * springF;
+            navSlidingPill.setTranslationX(pillX);
+
+            // 2. Continuous tab weights interpolation
+            if (tabFrom != null && tabTo != null) {
+                LinearLayout.LayoutParams lpFrom = (LinearLayout.LayoutParams) tabFrom.getLayoutParams();
+                LinearLayout.LayoutParams lpTo = (LinearLayout.LayoutParams) tabTo.getLayoutParams();
+                lpFrom.weight = ACTIVE_TAB_WEIGHT - (ACTIVE_TAB_WEIGHT - INACTIVE_TAB_WEIGHT) * layoutF;
+                lpTo.weight = INACTIVE_TAB_WEIGHT + (ACTIVE_TAB_WEIGHT - INACTIVE_TAB_WEIGHT) * layoutF;
+                tabFrom.setLayoutParams(lpFrom);
+                tabTo.setLayoutParams(lpTo);
+            }
+
+            // 3. Label width and margin smooth interpolation (zero snapping/jumping)
+            if (labelFrom != null) {
+                ViewGroup.MarginLayoutParams mlpFrom = (ViewGroup.MarginLayoutParams) labelFrom.getLayoutParams();
+                mlpFrom.width = Math.round(targetWidthFrom * (1f - layoutF));
+                mlpFrom.leftMargin = Math.round(margin6dp * (1f - layoutF));
+                labelFrom.setLayoutParams(mlpFrom);
+                labelFrom.setAlpha(Math.max(0f, 1f - layoutF * 1.4f));
+            }
+
+            if (labelTo != null) {
+                ViewGroup.MarginLayoutParams mlpTo = (ViewGroup.MarginLayoutParams) labelTo.getLayoutParams();
+                mlpTo.width = Math.round(targetWidthTo * layoutF);
+                mlpTo.leftMargin = Math.round(margin6dp * layoutF);
+                labelTo.setLayoutParams(mlpTo);
+                labelTo.setAlpha(Math.max(0f, (layoutF - 0.15f) / 0.85f));
+            }
+
+            // 4. Continuous color crossfade
+            float continuousPos = fromPos + (toPos - fromPos) * layoutF;
+            applyColorCrossfade(continuousPos);
+
+            // 5. Subtle organic tactile scale swell on active icon
+            if (iconTo != null) {
+                float bounceScale = 1.0f + 0.10f * (float) Math.sin(Math.PI * layoutF);
+                iconTo.setScaleX(bounceScale);
+                iconTo.setScaleY(bounceScale);
+            }
+        });
+
+        morphAnimator.addListener(new AnimatorListenerAdapter() {
+            private boolean isCancelled = false;
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+                isCancelled = true;
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                if (!isCancelled) {
+                    applyTabExpansionInstant(toPos);
+                    updatePillContinuousPosition(toPos, 0f);
+                    applyColorCrossfade(toPos);
+                }
+            }
+        });
+
+        morphAnimator.start();
+    }
+
+    /**
+     * Continuous 1:1 finger swipe tracking for bottom navigation.
+     */
+    private void updateMorphContinuous(int position, float positionOffset) {
+        if (navTabsRow == null || navSlidingPill == null || inactiveTabWidth <= 0f) return;
+
+        measureLabelWidths();
+
+        // 1. Sliding pill position
+        float continuousPos = position + positionOffset;
+        float pillX = continuousPos * inactiveTabWidth;
+        navSlidingPill.setTranslationX(pillX);
+
+        int targetPillWidth = Math.round(activeTabWidth);
+        ViewGroup.LayoutParams pillLp = navSlidingPill.getLayoutParams();
+        if (pillLp != null && pillLp.width != targetPillWidth && targetPillWidth > 0) {
+            pillLp.width = targetPillWidth;
+            navSlidingPill.setLayoutParams(pillLp);
+        }
+
+        int fromPos = position;
+        int toPos = Math.min(position + 1, 3);
+        float f = positionOffset;
+
+        for (int i = 0; i < 4; i++) {
+            View tab = getTabContainerForPosition(i);
+            TextView label = getTabLabel(i);
+            View indicator = getTabIndicator(i);
+
+            float weight;
+            float labelProgress;
+
+            if (i == fromPos) {
+                weight = ACTIVE_TAB_WEIGHT - (ACTIVE_TAB_WEIGHT - INACTIVE_TAB_WEIGHT) * f;
+                labelProgress = 1f - f;
+            } else if (i == toPos && fromPos != toPos) {
+                weight = INACTIVE_TAB_WEIGHT + (ACTIVE_TAB_WEIGHT - INACTIVE_TAB_WEIGHT) * f;
+                labelProgress = f;
+            } else {
+                weight = INACTIVE_TAB_WEIGHT;
+                labelProgress = 0f;
+            }
+
+            if (tab != null) {
+                LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) tab.getLayoutParams();
+                lp.weight = weight;
+                tab.setLayoutParams(lp);
+            }
+
+            if (indicator != null) {
+                indicator.setVisibility(labelProgress > 0.5f ? View.VISIBLE : View.INVISIBLE);
+            }
+
+            if (label != null) {
+                if (labelProgress <= 0.01f) {
+                    label.setVisibility(View.GONE);
+                    label.setAlpha(0f);
+                } else {
+                    label.setVisibility(View.VISIBLE);
+                    ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) label.getLayoutParams();
+                    mlp.width = Math.round(labelFullWidths[i] * labelProgress);
+                    mlp.leftMargin = Math.round(margin6dp * labelProgress);
+                    label.setLayoutParams(mlp);
+                    label.setAlpha(labelProgress);
+                }
+            }
+        }
     }
 
     /**
@@ -625,7 +732,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public View getTabContainerForPosition(int position) {
+    private View getTabContainerForPosition(int position) {
         switch (position) {
             case POSITION_WATER:
                 return tabWater;
@@ -639,7 +746,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public View getTabIndicator(int position) {
+    private View getTabIndicator(int position) {
         switch (position) {
             case POSITION_WATER:
                 return indicatorWater;
@@ -653,7 +760,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public ImageView getTabIcon(int position) {
+    private ImageView getTabIcon(int position) {
         switch (position) {
             case POSITION_WATER:
                 return iconWater;
@@ -667,7 +774,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public TextView getTabLabel(int position) {
+    private TextView getTabLabel(int position) {
         switch (position) {
             case POSITION_WATER:
                 return labelWater;
@@ -682,7 +789,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void updateTabVisuals(int position) {
-        updateNavState(position, false);
+        currentPosition = position;
+        applyTabExpansionInstant(position);
+        updatePillContinuousPosition(position, 0f);
+        applyColorCrossfade(position);
     }
 
     /**
