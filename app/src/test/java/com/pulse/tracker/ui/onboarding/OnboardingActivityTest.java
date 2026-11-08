@@ -97,6 +97,8 @@ public class OnboardingActivityTest {
 
         TextView textExample = page1.findViewById(R.id.text_unit_system_example);
         assertNotNull("Unit system example text should exist", textExample);
+
+        assertNotNull("Hero logo ball should exist", page1.findViewById(R.id.img_onboarding_hero));
     }
 
     @Test
