@@ -33,6 +33,10 @@ android {
     testOptions {
         unitTests {
             isIncludeAndroidResources = true
+            all {
+                it.jvmArgs("-Xmx3072m", "-XX:+UseG1GC")
+                it.maxHeapSize = "3072m"
+            }
         }
     }
 }
