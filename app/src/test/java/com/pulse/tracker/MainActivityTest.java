@@ -28,9 +28,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Unit tests verifying MainActivity 4-tab navigation (Steps, Water, History, Profile),
- * active label visibility vs inactive GONE state, configuration change preservation,
- * and onboarding gating.
+ * Unit tests verifying MainActivity split bottom navigation dock:
+ * 3 primary tabs (Steps, Water, History) on the left, separated Profile button on the right,
+ * icon-only layout (no text labels), configuration change preservation, and onboarding gating.
  */
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
@@ -77,14 +77,14 @@ public class MainActivityTest {
         assertNotNull(currentFrag);
         assertTrue(currentFrag instanceof TodayFragment);
 
+        // Icon-only navbar: text labels are GONE
         android.widget.TextView labelToday = activity.findViewById(R.id.label_tab_today);
         android.widget.TextView labelWater = activity.findViewById(R.id.label_tab_water);
         android.widget.TextView labelHistory = activity.findViewById(R.id.label_tab_history);
         android.widget.TextView labelProfile = activity.findViewById(R.id.label_tab_profile);
 
         assertNotNull(labelToday);
-        assertEquals("Steps", labelToday.getText().toString());
-        assertEquals(View.VISIBLE, labelToday.getVisibility());
+        assertEquals(View.GONE, labelToday.getVisibility());
         assertEquals(View.GONE, labelWater.getVisibility());
         assertEquals(View.GONE, labelHistory.getVisibility());
         assertEquals(View.GONE, labelProfile.getVisibility());
@@ -105,11 +105,6 @@ public class MainActivityTest {
         View indicatorHistory = activity.findViewById(R.id.indicator_tab_history);
         View indicatorProfile = activity.findViewById(R.id.indicator_tab_profile);
 
-        android.widget.TextView labelToday = activity.findViewById(R.id.label_tab_today);
-        android.widget.TextView labelWater = activity.findViewById(R.id.label_tab_water);
-        android.widget.TextView labelHistory = activity.findViewById(R.id.label_tab_history);
-        android.widget.TextView labelProfile = activity.findViewById(R.id.label_tab_profile);
-
         // 1. Switch to Water (pos 1)
         tabWater.performClick();
         activity.getSupportFragmentManager().executePendingTransactions();
@@ -118,11 +113,6 @@ public class MainActivityTest {
         assertEquals(View.VISIBLE, indicatorWater.getVisibility());
         assertEquals(View.INVISIBLE, indicatorHistory.getVisibility());
         assertEquals(View.INVISIBLE, indicatorProfile.getVisibility());
-
-        assertEquals(View.GONE, labelToday.getVisibility());
-        assertEquals(View.VISIBLE, labelWater.getVisibility());
-        assertEquals(View.GONE, labelHistory.getVisibility());
-        assertEquals(View.GONE, labelProfile.getVisibility());
 
         Fragment waterFrag = activity.getFragmentByTagCompat("tag_water");
         assertNotNull(waterFrag);
@@ -137,16 +127,11 @@ public class MainActivityTest {
         assertEquals(View.VISIBLE, indicatorHistory.getVisibility());
         assertEquals(View.INVISIBLE, indicatorProfile.getVisibility());
 
-        assertEquals(View.GONE, labelToday.getVisibility());
-        assertEquals(View.GONE, labelWater.getVisibility());
-        assertEquals(View.VISIBLE, labelHistory.getVisibility());
-        assertEquals(View.GONE, labelProfile.getVisibility());
-
         Fragment historyFrag = activity.getFragmentByTagCompat("tag_history");
         assertNotNull(historyFrag);
         assertTrue(historyFrag instanceof HistoryFragment);
 
-        // 3. Switch to Profile (pos 3)
+        // 3. Switch to Profile (pos 3) via separate click
         tabProfile.performClick();
         activity.getSupportFragmentManager().executePendingTransactions();
 
@@ -154,11 +139,6 @@ public class MainActivityTest {
         assertEquals(View.INVISIBLE, indicatorWater.getVisibility());
         assertEquals(View.INVISIBLE, indicatorHistory.getVisibility());
         assertEquals(View.VISIBLE, indicatorProfile.getVisibility());
-
-        assertEquals(View.GONE, labelToday.getVisibility());
-        assertEquals(View.GONE, labelWater.getVisibility());
-        assertEquals(View.GONE, labelHistory.getVisibility());
-        assertEquals(View.VISIBLE, labelProfile.getVisibility());
 
         Fragment profileFrag = activity.getFragmentByTagCompat("tag_profile");
         assertNotNull(profileFrag);
@@ -215,7 +195,7 @@ public class MainActivityTest {
     }
 
     @Test
-    public void testBottomNavSizing_andDynamicWeights() {
+    public void testBottomNavSizing_andSplitDockStructure() {
         ActivityController<MainActivity> controller = Robolectric.buildActivity(MainActivity.class);
         MainActivity activity = controller.create().start().resume().visible().get();
 
@@ -228,26 +208,21 @@ public class MainActivityTest {
         float iconSize = activity.getResources().getDimension(R.dimen.nav_icon_size);
         assertEquals(24f, iconSize / density, 0.5f);
 
-        // 3. Verify Label text size is 13sp
-        float labelSizeSp = activity.getResources().getDimension(R.dimen.nav_label_text_size) / activity.getResources().getDisplayMetrics().scaledDensity;
-        assertEquals(13f, labelSizeSp, 0.5f);
-
-        // 4. Verify Active Tab (Today) has expanded weight (1.65) and inactive tabs have weight 1.0
+        // 3. Verify Left pill container holds 3 tabs with equal weights
         View tabToday = activity.findViewById(R.id.nav_tab_today);
         View tabWater = activity.findViewById(R.id.nav_tab_water);
         View tabHistory = activity.findViewById(R.id.nav_tab_history);
-        View tabProfile = activity.findViewById(R.id.nav_tab_profile);
 
         android.widget.LinearLayout.LayoutParams lpToday = (android.widget.LinearLayout.LayoutParams) tabToday.getLayoutParams();
         android.widget.LinearLayout.LayoutParams lpWater = (android.widget.LinearLayout.LayoutParams) tabWater.getLayoutParams();
-        assertEquals(1.65f, lpToday.weight, 0.05f);
-        assertEquals(1.0f, lpWater.weight, 0.05f);
+        android.widget.LinearLayout.LayoutParams lpHistory = (android.widget.LinearLayout.LayoutParams) tabHistory.getLayoutParams();
 
-        // 5. Switch to Water tab and verify weight changes dynamically
-        tabWater.performClick();
-        lpToday = (android.widget.LinearLayout.LayoutParams) tabToday.getLayoutParams();
-        lpWater = (android.widget.LinearLayout.LayoutParams) tabWater.getLayoutParams();
         assertEquals(1.0f, lpToday.weight, 0.05f);
-        assertEquals(1.65f, lpWater.weight, 0.05f);
+        assertEquals(1.0f, lpWater.weight, 0.05f);
+        assertEquals(1.0f, lpHistory.weight, 0.05f);
+
+        // 4. Verify Separated Profile card exists on the right
+        View navProfileCard = activity.findViewById(R.id.nav_profile_card);
+        assertNotNull("Separated Profile card should exist", navProfileCard);
     }
 }
