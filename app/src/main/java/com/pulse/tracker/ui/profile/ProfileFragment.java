@@ -1,13 +1,13 @@
 package com.pulse.tracker.ui.profile;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -16,8 +16,11 @@ import android.view.ViewParent;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.ViewFlipper;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
@@ -31,29 +34,79 @@ import com.google.android.material.slider.Slider;
 import com.pulse.tracker.MainActivity;
 import com.pulse.tracker.R;
 import com.pulse.tracker.data.repository.SettingsRepository;
+import com.pulse.tracker.data.repository.WaterRepository;
+import com.pulse.tracker.domain.WaterIntakeCalculator;
 import com.pulse.tracker.ui.common.RulerTapeView;
 import com.pulse.tracker.util.HapticHelper;
 
 import java.util.Locale;
 
 /**
- * Profile screen destination implementing the Bento squircle modular layout
- * for personal biometrics, stride calibration, tracking latency, and daily target preferences.
+ * Profile and settings destination implementing a categorized Bento settings hub
+ * and dedicated detail pages for biometrics, targets, sensor calibration,
+ * measurement units, and offline database privacy.
+ *
  * Features precision measuring tape rulers with haptic ticks for Height and Weight,
- * magnetic snap target setter with haptic feedback, auto-scrolling on input focus,
- * and ViewPager2 swipe protection during numeric or slider manipulation.
+ * magnetic snap step target slider with tactile feedback, auto-scrolling on input focus,
+ * and ViewPager2 swipe protection during manipulation.
  */
 public class ProfileFragment extends Fragment {
 
+    public static final int PAGE_HUB = 0;
+    public static final int PAGE_BIOMETRICS = 1;
+    public static final int PAGE_GOALS = 2;
+    public static final int PAGE_CALIBRATION = 3;
+    public static final int PAGE_PREFERENCES = 4;
+    public static final int PAGE_ABOUT = 5;
+
+    public static final long MAX_STEP_GOAL = 50000L;
+
+    private static final String KEY_CURRENT_PAGE = "key_profile_current_page";
+
     private ProfileViewModel viewModel;
 
-    private NestedScrollView profileScrollView;
+    private ViewFlipper viewFlipper;
+    private int currentPage = PAGE_HUB;
+    private OnBackPressedCallback onBackPressedCallback;
 
-    // Bento Card 0: Identity / Name
+    // Scroll containers
+    private NestedScrollView profileScrollView;
+    private NestedScrollView scrollPageBiometrics;
+    private NestedScrollView scrollPageGoals;
+    private NestedScrollView scrollPageCalibration;
+    private NestedScrollView scrollPagePreferences;
+    private NestedScrollView scrollPageAbout;
+
+    // Hub Bento: Profile Identity Card
     private View cardProfileIdentity;
     private EditText editProfileName;
+    private ImageView btnEditProfileName;
+    private boolean isEditingName = false;
 
-    // Bento Card 1: Biometrics
+    // Hub Bento: Category Cards & Subtitles
+    private View cardCatBiometrics;
+    private TextView textCatBiometricsSubtitle;
+
+    private View cardCatGoals;
+    private TextView textCatGoalsSubtitle;
+
+    private View cardCatCalibration;
+    private TextView textCatCalibrationSubtitle;
+
+    private View cardCatPreferences;
+    private TextView textCatPreferencesSubtitle;
+
+    private View cardCatAbout;
+    private TextView textCatAboutSubtitle;
+
+    // Detail Back Buttons
+    private View btnBackBiometrics;
+    private View btnBackGoals;
+    private View btnBackCalibration;
+    private View btnBackPreferences;
+    private View btnBackAbout;
+
+    // Detail Page 1: Biometrics
     private View cardProfileBiometrics;
     private TextView textHeightValue;
     private TextView textHeightUnit;
@@ -70,7 +123,13 @@ public class ProfileFragment extends Fragment {
     private MaterialButton btnGenderFemale;
     private MaterialButton btnGenderUnspecified;
 
-    // Bento Card 2: Calibration & Tracking
+    // Detail Page 2: Goals & Targets
+    private View cardProfileGoals;
+    private EditText editGoal;
+    private Slider sliderGoal;
+    private TextView textWaterGoalValue;
+
+    // Detail Page 3: Tracking & Calibration
     private View cardProfileCalibration;
     private EditText editStride;
     private TextView textStrideUnit;
@@ -79,28 +138,27 @@ public class ProfileFragment extends Fragment {
     private MaterialButton btnLatencyBattery;
     private MaterialButton btnLatencyFaster;
 
-    // Bento Card 3: Goals & Preferences
-    private View cardProfileGoals;
-    private EditText editGoal;
-    private Slider sliderGoal;
+    // Detail Page 4: Preferences & Units
     private MaterialButtonToggleGroup toggleGroupUnits;
     private MaterialButton btnUnitMetric;
     private MaterialButton btnUnitImperial;
 
+    // State Variables
     private SettingsRepository.UnitSystem currentUnitSystem = SettingsRepository.UnitSystem.METRIC;
     private double currentHeightCm = SettingsRepository.DEFAULT_HEIGHT_CM;
     private double currentWeightKg = SettingsRepository.DEFAULT_WEIGHT_KG;
+    private int currentAge = SettingsRepository.DEFAULT_AGE;
+    private SettingsRepository.Gender currentGender = SettingsRepository.Gender.UNSPECIFIED;
     private double currentStrideCm = SettingsRepository.DEFAULT_HEIGHT_CM * SettingsRepository.STRIDE_HEIGHT_RATIO;
     private boolean currentIsManualStride = false;
     private long currentGoal = SettingsRepository.DEFAULT_STEP_GOAL;
+    private SettingsRepository.TrackingLatency currentLatency = SettingsRepository.TrackingLatency.BATTERY_EFFICIENT;
 
     private boolean isProgrammaticUpdate = false;
     private boolean isSliderDragging = false;
     private boolean isHeightRulerDragging = false;
     private boolean isWeightRulerDragging = false;
     private int lastReportedGoalTick = -1;
-    private long lastGoalHapticTime = 0L;
-    private Vibrator targetVibrator;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -121,33 +179,79 @@ public class ProfileFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         bindViews(view);
+        setupBackNavigation();
         setupActionListeners(view);
 
         viewModel = new ViewModelProvider(this).get(ProfileViewModel.class);
         observeViewModel();
+
+        if (savedInstanceState != null) {
+            int restoredPage = savedInstanceState.getInt(KEY_CURRENT_PAGE, PAGE_HUB);
+            if (restoredPage != PAGE_HUB) {
+                navigateToPage(restoredPage, false);
+            }
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(KEY_CURRENT_PAGE, currentPage);
     }
 
     private void bindViews(@NonNull View root) {
-        profileScrollView = root.findViewById(R.id.profile_scroll_view);
+        viewFlipper = root.findViewById(R.id.view_flipper_profile);
 
-        // Card 0: Identity
+        // Scroll containers
+        profileScrollView = root.findViewById(R.id.profile_scroll_view);
+        scrollPageBiometrics = root.findViewById(R.id.scroll_page_biometrics);
+        scrollPageGoals = root.findViewById(R.id.scroll_page_goals);
+        scrollPageCalibration = root.findViewById(R.id.scroll_page_calibration);
+        scrollPagePreferences = root.findViewById(R.id.scroll_page_preferences);
+        scrollPageAbout = root.findViewById(R.id.scroll_page_about);
+
+        // Hub: User Profile Identity
         cardProfileIdentity = root.findViewById(R.id.card_profile_identity);
         editProfileName = root.findViewById(R.id.edit_profile_name);
+        btnEditProfileName = root.findViewById(R.id.btn_edit_profile_name);
 
-        // Card 1: Biometrics
+        // Hub: Bento Categories
+        cardCatBiometrics = root.findViewById(R.id.card_cat_biometrics);
+        textCatBiometricsSubtitle = root.findViewById(R.id.text_cat_biometrics_subtitle);
+
+        cardCatGoals = root.findViewById(R.id.card_cat_goals);
+        textCatGoalsSubtitle = root.findViewById(R.id.text_cat_goals_subtitle);
+
+        cardCatCalibration = root.findViewById(R.id.card_cat_calibration);
+        textCatCalibrationSubtitle = root.findViewById(R.id.text_cat_calibration_subtitle);
+
+        cardCatPreferences = root.findViewById(R.id.card_cat_preferences);
+        textCatPreferencesSubtitle = root.findViewById(R.id.text_cat_preferences_subtitle);
+
+        cardCatAbout = root.findViewById(R.id.card_cat_about);
+        textCatAboutSubtitle = root.findViewById(R.id.text_cat_about_subtitle);
+
+        // Detail Back Buttons
+        btnBackBiometrics = root.findViewById(R.id.btn_back_biometrics);
+        btnBackGoals = root.findViewById(R.id.btn_back_goals);
+        btnBackCalibration = root.findViewById(R.id.btn_back_calibration);
+        btnBackPreferences = root.findViewById(R.id.btn_back_preferences);
+        btnBackAbout = root.findViewById(R.id.btn_back_about);
+
+        // Detail Page 1: Biometrics
         cardProfileBiometrics = root.findViewById(R.id.card_profile_biometrics);
         textHeightValue = root.findViewById(R.id.text_profile_height_value);
         textHeightUnit = root.findViewById(R.id.text_profile_height_unit);
         rulerHeight = root.findViewById(R.id.ruler_profile_height);
-        if (rulerHeight != null) {
-            rulerHeight.setIndicatorColor(ContextCompat.getColor(requireContext(), R.color.pulse_sky_blue)); // Sky blue accent
+        if (rulerHeight != null && getContext() != null) {
+            rulerHeight.setIndicatorColor(ContextCompat.getColor(requireContext(), R.color.pulse_sky_blue));
         }
 
         textWeightValue = root.findViewById(R.id.text_profile_weight_value);
         textWeightUnit = root.findViewById(R.id.text_profile_weight_unit);
         rulerWeight = root.findViewById(R.id.ruler_profile_weight);
-        if (rulerWeight != null) {
-            rulerWeight.setIndicatorColor(ContextCompat.getColor(requireContext(), R.color.pulse_orange)); // Orange/salmon accent
+        if (rulerWeight != null && getContext() != null) {
+            rulerWeight.setIndicatorColor(ContextCompat.getColor(requireContext(), R.color.pulse_orange));
         }
 
         cardProfileAge = root.findViewById(R.id.card_profile_age);
@@ -157,7 +261,13 @@ public class ProfileFragment extends Fragment {
         btnGenderFemale = root.findViewById(R.id.btn_gender_female);
         btnGenderUnspecified = root.findViewById(R.id.btn_gender_unspecified);
 
-        // Card 2: Calibration & Tracking
+        // Detail Page 2: Goals & Targets
+        cardProfileGoals = root.findViewById(R.id.card_profile_goals);
+        editGoal = root.findViewById(R.id.edit_profile_goal);
+        sliderGoal = root.findViewById(R.id.slider_profile_goal);
+        textWaterGoalValue = root.findViewById(R.id.text_water_goal_value);
+
+        // Detail Page 3: Tracking & Calibration
         cardProfileCalibration = root.findViewById(R.id.card_profile_calibration);
         editStride = root.findViewById(R.id.edit_profile_stride);
         textStrideUnit = root.findViewById(R.id.text_profile_stride_unit);
@@ -166,41 +276,146 @@ public class ProfileFragment extends Fragment {
         btnLatencyBattery = root.findViewById(R.id.btn_latency_battery);
         btnLatencyFaster = root.findViewById(R.id.btn_latency_faster);
 
-        // Card 3: Goals & Preferences
-        cardProfileGoals = root.findViewById(R.id.card_profile_goals);
-        editGoal = root.findViewById(R.id.edit_profile_goal);
-        sliderGoal = root.findViewById(R.id.slider_profile_goal);
+        // Detail Page 4: Preferences & Units
         toggleGroupUnits = root.findViewById(R.id.toggle_group_units);
         btnUnitMetric = root.findViewById(R.id.btn_unit_metric);
         btnUnitImperial = root.findViewById(R.id.btn_unit_imperial);
+    }
 
-        if (getContext() != null) {
-            targetVibrator = (Vibrator) requireContext().getSystemService(Context.VIBRATOR_SERVICE);
+    private void setupBackNavigation() {
+        onBackPressedCallback = new OnBackPressedCallback(false) {
+            @Override
+            public void handleOnBackPressed() {
+                navigateToHub();
+            }
+        };
+        requireActivity().getOnBackPressedDispatcher().addCallback(getViewLifecycleOwner(), onBackPressedCallback);
+    }
+
+    public void navigateToPage(int pageIndex, boolean animate) {
+        if (viewFlipper == null || pageIndex == currentPage) return;
+
+        if (animate && getContext() != null) {
+            if (pageIndex > currentPage) {
+                viewFlipper.setInAnimation(getContext(), R.anim.slide_in_right);
+                viewFlipper.setOutAnimation(getContext(), R.anim.slide_out_left);
+            } else {
+                viewFlipper.setInAnimation(getContext(), R.anim.slide_in_left);
+                viewFlipper.setOutAnimation(getContext(), R.anim.slide_out_right);
+            }
+        } else {
+            viewFlipper.setInAnimation(null);
+            viewFlipper.setOutAnimation(null);
+        }
+
+        currentPage = pageIndex;
+        viewFlipper.setDisplayedChild(pageIndex);
+
+        if (onBackPressedCallback != null) {
+            onBackPressedCallback.setEnabled(currentPage != PAGE_HUB);
+        }
+
+        // Reset scroll position of target page to top
+        NestedScrollView targetScroll = getScrollViewForPage(pageIndex);
+        if (targetScroll != null) {
+            targetScroll.scrollTo(0, 0);
+        }
+
+        // Dismiss keyboard if open
+        View currentFocus = getActivity() != null ? getActivity().getCurrentFocus() : null;
+        if (currentFocus != null) {
+            currentFocus.clearFocus();
+            hideKeyboard(currentFocus);
+        }
+    }
+
+    public void navigateToHub() {
+        navigateToPage(PAGE_HUB, true);
+    }
+
+    public int getCurrentPage() {
+        return currentPage;
+    }
+
+    @Nullable
+    private NestedScrollView getScrollViewForPage(int page) {
+        switch (page) {
+            case PAGE_HUB: return profileScrollView;
+            case PAGE_BIOMETRICS: return scrollPageBiometrics;
+            case PAGE_GOALS: return scrollPageGoals;
+            case PAGE_CALIBRATION: return scrollPageCalibration;
+            case PAGE_PREFERENCES: return scrollPagePreferences;
+            case PAGE_ABOUT: return scrollPageAbout;
+            default: return null;
         }
     }
 
     private void setupActionListeners(@NonNull View root) {
-        if (profileScrollView != null) {
-            profileScrollView.setOnTouchListener((v, event) -> {
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    View currentFocus = getActivity() != null ? getActivity().getCurrentFocus() : null;
-                    if (currentFocus != null) {
-                        currentFocus.clearFocus();
-                        hideKeyboard(currentFocus);
-                    }
+        // Touch outside to hide keyboard on all scroll containers
+        View.OnTouchListener dismissKeyboardOnTouch = (v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                View currentFocus = getActivity() != null ? getActivity().getCurrentFocus() : null;
+                if (currentFocus != null) {
+                    currentFocus.clearFocus();
+                    hideKeyboard(currentFocus);
                 }
-                return false;
+            }
+            return false;
+        };
+
+        if (profileScrollView != null) profileScrollView.setOnTouchListener(dismissKeyboardOnTouch);
+        if (scrollPageBiometrics != null) scrollPageBiometrics.setOnTouchListener(dismissKeyboardOnTouch);
+        if (scrollPageGoals != null) scrollPageGoals.setOnTouchListener(dismissKeyboardOnTouch);
+        if (scrollPageCalibration != null) scrollPageCalibration.setOnTouchListener(dismissKeyboardOnTouch);
+        if (scrollPagePreferences != null) scrollPagePreferences.setOnTouchListener(dismissKeyboardOnTouch);
+        if (scrollPageAbout != null) scrollPageAbout.setOnTouchListener(dismissKeyboardOnTouch);
+
+        // Hub Bento Navigation Clicks
+        if (cardCatBiometrics != null) cardCatBiometrics.setOnClickListener(v -> navigateToPage(PAGE_BIOMETRICS, true));
+        if (cardCatGoals != null) cardCatGoals.setOnClickListener(v -> navigateToPage(PAGE_GOALS, true));
+        if (cardCatCalibration != null) cardCatCalibration.setOnClickListener(v -> navigateToPage(PAGE_CALIBRATION, true));
+        if (cardCatPreferences != null) cardCatPreferences.setOnClickListener(v -> navigateToPage(PAGE_PREFERENCES, true));
+        if (cardCatAbout != null) cardCatAbout.setOnClickListener(v -> navigateToPage(PAGE_ABOUT, true));
+
+        // Detail Page Back Button Clicks
+        if (btnBackBiometrics != null) btnBackBiometrics.setOnClickListener(v -> navigateToHub());
+        if (btnBackGoals != null) btnBackGoals.setOnClickListener(v -> navigateToHub());
+        if (btnBackCalibration != null) btnBackCalibration.setOnClickListener(v -> navigateToHub());
+        if (btnBackPreferences != null) btnBackPreferences.setOnClickListener(v -> navigateToHub());
+        if (btnBackAbout != null) btnBackAbout.setOnClickListener(v -> navigateToHub());
+
+        // Display Name listener + edit affordance + auto scroll
+        if (btnEditProfileName != null) {
+            btnEditProfileName.setOnClickListener(v -> {
+                if (editProfileName == null) return;
+                HapticHelper.tick(getContext());
+                if (isEditingName) {
+                    commitName();
+                    editProfileName.clearFocus();
+                    hideKeyboard(editProfileName);
+                    updateEditNameButtonVisuals(false);
+                } else {
+                    updateEditNameButtonVisuals(true);
+                    editProfileName.requestFocus();
+                    editProfileName.setSelection(editProfileName.getText() != null ? editProfileName.getText().length() : 0);
+                    showKeyboard(editProfileName);
+                }
             });
         }
-
-        // Display Name listener + auto scroll
         if (editProfileName != null) {
             setupFocusAutoScroll(editProfileName, cardProfileIdentity);
+            editProfileName.setOnFocusChangeListener((v, hasFocus) -> {
+                if (!hasFocus && isEditingName) {
+                    commitName();
+                    updateEditNameButtonVisuals(false);
+                }
+            });
             editProfileName.setOnEditorActionListener((v, actionId, event) -> {
                 if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_NEXT) {
                     commitName();
                     v.clearFocus();
                     hideKeyboard(v);
+                    updateEditNameButtonVisuals(false);
                     return true;
                 }
                 return false;
@@ -228,9 +443,7 @@ public class ProfileFragment extends Fragment {
                 @Override
                 public void onValueChanged(float value) {
                     isHeightRulerDragging = true;
-                    if (currentUnitSystem == SettingsRepository.UnitSystem.IMPERIAL) {
-                        textHeightValue.setText(String.format(Locale.getDefault(), "%.0f", value));
-                    } else {
+                    if (textHeightValue != null) {
                         textHeightValue.setText(String.format(Locale.getDefault(), "%.0f", value));
                     }
                 }
@@ -249,10 +462,12 @@ public class ProfileFragment extends Fragment {
                 @Override
                 public void onValueChanged(float value) {
                     isWeightRulerDragging = true;
-                    if (currentUnitSystem == SettingsRepository.UnitSystem.IMPERIAL) {
-                        textWeightValue.setText(String.format(Locale.getDefault(), "%.0f", value));
-                    } else {
-                        textWeightValue.setText(String.format(Locale.getDefault(), "%.1f", value));
+                    if (textWeightValue != null) {
+                        if (currentUnitSystem == SettingsRepository.UnitSystem.IMPERIAL) {
+                            textWeightValue.setText(String.format(Locale.getDefault(), "%.0f", value));
+                        } else {
+                            textWeightValue.setText(String.format(Locale.getDefault(), "%.1f", value));
+                        }
                     }
                 }
 
@@ -264,7 +479,7 @@ public class ProfileFragment extends Fragment {
             });
         }
 
-        // Age card click -> focus editAge and show keyboard
+        // Age card click -> focus editAge and show soft keyboard
         if (cardProfileAge != null) {
             cardProfileAge.setOnClickListener(v -> {
                 if (editAge != null) {
@@ -370,7 +585,7 @@ public class ProfileFragment extends Fragment {
             });
         }
 
-        // Daily step goal slider with magnetic sticky ticks and ViewPager2 swipe protection
+        // Daily step goal slider with magnetic ticks & ViewPager2 swipe protection
         if (sliderGoal != null) {
             sliderGoal.setOnTouchListener((v, event) -> {
                 int action = event.getActionMasked();
@@ -425,14 +640,14 @@ public class ProfileFragment extends Fragment {
                 public void onStopTrackingTouch(@NonNull Slider slider) {
                     isSliderDragging = false;
                     long goalSteps = Math.round(slider.getValue() / 500.0f) * 500L;
-                    goalSteps = Math.max(500L, Math.min(100000L, goalSteps));
+                    goalSteps = Math.max(500L, Math.min(MAX_STEP_GOAL, goalSteps));
                     currentGoal = goalSteps;
                     slider.setValue((float) goalSteps);
                     if (editGoal != null && !editGoal.hasFocus()) {
                         editGoal.setText(String.format(Locale.getDefault(), "%,d", goalSteps));
                     }
                     viewModel.saveDailyStepGoal(goalSteps);
-                    triggerMagneticTick(slider, true, true); // Sharp distinct lock-in accent
+                    triggerMagneticTick(slider, true, true);
                     if (getActivity() instanceof MainActivity) {
                         ((MainActivity) getActivity()).setSwipeEnabled(true);
                     }
@@ -474,22 +689,33 @@ public class ProfileFragment extends Fragment {
     }
 
     private void scrollToTarget(@NonNull View target) {
-        if (profileScrollView == null) return;
-        profileScrollView.postDelayed(() -> {
+        NestedScrollView parentScrollView = findParentScrollView(target);
+        if (parentScrollView == null) parentScrollView = profileScrollView;
+        if (parentScrollView == null) return;
+
+        final NestedScrollView scrollView = parentScrollView;
+        scrollView.postDelayed(() -> {
             if (!isAdded() || getContext() == null) return;
             int[] targetLoc = new int[2];
             target.getLocationOnScreen(targetLoc);
             int[] scrollLoc = new int[2];
-            profileScrollView.getLocationOnScreen(scrollLoc);
-            int relativeY = targetLoc[1] - scrollLoc[1] + profileScrollView.getScrollY();
+            scrollView.getLocationOnScreen(scrollLoc);
+            int relativeY = targetLoc[1] - scrollLoc[1] + scrollView.getScrollY();
             float density = getResources().getDisplayMetrics().density;
             int offset = Math.max(0, relativeY - (int) (24f * density));
-            profileScrollView.smoothScrollTo(0, offset);
+            scrollView.smoothScrollTo(0, offset);
         }, 250);
     }
 
-    private void triggerMagneticTick(@NonNull View sourceView, boolean isMilestone) {
-        triggerMagneticTick(sourceView, isMilestone, false);
+    private NestedScrollView findParentScrollView(View view) {
+        ViewParent p = view.getParent();
+        while (p != null) {
+            if (p instanceof NestedScrollView) {
+                return (NestedScrollView) p;
+            }
+            p = p.getParent();
+        }
+        return null;
     }
 
     private void triggerMagneticTick(@NonNull View sourceView, boolean isMilestone, boolean force) {
@@ -501,7 +727,7 @@ public class ProfileFragment extends Fragment {
     }
 
     private void observeViewModel() {
-        // User Name observation
+        // User Name
         viewModel.getUserName().observe(getViewLifecycleOwner(), name -> {
             if (name == null || editProfileName == null) return;
             if (!editProfileName.hasFocus()) {
@@ -511,87 +737,102 @@ public class ProfileFragment extends Fragment {
             }
         });
 
-        // Unit System observation
+        // Unit System
         viewModel.getUnitSystem().observe(getViewLifecycleOwner(), unit -> {
             if (unit == null) return;
             this.currentUnitSystem = unit;
             updateUnitSystemViews(unit);
+            updateHubSubtitles();
         });
 
-        // Height observation
+        // Height
         viewModel.getHeightCm().observe(getViewLifecycleOwner(), height -> {
             if (height == null) return;
             this.currentHeightCm = height;
             updateHeightDisplay(height);
+            updateHubSubtitles();
         });
 
-        // Weight observation
+        // Weight
         viewModel.getWeightKg().observe(getViewLifecycleOwner(), weight -> {
             if (weight == null) return;
             this.currentWeightKg = weight;
             updateWeightDisplay(weight);
+            updateHubSubtitles();
         });
 
-        // Age observation
+        // Age
         viewModel.getAge().observe(getViewLifecycleOwner(), age -> {
-            if (age == null || editAge == null) return;
-            if (!editAge.hasFocus()) {
+            if (age == null) return;
+            this.currentAge = age;
+            if (editAge != null && !editAge.hasFocus()) {
                 editAge.setText(String.valueOf(age));
             }
+            updateHubSubtitles();
         });
 
-        // Gender observation
+        // Gender
         viewModel.getGender().observe(getViewLifecycleOwner(), gender -> {
-            if (gender == null || toggleGroupGender == null) return;
-            int targetId;
-            switch (gender) {
-                case MALE:
-                    targetId = R.id.btn_gender_male;
-                    break;
-                case FEMALE:
-                    targetId = R.id.btn_gender_female;
-                    break;
-                case UNSPECIFIED:
-                default:
-                    targetId = R.id.btn_gender_unspecified;
-                    break;
+            if (gender == null) return;
+            this.currentGender = gender;
+            if (toggleGroupGender != null) {
+                int targetId;
+                switch (gender) {
+                    case MALE:
+                        targetId = R.id.btn_gender_male;
+                        break;
+                    case FEMALE:
+                        targetId = R.id.btn_gender_female;
+                        break;
+                    case UNSPECIFIED:
+                    default:
+                        targetId = R.id.btn_gender_unspecified;
+                        break;
+                }
+                if (toggleGroupGender.getCheckedButtonId() != targetId) {
+                    isProgrammaticUpdate = true;
+                    toggleGroupGender.check(targetId);
+                    isProgrammaticUpdate = false;
+                }
             }
-            if (toggleGroupGender.getCheckedButtonId() != targetId) {
-                isProgrammaticUpdate = true;
-                toggleGroupGender.check(targetId);
-                isProgrammaticUpdate = false;
-            }
+            updateHubSubtitles();
         });
 
-        // Stride observation
+        // Stride
         viewModel.getStrideLengthCm().observe(getViewLifecycleOwner(), stride -> {
             if (stride == null) return;
             this.currentStrideCm = stride;
             updateStrideDisplay(stride);
+            updateHubSubtitles();
         });
 
-        // Manual stride flag observation
+        // Manual Stride Flag
         viewModel.getIsManualStride().observe(getViewLifecycleOwner(), isManual -> {
             this.currentIsManualStride = Boolean.TRUE.equals(isManual);
             if (btnResetStride != null) {
                 btnResetStride.setVisibility(currentIsManualStride ? View.VISIBLE : View.GONE);
             }
+            updateHubSubtitles();
         });
 
-        // Tracking latency observation
+        // Tracking Latency
         viewModel.getTrackingLatency().observe(getViewLifecycleOwner(), latency -> {
-            if (latency == null || toggleGroupLatency == null) return;
-            int targetId = (latency == SettingsRepository.TrackingLatency.FASTER_UPDATES)
-                    ? R.id.btn_latency_faster
-                    : R.id.btn_latency_battery;
-            if (toggleGroupLatency.getCheckedButtonId() != targetId) {
-                isProgrammaticUpdate = true;
-                toggleGroupLatency.check(targetId);
-                isProgrammaticUpdate = false;
+            if (latency == null) return;
+            this.currentLatency = latency;
+            if (toggleGroupLatency != null) {
+                int targetId = (latency == SettingsRepository.TrackingLatency.FASTER_UPDATES)
+                        ? R.id.btn_latency_faster
+                        : R.id.btn_latency_battery;
+                if (toggleGroupLatency.getCheckedButtonId() != targetId) {
+                    isProgrammaticUpdate = true;
+                    toggleGroupLatency.check(targetId);
+                    isProgrammaticUpdate = false;
+                }
             }
+            updateHubSubtitles();
         });
 
-        // Daily step goal observation
+        // Daily Step Goal
         viewModel.getDailyStepGoal().observe(getViewLifecycleOwner(), goal -> {
             if (goal == null) return;
             this.currentGoal = goal;
@@ -604,7 +845,79 @@ public class ProfileFragment extends Fragment {
                 sliderGoal.setValue(snapped);
                 lastReportedGoalTick = (int) (snapped / 500f);
             }
+            updateHubSubtitles();
         });
+    }
+
+    private void updateHubSubtitles() {
+        if (!isAdded() || getContext() == null) return;
+
+        // 1. Biometrics & Physical
+        if (textCatBiometricsSubtitle != null) {
+            String heightStr = (currentUnitSystem == SettingsRepository.UnitSystem.IMPERIAL)
+                    ? String.format(Locale.getDefault(), "%.0f in", SettingsRepository.cmToInches(currentHeightCm))
+                    : String.format(Locale.getDefault(), "%.0f cm", currentHeightCm);
+
+            String weightStr = (currentUnitSystem == SettingsRepository.UnitSystem.IMPERIAL)
+                    ? String.format(Locale.getDefault(), "%.0f lb", SettingsRepository.kgToLbs(currentWeightKg))
+                    : String.format(Locale.getDefault(), "%.1f kg", currentWeightKg);
+
+            String genderStr;
+            if (currentGender == SettingsRepository.Gender.MALE) {
+                genderStr = getString(R.string.profile_gender_male);
+            } else if (currentGender == SettingsRepository.Gender.FEMALE) {
+                genderStr = getString(R.string.profile_gender_female);
+            } else {
+                genderStr = getString(R.string.profile_gender_unspecified);
+            }
+
+            textCatBiometricsSubtitle.setText(String.format("%s • %s • %s", heightStr, weightStr, genderStr));
+        }
+
+        // 2. Goals & Targets
+        int waterTargetMl = WaterIntakeCalculator.calculateBreakdown(
+                currentWeightKg, currentHeightCm, currentAge, currentGender, currentGoal
+        ).getTargetMl();
+
+        if (textCatGoalsSubtitle != null) {
+            textCatGoalsSubtitle.setText(String.format(Locale.getDefault(), "%,d steps • %,d ml", currentGoal, waterTargetMl));
+        }
+        if (textWaterGoalValue != null) {
+            textWaterGoalValue.setText(String.format(Locale.getDefault(), "%,d ml", waterTargetMl));
+        }
+
+        // 3. Tracking & Calibration
+        if (textCatCalibrationSubtitle != null) {
+            String strideStr;
+            if (currentIsManualStride) {
+                strideStr = (currentUnitSystem == SettingsRepository.UnitSystem.IMPERIAL)
+                        ? String.format(Locale.getDefault(), "Manual (%.1f in)", SettingsRepository.cmToInches(currentStrideCm))
+                        : String.format(Locale.getDefault(), "Manual (%.1f cm)", currentStrideCm);
+            } else {
+                strideStr = (currentUnitSystem == SettingsRepository.UnitSystem.IMPERIAL)
+                        ? String.format(Locale.getDefault(), "Auto (%.0f in)", SettingsRepository.cmToInches(currentStrideCm))
+                        : String.format(Locale.getDefault(), "Auto (%.0f cm)", currentStrideCm);
+            }
+
+            String latencyStr = (currentLatency == SettingsRepository.TrackingLatency.FASTER_UPDATES)
+                    ? getString(R.string.profile_latency_faster)
+                    : "Balanced";
+
+            textCatCalibrationSubtitle.setText(String.format("%s • %s", strideStr, latencyStr));
+        }
+
+        // 4. Preferences & Units
+        if (textCatPreferencesSubtitle != null) {
+            String unitStr = (currentUnitSystem == SettingsRepository.UnitSystem.IMPERIAL)
+                    ? "Imperial (mi, lb)"
+                    : "Metric (km, kg)";
+            textCatPreferencesSubtitle.setText(unitStr);
+        }
+
+        // 5. About & Storage
+        if (textCatAboutSubtitle != null) {
+            textCatAboutSubtitle.setText("Pulse v1.0 • 100% Offline & Private");
+        }
     }
 
     private void updateUnitSystemViews(@NonNull SettingsRepository.UnitSystem unit) {
@@ -693,6 +1006,24 @@ public class ProfileFragment extends Fragment {
             } else {
                 editStride.setText(String.format(Locale.getDefault(), "%.1f", cm));
             }
+        }
+    }
+
+    private void updateEditNameButtonVisuals(boolean editing) {
+        if (btnEditProfileName == null || getContext() == null) return;
+        this.isEditingName = editing;
+        if (editing) {
+            btnEditProfileName.setImageResource(R.drawable.ic_check);
+            btnEditProfileName.setImageTintList(ColorStateList.valueOf(
+                    ContextCompat.getColor(requireContext(), R.color.pulse_green)
+            ));
+            btnEditProfileName.setContentDescription("Save display name");
+        } else {
+            btnEditProfileName.setImageResource(R.drawable.ic_edit);
+            btnEditProfileName.setImageTintList(ColorStateList.valueOf(
+                    ContextCompat.getColor(requireContext(), R.color.pulse_text_secondary)
+            ));
+            btnEditProfileName.setContentDescription(getString(R.string.profile_edit_name_desc));
         }
     }
 

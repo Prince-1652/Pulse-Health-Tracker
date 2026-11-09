@@ -40,21 +40,21 @@
                     android:id="@+id/text_water_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Water"
+                    android:text="@string/water_title"
                     android:textSize="20sp"
                     android:fontFamily="sans-serif"
                     android:textStyle="bold"
-                    android:textColor="#FFFFFF" />
+                    android:textColor="@color/pulse_text_primary" />
 
                 <TextView
                     android:id="@+id/text_water_subtitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:text="Daily Hydration"
+                    android:text="@string/water_subtitle"
                     android:textSize="13sp"
                     android:fontFamily="sans-serif"
-                    android:textColor="#8E8E93" />
+                    android:textColor="@color/pulse_text_secondary" />
             </LinearLayout>
 
             <!-- Circular Notification reminder toggle button (42dp x 42dp circle card) -->
@@ -66,11 +66,11 @@
                 app:cardElevation="0dp"
                 app:cardMaxElevation="0dp"
                 app:strokeWidth="0dp"
-                app:cardBackgroundColor="#FFFFFF"
+                app:cardBackgroundColor="@color/white"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Toggle Hydration Reminders">
+                android:contentDescription="@string/water_reminder_toggle_desc">
 
                 <ImageView
                     android:id="@+id/icon_water_reminder_toggle"
@@ -78,12 +78,12 @@
                     android:layout_height="20dp"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_notification"
-                    app:tint="#121212"
+                    app:tint="@color/pulse_on_nav_active"
                     android:contentDescription="@null" />
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
 
-        <!-- Top Sky Blue Hero Box: 16dp horizontal, 18dp top, 32dp radius, Sky Blue (#8BA0FF) -->
+        <!-- Top Sky Blue Hero Box: 16dp horizontal, 18dp top, 28dp radius, Sky Blue (#8BA0FF) -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/card_water_hero"
             android:layout_width="match_parent"
@@ -91,7 +91,7 @@
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginTop="18dp"
-            app:cardCornerRadius="32dp"
+            app:cardCornerRadius="@dimen/card_radius"
             app:cardElevation="0dp"
             app:cardMaxElevation="0dp"
             app:strokeWidth="0dp"
@@ -116,9 +116,9 @@
                     app:cpv_currentSteps="0"
                     app:cpv_progress="0.0"
                     app:cpv_strokeWidth="19dp"
-                    app:cpv_trackColor="#26000000"
-                    app:cpv_progressColor="#121212"
-                    app:cpv_percentTextColor="#121212"
+                    app:cpv_trackColor="@color/pulse_progress_track"
+                    app:cpv_progressColor="@color/pulse_on_sky_blue"
+                    app:cpv_percentTextColor="@color/pulse_on_sky_blue"
                     app:cpv_percentTextSize="28sp"
                     app:cpv_centerPercentageOnly="true" />
 
@@ -133,10 +133,10 @@
                         android:id="@+id/label_hero_water"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Intake today"
+                        android:text="@string/water_hero_intake_label"
                         android:textSize="15sp"
                         android:fontFamily="sans-serif-medium"
-                        android:textColor="#333333" />
+                        android:textColor="@color/pulse_on_container_secondary" />
 
                     <TextView
                         android:id="@+id/text_water_current"
@@ -147,7 +147,7 @@
                         android:fontFamily="sans-serif"
                         android:textStyle="bold"
                         android:fontFeatureSettings="tnum"
-                        android:textColor="#121212"
+                        android:textColor="@color/pulse_on_sky_blue"
                         android:includeFontPadding="false"
                         tools:text="0" />
 
@@ -164,10 +164,10 @@
                             android:id="@+id/text_water_out_of"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="out of "
+                            android:text="@string/common_out_of"
                             android:textSize="14sp"
                             android:fontFamily="sans-serif-medium"
-                            android:textColor="#444444" />
+                            android:textColor="@color/pulse_on_container_tertiary" />
 
                         <TextView
                             android:id="@+id/text_water_target"
@@ -176,7 +176,8 @@
                             android:textSize="22sp"
                             android:fontFamily="sans-serif"
                             android:textStyle="bold"
-                            android:textColor="#121212"
+                            android:layout_marginLeft="8dp"
+                            android:textColor="@color/pulse_on_sky_blue"
                             tools:text="2,500 ml" />
                     </LinearLayout>
 
@@ -189,7 +190,7 @@
                         tools:text="2,500 ml remaining"
                         android:textSize="13sp"
                         android:fontFamily="sans-serif-medium"
-                        android:textColor="#333333" />
+                        android:textColor="@color/pulse_on_container_secondary" />
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -205,219 +206,219 @@
             android:layout_marginTop="22dp"
             android:layout_marginBottom="12dp">
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="QUICK LOG"
-                android:textSize="11sp"
-                android:letterSpacing="0.08"
-                android:fontFamily="sans-serif-medium"
-                android:textColor="@color/pulse_text_secondary" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/water_section_quick_log"
+                    android:textSize="11sp"
+                    android:letterSpacing="0.08"
+                    android:fontFamily="sans-serif-medium"
+                    android:textColor="@color/pulse_text_secondary" />
 
-            <!-- Proper Reset Today Button -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/btn_water_reset"
-                android:layout_width="wrap_content"
-                android:layout_height="34dp"
-                app:cardCornerRadius="17dp"
-                app:cardElevation="0dp"
-                app:strokeWidth="1dp"
-                app:strokeColor="#333333"
-                app:cardBackgroundColor="@color/pulse_surface"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground">
-
-                <LinearLayout
+                <!-- Proper Reset Today Button -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btn_water_reset"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:paddingHorizontal="14dp">
+                    android:layout_height="34dp"
+                    app:cardCornerRadius="17dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="1dp"
+                    app:strokeColor="@color/pulse_track_inactive"
+                    app:cardBackgroundColor="@color/pulse_surface"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground">
 
-                    <TextView
+                    <LinearLayout
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Reset Today"
-                        android:textSize="12sp"
-                        android:fontFamily="sans-serif-medium"
-                        android:textStyle="bold"
-                        android:textColor="#FFFFFF" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-        </LinearLayout>
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:paddingHorizontal="14dp">
 
-        <!-- 3 Quick Add Bento Cards: +250 ml (Drop), +500 ml (Glass), +750 ml (Bottle) - White as bottom nav -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingHorizontal="16dp"
-            android:baselineAligned="false">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/water_reset_today"
+                            android:textSize="12sp"
+                            android:fontFamily="sans-serif-medium"
+                            android:textStyle="bold"
+                            android:textColor="@color/pulse_text_primary" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
 
-            <!-- Card 1: 250 ml (Water Drop Icon) -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/btn_add_250"
-                android:layout_width="0dp"
+            <!-- 3 Quick Add Bento Cards: +250 ml (Drop), +500 ml (Glass), +750 ml (Bottle) - White as bottom nav -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="4dp"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="0dp"
-                app:strokeWidth="0dp"
-                app:cardBackgroundColor="#FFFFFF"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground">
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp"
+                android:baselineAligned="false">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <!-- Card 1: 250 ml (Water Drop Icon) -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btn_add_250"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:paddingVertical="16dp"
-                    android:paddingHorizontal="8dp">
+                    android:layout_weight="1"
+                    android:layout_marginEnd="4dp"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp"
+                    app:cardBackgroundColor="@color/white"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground">
 
-                    <ImageView
-                        android:layout_width="26dp"
-                        android:layout_height="26dp"
-                        android:src="@drawable/ic_water_drop"
-                        app:tint="#121212"
-                        android:layout_marginBottom="8dp"
-                        android:contentDescription="@null" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="+250 ml"
-                        android:textSize="15sp"
-                        android:textStyle="bold"
-                        android:fontFamily="sans-serif"
-                        android:textColor="#121212" />
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:paddingVertical="16dp"
+                        android:paddingHorizontal="8dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
+                        <ImageView
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
+                            android:src="@drawable/ic_water_drop"
+                            app:tint="@color/pulse_on_nav_active"
+                            android:layout_marginBottom="8dp"
+                            android:contentDescription="@null" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/water_quick_add_250"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            android:fontFamily="sans-serif"
+                            android:textColor="@color/pulse_on_nav_active" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="@string/water_quick_add_small_glass"
+                            android:textSize="11sp"
+                            android:fontFamily="sans-serif"
+                            android:textColor="@color/pulse_text_tertiary" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Card 2: 500 ml (Water Glass Icon) -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btn_add_500"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp"
+                    app:cardBackgroundColor="@color/white"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="Small glass"
-                        android:textSize="11sp"
-                        android:fontFamily="sans-serif"
-                        android:textColor="#666666" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:paddingVertical="16dp"
+                        android:paddingHorizontal="8dp">
 
-            <!-- Card 2: 500 ml (Water Glass Icon) -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/btn_add_500"
-                android:layout_width="0dp"
+                        <ImageView
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
+                            android:src="@drawable/ic_water_glass"
+                            app:tint="@color/pulse_on_nav_active"
+                            android:layout_marginBottom="8dp"
+                            android:contentDescription="@null" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/water_quick_add_500"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            android:fontFamily="sans-serif"
+                            android:textColor="@color/pulse_on_nav_active" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="@string/water_quick_add_large_glass"
+                            android:textSize="11sp"
+                            android:fontFamily="sans-serif"
+                            android:textColor="@color/pulse_text_tertiary" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Card 3: 750 ml (Water Bottle Icon) -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/btn_add_750"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="4dp"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:strokeWidth="0dp"
+                    app:cardBackgroundColor="@color/white"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:gravity="center"
+                        android:paddingVertical="16dp"
+                        android:paddingHorizontal="8dp">
+
+                        <ImageView
+                            android:layout_width="26dp"
+                            android:layout_height="26dp"
+                            android:src="@drawable/ic_water_bottle"
+                            app:tint="@color/pulse_on_nav_active"
+                            android:layout_marginBottom="8dp"
+                            android:contentDescription="@null" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/water_quick_add_750"
+                            android:textSize="15sp"
+                            android:textStyle="bold"
+                            android:fontFamily="sans-serif"
+                            android:textColor="@color/pulse_on_nav_active" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="@string/water_quick_add_bottle"
+                            android:textSize="11sp"
+                            android:fontFamily="sans-serif"
+                            android:textColor="@color/pulse_text_tertiary" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <!-- Section Label: Scientific Hydration Breakdown -->
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="4dp"
-                android:layout_marginEnd="4dp"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="0dp"
-                app:strokeWidth="0dp"
-                app:cardBackgroundColor="#FFFFFF"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:paddingVertical="16dp"
-                    android:paddingHorizontal="8dp">
-
-                    <ImageView
-                        android:layout_width="26dp"
-                        android:layout_height="26dp"
-                        android:src="@drawable/ic_water_glass"
-                        app:tint="#121212"
-                        android:layout_marginBottom="8dp"
-                        android:contentDescription="@null" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="+500 ml"
-                        android:textSize="15sp"
-                        android:textStyle="bold"
-                        android:fontFamily="sans-serif"
-                        android:textColor="#121212" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="Large glass"
-                        android:textSize="11sp"
-                        android:fontFamily="sans-serif"
-                        android:textColor="#666666" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Card 3: 750 ml (Water Bottle Icon) -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/btn_add_750"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="4dp"
-                app:cardCornerRadius="20dp"
-                app:cardElevation="0dp"
-                app:strokeWidth="0dp"
-                app:cardBackgroundColor="#FFFFFF"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?attr/selectableItemBackground">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:paddingVertical="16dp"
-                    android:paddingHorizontal="8dp">
-
-                    <ImageView
-                        android:layout_width="26dp"
-                        android:layout_height="26dp"
-                        android:src="@drawable/ic_water_bottle"
-                        app:tint="#121212"
-                        android:layout_marginBottom="8dp"
-                        android:contentDescription="@null" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="+750 ml"
-                        android:textSize="15sp"
-                        android:textStyle="bold"
-                        android:fontFamily="sans-serif"
-                        android:textColor="#121212" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="Bottle"
-                        android:textSize="11sp"
-                        android:fontFamily="sans-serif"
-                        android:textColor="#666666" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-        </LinearLayout>
-
-        <!-- Section Label: Scientific Hydration Breakdown -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="24dp"
-            android:layout_marginBottom="12dp"
-            android:text="SCIENTIFIC HYDRATION BREAKDOWN"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="12dp"
+                android:text="@string/water_section_breakdown"
             android:textSize="11sp"
             android:letterSpacing="0.08"
             android:fontFamily="sans-serif-medium"
@@ -452,10 +453,10 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Target Formula"
+                        android:text="@string/water_target_formula_title"
                         android:textSize="20sp"
                         android:fontFamily="sans-serif-medium"
-                        android:textColor="#121212"
+                        android:textColor="@color/pulse_on_yellow"
                         android:textStyle="bold" />
 
                     <!-- Formula Pill: "EFSA / IOM" -->
@@ -472,21 +473,21 @@
                             android:layout_height="wrap_content"
                             android:paddingHorizontal="10dp"
                             android:paddingVertical="4dp"
-                            android:text="EFSA / IOM"
+                            android:text="@string/water_formula_efsa_iom"
                             android:textSize="11sp"
                             android:fontFamily="sans-serif-medium"
                             android:textStyle="bold"
-                            android:textColor="#121212" />
+                            android:textColor="@color/pulse_on_yellow" />
                     </com.google.android.material.card.MaterialCardView>
                 </LinearLayout>
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Evidence-based baseline calculated from body composition and physical movement."
+                    android:text="@string/water_formula_explanation"
                     android:textSize="13sp"
                     android:fontFamily="sans-serif"
-                    android:textColor="#444444"
+                    android:textColor="@color/pulse_on_container_tertiary"
                     android:layout_marginBottom="18dp" />
 
                 <!-- Row 1: Base Intake (Weight & Gender) -->
@@ -506,10 +507,10 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Base Metabolic Fluid"
+                            android:text="@string/water_breakdown_base_title"
                             android:textSize="14sp"
                             android:fontFamily="sans-serif-medium"
-                            android:textColor="#121212" />
+                            android:textColor="@color/pulse_on_yellow" />
 
                         <TextView
                             android:id="@+id/text_breakdown_base_sub"
@@ -519,7 +520,7 @@
                             tools:text="70.0 kg • Male (35 ml/kg)"
                             android:textSize="12sp"
                             android:fontFamily="sans-serif"
-                            android:textColor="#444444" />
+                            android:textColor="@color/pulse_on_container_tertiary" />
                     </LinearLayout>
 
                     <TextView
@@ -530,7 +531,7 @@
                         android:textSize="15sp"
                         android:fontFamily="sans-serif-medium"
                         android:textStyle="bold"
-                        android:textColor="#121212" />
+                        android:textColor="@color/pulse_on_yellow" />
                 </LinearLayout>
 
                 <!-- Row 2: Body Surface Area (BSA) Evaporative Loss -->
@@ -550,10 +551,10 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Surface Evaporation (BSA)"
+                            android:text="@string/water_breakdown_bsa_title"
                             android:textSize="14sp"
                             android:fontFamily="sans-serif-medium"
-                            android:textColor="#121212" />
+                            android:textColor="@color/pulse_on_yellow" />
 
                         <TextView
                             android:id="@+id/text_breakdown_bsa_sub"
@@ -563,7 +564,7 @@
                             tools:text="170 cm • DuBois formula"
                             android:textSize="12sp"
                             android:fontFamily="sans-serif"
-                            android:textColor="#444444" />
+                            android:textColor="@color/pulse_on_container_tertiary" />
                     </LinearLayout>
 
                     <TextView
@@ -574,7 +575,7 @@
                         android:textSize="15sp"
                         android:fontFamily="sans-serif-medium"
                         android:textStyle="bold"
-                        android:textColor="#121212" />
+                        android:textColor="@color/pulse_on_yellow" />
                 </LinearLayout>
 
                 <!-- Row 3: Age Demographic Factor -->
@@ -594,10 +595,10 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Age Demographic"
+                            android:text="@string/water_breakdown_age_title"
                             android:textSize="14sp"
                             android:fontFamily="sans-serif-medium"
-                            android:textColor="#121212" />
+                            android:textColor="@color/pulse_on_yellow" />
 
                         <TextView
                             android:id="@+id/text_breakdown_age_sub"
@@ -607,7 +608,7 @@
                             tools:text="30 years • Standard adult"
                             android:textSize="12sp"
                             android:fontFamily="sans-serif"
-                            android:textColor="#444444" />
+                            android:textColor="@color/pulse_on_container_tertiary" />
                     </LinearLayout>
 
                     <TextView
@@ -618,7 +619,7 @@
                         android:textSize="15sp"
                         android:fontFamily="sans-serif-medium"
                         android:textStyle="bold"
-                        android:textColor="#121212" />
+                        android:textColor="@color/pulse_on_yellow" />
                 </LinearLayout>
 
                 <!-- Row 4: Step Activity Compensation -->
@@ -638,10 +639,10 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Activity Compensation"
+                            android:text="@string/water_breakdown_activity_title"
                             android:textSize="14sp"
                             android:fontFamily="sans-serif-medium"
-                            android:textColor="#121212" />
+                            android:textColor="@color/pulse_on_yellow" />
 
                         <TextView
                             android:id="@+id/text_breakdown_steps_sub"
@@ -651,7 +652,7 @@
                             tools:text="Daily physical movement"
                             android:textSize="12sp"
                             android:fontFamily="sans-serif"
-                            android:textColor="#444444" />
+                            android:textColor="@color/pulse_on_container_tertiary" />
                     </LinearLayout>
 
                     <TextView
@@ -662,7 +663,7 @@
                         android:textSize="15sp"
                         android:fontFamily="sans-serif-medium"
                         android:textStyle="bold"
-                        android:textColor="#121212" />
+                        android:textColor="@color/pulse_on_yellow" />
                 </LinearLayout>
 
                 <!-- Divider line -->
@@ -683,11 +684,11 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Total Daily Target"
+                        android:text="@string/water_breakdown_total_title"
                         android:textSize="16sp"
                         android:fontFamily="sans-serif-medium"
                         android:textStyle="bold"
-                        android:textColor="#121212" />
+                        android:textColor="@color/pulse_on_yellow" />
 
                     <TextView
                         android:id="@+id/text_breakdown_total_val"
@@ -697,7 +698,7 @@
                         android:textSize="20sp"
                         android:fontFamily="sans-serif"
                         android:textStyle="bold"
-                        android:textColor="#121212" />
+                        android:textColor="@color/pulse_on_yellow" />
                 </LinearLayout>
 
             </LinearLayout>

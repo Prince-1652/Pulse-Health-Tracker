@@ -28,7 +28,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Your Weight"
+                android:text="@string/onboarding_weight_title"
                 android:textSize="28sp"
                 android:fontFamily="sans-serif"
                 android:textStyle="bold"
@@ -38,7 +38,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:text="Used to compute net active calories burned and clinical hydration volume."
+                android:text="@string/onboarding_weight_desc"
                 android:textSize="14sp"
                 android:fontFamily="sans-serif"
                 android:lineSpacingExtra="2dp"
@@ -72,8 +72,8 @@
                     android:layout_marginBottom="@dimen/space_16">
 
                     <ImageView
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
                         android:src="@drawable/ic_heart"
                         app:tint="@color/pulse_orange"
                         android:contentDescription="@null"
@@ -82,7 +82,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Weight Calibration"
+                        android:text="@string/onboarding_weight_calibration_title"
                         android:textAppearance="@style/TextAppearance.Pulse.TitleLarge"
                         android:textStyle="bold"
                         android:textColor="@color/pulse_text_primary" />
@@ -116,7 +116,7 @@
                                 android:layout_weight="1"
                                 android:text="@string/profile_weight"
                                 android:textAppearance="@style/TextAppearance.Pulse.TitleMedium"
-                                android:textColor="#8E8E93"
+                                android:textColor="@color/pulse_text_secondary"
                                 android:textStyle="bold" />
 
                             <LinearLayout
@@ -140,11 +140,11 @@
                                     android:id="@+id/text_onboarding_weight_unit"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text=" kg"
+                                    android:text="@string/unit_suffix_kg_spaced"
                                     android:textSize="16sp"
                                     android:fontFamily="sans-serif-medium"
                                     android:textStyle="bold"
-                                    android:textColor="#8E8E93"
+                                    android:textColor="@color/pulse_text_secondary"
                                     android:includeFontPadding="false"
                                     android:layout_marginStart="4dp" />
                             </LinearLayout>
@@ -156,7 +156,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="6dp"
-                            android:text="Estimated BMR: ~1,680 kcal/day"
+                            android:text="@string/onboarding_bmr_preview_default"
                             android:textSize="13sp"
                             android:fontFamily="sans-serif-medium"
                             android:textColor="@color/pulse_orange" />

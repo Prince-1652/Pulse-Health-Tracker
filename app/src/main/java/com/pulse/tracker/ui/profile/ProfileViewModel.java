@@ -43,7 +43,7 @@ public class ProfileViewModel extends AndroidViewModel {
     public static final double MAX_STRIDE_INCHES = 63.0;
 
     public static final long MIN_STEP_GOAL = 500L;
-    public static final long MAX_STEP_GOAL = 100000L;
+    public static final long MAX_STEP_GOAL = 50000L;
 
     private final SettingsRepository settingsRepository;
     private final MetricsRepository metricsRepository;
@@ -344,7 +344,7 @@ public class ProfileViewModel extends AndroidViewModel {
     }
 
     /**
-     * Validates and saves daily step target (500–100,000 steps).
+     * Validates and saves daily step target (500–50,000 steps).
      * Synchronously persists to SharedPreferences and updates today's Room entity
      * so hero ring and history reflect the new target immediately.
      */

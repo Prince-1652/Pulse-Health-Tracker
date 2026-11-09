@@ -102,7 +102,7 @@
             app:cardCornerRadius="27dp"
             app:cardElevation="0dp"
             app:strokeWidth="0dp"
-            app:cardBackgroundColor="#FFFFFF"
+            app:cardBackgroundColor="@color/white"
             android:clickable="true"
             android:focusable="true"
             android:foreground="?attr/selectableItemBackground">
@@ -116,7 +116,7 @@
                 android:textSize="16sp"
                 android:fontFamily="sans-serif-medium"
                 android:textStyle="bold"
-                android:textColor="#121212" />
+                android:textColor="@color/pulse_on_nav_active" />
         </com.google.android.material.card.MaterialCardView>
 
         <!-- Secondary Action Button: Back -->

@@ -38,7 +38,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Activity History"
+                    android:text="@string/history_title"
                     android:textColor="@color/pulse_text_primary"
                     android:textStyle="bold"
                     android:textSize="20sp"
@@ -47,7 +47,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Monthly steps &amp; performance logs"
+                    android:text="@string/history_subtitle"
                     android:textColor="@color/pulse_text_secondary"
                     android:textSize="13sp"
                     android:fontFamily="sans-serif" />
@@ -60,11 +60,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/space_12"
-            app:cardCornerRadius="24dp"
+            app:cardCornerRadius="@dimen/card_radius"
             app:cardElevation="0dp"
             app:cardMaxElevation="0dp"
             app:strokeWidth="1dp"
-            app:strokeColor="#1FFFFFFF"
+            app:strokeColor="@color/pulse_outline_subtle"
             app:cardBackgroundColor="@color/pulse_yellow">
 
             <LinearLayout
@@ -81,7 +81,7 @@
                     android:layout_height="@dimen/minimum_touch_target"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_chevron_left"
-                    app:tint="#121212"
+                    app:tint="@color/pulse_on_yellow"
                     android:contentDescription="@string/history_prev_month" />
 
                 <TextView
@@ -91,7 +91,7 @@
                     android:layout_weight="1"
                     android:text="@string/history_month_default"
                     android:textAppearance="@style/TextAppearance.Pulse.TitleLarge"
-                    android:textColor="#121212"
+                    android:textColor="@color/pulse_on_yellow"
                     android:textStyle="bold"
                     android:textAlignment="center" />
 
@@ -101,7 +101,7 @@
                     android:layout_height="@dimen/minimum_touch_target"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_chevron_right"
-                    app:tint="#121212"
+                    app:tint="@color/pulse_on_yellow"
                     android:contentDescription="@string/history_next_month" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -137,7 +137,7 @@
                         android:layout_weight="1"
                         android:text="@string/weekday_mon"
                         android:textAlignment="center"
-                        android:textColor="#333333"
+                        android:textColor="@color/pulse_on_container_secondary"
                         android:textStyle="bold"
                         android:textSize="12sp"
                         android:fontFamily="sans-serif-medium" />
@@ -148,7 +148,7 @@
                         android:layout_weight="1"
                         android:text="@string/weekday_tue"
                         android:textAlignment="center"
-                        android:textColor="#333333"
+                        android:textColor="@color/pulse_on_container_secondary"
                         android:textStyle="bold"
                         android:textSize="12sp"
                         android:fontFamily="sans-serif-medium" />
@@ -159,7 +159,7 @@
                         android:layout_weight="1"
                         android:text="@string/weekday_wed"
                         android:textAlignment="center"
-                        android:textColor="#333333"
+                        android:textColor="@color/pulse_on_container_secondary"
                         android:textStyle="bold"
                         android:textSize="12sp"
                         android:fontFamily="sans-serif-medium" />
@@ -170,7 +170,7 @@
                         android:layout_weight="1"
                         android:text="@string/weekday_thu"
                         android:textAlignment="center"
-                        android:textColor="#333333"
+                        android:textColor="@color/pulse_on_container_secondary"
                         android:textStyle="bold"
                         android:textSize="12sp"
                         android:fontFamily="sans-serif-medium" />
@@ -181,7 +181,7 @@
                         android:layout_weight="1"
                         android:text="@string/weekday_fri"
                         android:textAlignment="center"
-                        android:textColor="#333333"
+                        android:textColor="@color/pulse_on_container_secondary"
                         android:textStyle="bold"
                         android:textSize="12sp"
                         android:fontFamily="sans-serif-medium" />
@@ -192,7 +192,7 @@
                         android:layout_weight="1"
                         android:text="@string/weekday_sat"
                         android:textAlignment="center"
-                        android:textColor="#333333"
+                        android:textColor="@color/pulse_on_container_secondary"
                         android:textStyle="bold"
                         android:textSize="12sp"
                         android:fontFamily="sans-serif-medium" />
@@ -203,7 +203,7 @@
                         android:layout_weight="1"
                         android:text="@string/weekday_sun"
                         android:textAlignment="center"
-                        android:textColor="#333333"
+                        android:textColor="@color/pulse_on_container_secondary"
                         android:textStyle="bold"
                         android:textSize="12sp"
                         android:fontFamily="sans-serif-medium" />
@@ -301,7 +301,7 @@
                         android:id="@+id/text_selected_day_steps_unit"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text=" steps"
+                        android:text="@string/unit_suffix_steps_spaced"
                         android:layout_marginStart="@dimen/space_4"
                         android:layout_marginBottom="6dp"
                         android:textSize="15sp"
@@ -336,10 +336,10 @@
                             android:padding="14dp">
 
                             <ImageView
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
+                                android:layout_width="26dp"
+                                android:layout_height="26dp"
                                 android:src="@drawable/ic_calories"
-                                app:tint="#121212"
+                                app:tint="@color/pulse_on_orange"
                                 android:layout_marginBottom="10dp"
                                 android:contentDescription="@string/calories_label" />
 
@@ -357,7 +357,7 @@
                                     android:textSize="19sp"
                                     android:textStyle="bold"
                                     android:fontFamily="sans-serif"
-                                    android:textColor="#121212"
+                                    android:textColor="@color/pulse_on_orange"
                                     android:fontFeatureSettings="tnum"
                                     android:includeFontPadding="false" />
 
@@ -365,12 +365,12 @@
                                     android:id="@+id/text_selected_day_calories_unit"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text=" kcal"
+                                    android:text="@string/unit_suffix_kcal"
                                     android:layout_marginStart="2dp"
                                     android:textSize="11sp"
                                     android:textStyle="bold"
                                     android:fontFamily="sans-serif-medium"
-                                    android:textColor="#121212"
+                                    android:textColor="@color/pulse_on_container_unit"
                                     android:includeFontPadding="false" />
                             </LinearLayout>
 
@@ -378,10 +378,10 @@
                                 android:id="@+id/text_selected_day_calories_label"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Active kcal"
+                                android:text="@string/history_active_kcal_label"
                                 android:textSize="11sp"
                                 android:fontFamily="sans-serif-medium"
-                                android:textColor="#121212"
+                                android:textColor="@color/pulse_on_container_secondary"
                                 android:layout_marginTop="4dp" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
@@ -407,10 +407,10 @@
                             android:padding="14dp">
 
                             <ImageView
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
+                                android:layout_width="26dp"
+                                android:layout_height="26dp"
                                 android:src="@drawable/ic_distance"
-                                app:tint="#121212"
+                                app:tint="@color/pulse_on_sky_blue"
                                 android:layout_marginBottom="10dp"
                                 android:contentDescription="@string/distance_label" />
 
@@ -428,7 +428,7 @@
                                     android:textSize="19sp"
                                     android:textStyle="bold"
                                     android:fontFamily="sans-serif"
-                                    android:textColor="#121212"
+                                    android:textColor="@color/pulse_on_sky_blue"
                                     android:fontFeatureSettings="tnum"
                                     android:includeFontPadding="false" />
 
@@ -436,12 +436,12 @@
                                     android:id="@+id/text_selected_day_distance_unit"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text=" km"
+                                    android:text="@string/unit_suffix_km"
                                     android:layout_marginStart="2dp"
                                     android:textSize="11sp"
                                     android:textStyle="bold"
                                     android:fontFamily="sans-serif-medium"
-                                    android:textColor="#121212"
+                                    android:textColor="@color/pulse_on_container_unit"
                                     android:includeFontPadding="false" />
                             </LinearLayout>
 
@@ -451,7 +451,7 @@
                                 android:text="@string/distance_label"
                                 android:textSize="11sp"
                                 android:fontFamily="sans-serif-medium"
-                                android:textColor="#121212"
+                                android:textColor="@color/pulse_on_container_secondary"
                                 android:layout_marginTop="4dp" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
@@ -476,10 +476,10 @@
                             android:padding="14dp">
 
                             <ImageView
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
+                                android:layout_width="26dp"
+                                android:layout_height="26dp"
                                 android:src="@drawable/ic_active_time"
-                                app:tint="#121212"
+                                app:tint="@color/pulse_on_yellow"
                                 android:layout_marginBottom="10dp"
                                 android:contentDescription="@string/active_time_label" />
 
@@ -497,7 +497,7 @@
                                     android:textSize="19sp"
                                     android:textStyle="bold"
                                     android:fontFamily="sans-serif"
-                                    android:textColor="#121212"
+                                    android:textColor="@color/pulse_on_yellow"
                                     android:fontFeatureSettings="tnum"
                                     android:includeFontPadding="false" />
 
@@ -505,22 +505,22 @@
                                     android:id="@+id/text_selected_day_active_time_unit"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text=" min"
+                                    android:text="@string/unit_suffix_min"
                                     android:layout_marginStart="2dp"
                                     android:textSize="11sp"
                                     android:textStyle="bold"
                                     android:fontFamily="sans-serif-medium"
-                                    android:textColor="#121212"
+                                    android:textColor="@color/pulse_on_container_unit"
                                     android:includeFontPadding="false" />
                             </LinearLayout>
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="Active Time"
+                                android:text="@string/active_time_label"
                                 android:textSize="11sp"
                                 android:fontFamily="sans-serif-medium"
-                                android:textColor="#121212"
+                                android:textColor="@color/pulse_on_container_secondary"
                                 android:layout_marginTop="4dp" />
                         </LinearLayout>
                     </com.google.android.material.card.MaterialCardView>
@@ -549,8 +549,8 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Monthly Performance"
-                    android:textColor="#8E8E93"
+                    android:text="@string/history_monthly_performance"
+                    android:textColor="@color/pulse_text_secondary"
                     android:textSize="13sp"
                     android:fontFamily="sans-serif-medium"
                     android:layout_marginBottom="@dimen/space_12" />
@@ -586,7 +586,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/history_summary_distance_label"
-                            android:textColor="#8E8E93"
+                            android:textColor="@color/pulse_text_secondary"
                             android:textSize="11sp"
                             android:fontFamily="sans-serif-medium"
                             android:layout_marginTop="@dimen/space_4"
@@ -597,7 +597,7 @@
                     <View
                         android:layout_width="1dp"
                         android:layout_height="36dp"
-                        android:background="#33FFFFFF"
+                        android:background="@color/pulse_divider"
                         android:layout_marginHorizontal="6dp" />
 
                     <!-- Col 2: Goal Achievement Rate -->
@@ -624,7 +624,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/history_summary_goal_rate_label"
-                            android:textColor="#8E8E93"
+                            android:textColor="@color/pulse_text_secondary"
                             android:textSize="11sp"
                             android:fontFamily="sans-serif-medium"
                             android:layout_marginTop="@dimen/space_4"
@@ -635,7 +635,7 @@
                     <View
                         android:layout_width="1dp"
                         android:layout_height="36dp"
-                        android:background="#33FFFFFF"
+                        android:background="@color/pulse_divider"
                         android:layout_marginHorizontal="6dp" />
 
                     <!-- Col 3: Personal Best Steps -->
@@ -662,7 +662,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/history_summary_pb_label"
-                            android:textColor="#8E8E93"
+                            android:textColor="@color/pulse_text_secondary"
                             android:textSize="11sp"
                             android:fontFamily="sans-serif-medium"
                             android:layout_marginTop="@dimen/space_4"
@@ -687,7 +687,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginEnd="6dp"
-                app:cardCornerRadius="24dp"
+                app:cardCornerRadius="@dimen/card_radius"
                 app:cardElevation="0dp"
                 app:cardMaxElevation="0dp"
                 app:cardBackgroundColor="@color/pulse_surface">
@@ -719,7 +719,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/history_monthly_total_subtitle"
-                        android:textColor="#8E8E93"
+                        android:textColor="@color/pulse_text_secondary"
                         android:textSize="11sp"
                         android:layout_marginBottom="@dimen/space_12" />
 
@@ -744,9 +744,9 @@
                             android:id="@+id/text_history_monthly_total_unit"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text=" steps"
+                            android:text="@string/unit_suffix_steps_spaced"
                             android:layout_marginStart="@dimen/space_4"
-                            android:textColor="#8E8E93"
+                            android:textColor="@color/pulse_text_secondary"
                             android:textSize="11sp"
                             android:layout_marginBottom="2dp" />
                     </LinearLayout>
@@ -760,7 +760,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:layout_marginStart="6dp"
-                app:cardCornerRadius="24dp"
+                app:cardCornerRadius="@dimen/card_radius"
                 app:cardElevation="0dp"
                 app:cardMaxElevation="0dp"
                 app:cardBackgroundColor="@color/pulse_surface">
@@ -792,7 +792,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/history_avg_pace_subtitle"
-                        android:textColor="#8E8E93"
+                        android:textColor="@color/pulse_text_secondary"
                         android:textSize="11sp"
                         android:layout_marginBottom="@dimen/space_12" />
 
@@ -817,9 +817,9 @@
                             android:id="@+id/text_history_pace_unit"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text=" min/km"
+                            android:text="@string/unit_suffix_min_km"
                             android:layout_marginStart="@dimen/space_4"
-                            android:textColor="#8E8E93"
+                            android:textColor="@color/pulse_text_secondary"
                             android:textSize="11sp"
                             android:layout_marginBottom="2dp" />
                     </LinearLayout>

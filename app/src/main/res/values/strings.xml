@@ -200,4 +200,99 @@
     <string name="onboarding_status_blocked_desc">Activity permission is blocked in OS settings. Tap below to open Settings and enable Physical Activity.</string>
     <string name="onboarding_status_no_sensor_title">Hardware Step Sensor Not Found</string>
     <string name="onboarding_status_no_sensor_desc">This device does not have a hardware step counter sensor (Sensor.TYPE_STEP_COUNTER). Pulse requires hardware step detection for low-power tracking.</string>
+
+    <!-- Extracted UI Strings for Visual Consistency -->
+    <!-- Common & Suffixes -->
+    <string name="common_out_of">out of </string>
+    <string name="symbol_minus">-</string>
+    <string name="symbol_plus">+</string>
+    <string name="unit_suffix_kcal">&#160;kcal</string>
+    <string name="unit_suffix_km">&#160;km</string>
+    <string name="unit_suffix_min">&#160;min</string>
+    <string name="unit_suffix_min_km">&#160;min/km</string>
+    <string name="unit_suffix_steps_spaced">&#160;steps</string>
+    <string name="unit_suffix_cm_spaced">&#160;cm</string>
+    <string name="unit_suffix_kg_spaced">&#160;kg</string>
+    <string name="unit_suffix_years_spaced">&#160;yrs</string>
+
+    <!-- Today Screen Additions -->
+    <string name="today_greeting_default">Hi there!</string>
+    <string name="today_greeting_format">Hi %s!</string>
+    <string name="today_greeting_subtitle">Welcome back</string>
+    <string name="today_notification_toggle_desc">Toggle Step Tracking Notification</string>
+    <string name="today_hero_steps_label">Steps today</string>
+    <string name="today_chart_empty_prompt">No activity recorded yet • Start walking</string>
+
+    <!-- Water Screen Additions -->
+    <string name="water_reminder_toggle_desc">Toggle Hydration Reminders</string>
+    <string name="water_hero_intake_label">Intake today</string>
+    <string name="water_section_quick_log">QUICK LOG</string>
+    <string name="water_reset_today">Reset Today</string>
+    <string name="water_quick_add_small_glass">Small glass</string>
+    <string name="water_quick_add_large_glass">Large glass</string>
+    <string name="water_quick_add_bottle">Bottle</string>
+    <string name="water_section_breakdown">SCIENTIFIC HYDRATION BREAKDOWN</string>
+    <string name="water_target_formula_title">Target Formula</string>
+    <string name="water_formula_efsa_iom">EFSA / IOM</string>
+    <string name="water_formula_explanation">Evidence-based baseline calculated from body composition and physical movement.</string>
+    <string name="water_breakdown_base_title">Base Metabolic Fluid</string>
+    <string name="water_breakdown_bsa_title">Surface Evaporation (BSA)</string>
+    <string name="water_breakdown_age_title">Age Demographic</string>
+    <string name="water_breakdown_activity_title">Activity Compensation</string>
+    <string name="water_breakdown_total_title">Total Daily Target</string>
+
+    <!-- History Screen Additions -->
+    <string name="history_subtitle">Monthly steps &amp; performance logs</string>
+    <string name="history_active_kcal_label">Active kcal</string>
+    <string name="history_monthly_performance">Monthly Performance</string>
+
+    <!-- Profile Screen Additions -->
+    <string name="profile_subtitle_pref">Personal biometrics &amp; preferences</string>
+    <string name="profile_name_content_desc">Profile name</string>
+    <string name="profile_display_name">Display Name</string>
+    <string name="profile_footer_version">Pulse v1.0 • 100% Offline &amp; Private</string>
+
+    <!-- Onboarding Flow Additions -->
+    <string name="onboarding_about_you_title">About You</string>
+    <string name="onboarding_about_you_desc">Calibrates your baseline calorie expenditure and stride proportion.</string>
+    <string name="onboarding_height_title">Your Height</string>
+    <string name="onboarding_height_desc">Pulse calculates your personal walking stride length from height.</string>
+    <string name="onboarding_height_calibration_title">Height Calibration</string>
+    <string name="onboarding_stride_preview_format">Estimated stride: %s</string>
+    <string name="onboarding_stride_preview_default">Estimated stride: 70.6 cm</string>
+    <string name="onboarding_weight_title">Your Weight</string>
+    <string name="onboarding_weight_desc">Used to compute net active calories burned and clinical hydration volume.</string>
+    <string name="onboarding_weight_calibration_title">Weight Calibration</string>
+    <string name="onboarding_bmr_preview_format">Estimated BMR: ~%s kcal/day</string>
+    <string name="onboarding_bmr_preview_default">Estimated BMR: ~1,680 kcal/day</string>
+    <string name="onboarding_step_goal_title">Daily Step Goal</string>
+    <string name="onboarding_step_goal_desc">Set your daily movement benchmark. 10,000 steps is recommended for active vitality.</string>
+    <string name="onboarding_movement_benchmark_title">Movement Benchmark</string>
+    <string name="onboarding_goal_equivalent_default">~7.1 km • ~75 active minutes</string>
+    <string name="preset_goal_6k">6k</string>
+    <string name="preset_goal_8k">8k</string>
+    <string name="preset_goal_10k">10k</string>
+    <string name="preset_goal_12k">12k</string>
+    <string name="onboarding_hydration_title">Daily Hydration</string>
+    <string name="onboarding_hydration_desc">Evidence-based water turnover tailored specifically to your body mass, stature, and target steps.</string>
+    <string name="onboarding_estimated_intake">Estimated Intake</string>
+    <string name="onboarding_optimal_fluid_target">Optimal daily fluid replacement target</string>
+    <string name="onboarding_clinical_breakdown">Clinical Calculation Breakdown</string>
+    <string name="onboarding_breakdown_base">BASE NEED</string>
+    <string name="onboarding_breakdown_activity">ACTIVITY</string>
+    <string name="onboarding_breakdown_bsa">BODY SURFACE</string>
+    <string name="onboarding_breakdown_disclaimer">Formulated in accordance with European Food Safety Authority (EFSA) and IOM Dietary Reference Intakes.</string>
+
+    <!-- Notification Layout Additions -->
+    <string name="notification_open_app">Open Pulse</string>
+    <string name="app_name_caps">PULSE</string>
+    <string name="notification_action_pause">Pause tracking</string>
+    <string name="notification_action_pause_title">Pause Tracking</string>
+    <string name="notification_action_resume_title">Resume Tracking</string>
+    <string name="notification_metric_distance_label">DISTANCE</string>
+    <string name="notification_metric_calories_label">CALORIES</string>
+    <string name="notification_metric_remaining_label">REMAINING</string>
+    <string name="notification_tracking_active_badge">• TRACKING ACTIVE</string>
+    <string name="default_step_count">0</string>
+    <string name="default_percentage">0%</string>
 </resources>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Profile Category Hub -->
+    <string name="profile_category_biometrics">Biometrics &amp; Physical</string>
+    <string name="profile_category_biometrics_desc">Personal physical parameters for metabolic accuracy</string>
+
+    <string name="profile_category_goals">Goals &amp; Targets</string>
+    <string name="profile_category_goals_desc">Daily step count and hydration objectives</string>
+
+    <string name="profile_category_calibration">Tracking &amp; Calibration</string>
+    <string name="profile_category_calibration_desc">Sensor sampling and stride calibration</string>
+
+    <string name="profile_category_preferences">Preferences &amp; Units</string>
+    <string name="profile_category_preferences_desc">Measurement standards and visual settings</string>
+
+    <string name="profile_category_about">About &amp; Storage</string>
+    <string name="profile_category_about_desc">App architecture, local database, and privacy info</string>
+
+    <!-- Profile Hub Badge & Navigation -->
+    <string name="profile_badge_status">Pulse Active</string>
+    <string name="profile_back_to_hub">Back to settings hub</string>
+    <string name="profile_user_card_title">Profile Identity</string>
+    <string name="profile_edit_name_desc">Edit display name</string>
+
+    <!-- Goals & Targets Detail Screen -->
+    <string name="profile_hydration_target">Daily Hydration Target</string>
+    <string name="profile_hydration_target_desc">Clinically derived using EFSA guideline standards based on weight, height, age, and activity.</string>
+    <string name="profile_hydration_guidance_title">Scientific Clinical Standard</string>
+    <string name="profile_hydration_guidance_desc">Daily hydration targets are scientifically derived from body mass, gender, and activity levels using EFSA and Mayo Clinic metabolic standards (30–35 ml/kg baseline plus step expenditure).</string>
+    <string name="profile_hydration_reminders">Hydration Reminders</string>
+    <string name="profile_hydration_reminders_desc">Periodic daytime notifications to stay hydrated throughout the day.</string>
+    <string name="profile_step_goal_helper">Recommended: 8,000–12,000 steps daily for cardiovascular health.</string>
+
+    <!-- Tracking & Calibration Detail Screen -->
+    <string name="profile_stride_helper_text">Estimated as height × 0.415. Fine-tune manually if your measured walking stride differs.</string>
+    <string name="profile_latency_note_text">Battery Efficient mode batches step events in hardware FIFO to maximize battery life.</string>
+
+    <!-- Preferences & Units Detail Screen -->
+    <string name="profile_theme_title">Theme &amp; Contrast</string>
+    <string name="profile_theme_badge">OLED Pure Black</string>
+    <string name="profile_theme_desc">True black background (#171717) engineered for maximum OLED battery savings and high contrast.</string>
+
+    <string name="profile_service_title">Step Tracking Service</string>
+    <string name="profile_service_badge">Active • Low Power</string>
+    <string name="profile_service_desc">Continuous hardware sensor monitoring with zero persistent wake-locks.</string>
+
+    <!-- About & Storage Detail Screen -->
+    <string name="profile_about_app_name">Pulse Health Tracker</string>
+    <string name="profile_about_app_version">Version 1.0 (Build 100)</string>
+    <string name="profile_about_app_tagline">Zero cloud telemetry, zero internet permissions, 100% on-device private health tracker.</string>
+
+    <string name="profile_storage_title">Local Device Storage</string>
+    <string name="profile_storage_badge">Room SQLite</string>
+    <string name="profile_storage_desc">All movement metrics and personal biometrics remain strictly on your local device storage. No external cloud backups or accounts.</string>
+
+    <string name="profile_privacy_title">Zero-Telemetry Guarantee</string>
+    <string name="profile_privacy_badge">Verified Offline</string>
+    <string name="profile_privacy_desc">Pulse requests zero internet permissions. Your health telemetry never leaves your physical phone.</string>
+</resources>

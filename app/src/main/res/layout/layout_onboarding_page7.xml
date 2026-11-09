@@ -146,7 +146,7 @@
                         android:layout_gravity="center"
                         android:contentDescription="@null"
                         android:src="@drawable/ic_footprints"
-                        app:tint="#121212" />
+                        app:tint="@color/pulse_on_green" />
                 </com.google.android.material.card.MaterialCardView>
 
                 <LinearLayout
@@ -209,7 +209,7 @@
                         android:layout_gravity="center"
                         android:contentDescription="@null"
                         android:src="@drawable/ic_notification"
-                        app:tint="#121212" />
+                        app:tint="@color/pulse_on_sky_blue" />
                 </com.google.android.material.card.MaterialCardView>
 
                 <LinearLayout
@@ -272,7 +272,7 @@
                         android:layout_gravity="center"
                         android:contentDescription="@null"
                         android:src="@drawable/ic_shield_check"
-                        app:tint="#121212" />
+                        app:tint="@color/pulse_on_yellow" />
                 </com.google.android.material.card.MaterialCardView>
 
                 <LinearLayout

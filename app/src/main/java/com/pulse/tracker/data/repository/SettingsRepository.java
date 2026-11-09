@@ -52,7 +52,7 @@ public class SettingsRepository {
     public static final double MIN_STRIDE_CM = 20.0;
     public static final double MAX_STRIDE_CM = 180.0;
     public static final long MIN_DAILY_GOAL = 100L;
-    public static final long MAX_DAILY_GOAL = 150000L;
+    public static final long MAX_DAILY_GOAL = 50000L;
 
     public enum Gender {
         MALE,

@@ -28,7 +28,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Daily Step Goal"
+                android:text="@string/onboarding_step_goal_title"
                 android:textSize="28sp"
                 android:fontFamily="sans-serif"
                 android:textStyle="bold"
@@ -38,7 +38,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:text="Set your daily movement benchmark. 10,000 steps is recommended for active vitality."
+                android:text="@string/onboarding_step_goal_desc"
                 android:textSize="14sp"
                 android:fontFamily="sans-serif"
                 android:lineSpacingExtra="2dp"
@@ -72,8 +72,8 @@
                     android:layout_marginBottom="@dimen/space_16">
 
                     <ImageView
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
                         android:src="@drawable/ic_target"
                         app:tint="@color/pulse_yellow"
                         android:contentDescription="@null"
@@ -82,7 +82,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Movement Benchmark"
+                        android:text="@string/onboarding_movement_benchmark_title"
                         android:textAppearance="@style/TextAppearance.Pulse.TitleLarge"
                         android:textStyle="bold"
                         android:textColor="@color/pulse_text_primary" />
@@ -116,7 +116,7 @@
                                 android:layout_weight="1"
                                 android:text="@string/profile_daily_goal"
                                 android:textAppearance="@style/TextAppearance.Pulse.TitleMedium"
-                                android:textColor="#8E8E93"
+                                android:textColor="@color/pulse_text_secondary"
                                 android:textStyle="bold" />
 
                             <LinearLayout
@@ -139,11 +139,11 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text=" steps"
+                                    android:text="@string/unit_suffix_steps_spaced"
                                     android:textSize="16sp"
                                     android:fontFamily="sans-serif-medium"
                                     android:textStyle="bold"
-                                    android:textColor="#8E8E93"
+                                    android:textColor="@color/pulse_text_secondary"
                                     android:includeFontPadding="false"
                                     android:layout_marginStart="4dp" />
                             </LinearLayout>
@@ -155,7 +155,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="6dp"
-                            android:text="~7.1 km • ~75 active minutes"
+                            android:text="@string/onboarding_goal_equivalent_default"
                             android:textSize="13sp"
                             android:fontFamily="sans-serif-medium"
                             android:textColor="@color/pulse_yellow" />
@@ -172,7 +172,7 @@
                             android:stepSize="500"
                             app:thumbColor="@color/pulse_yellow"
                             app:trackColorActive="@color/pulse_yellow"
-                            app:trackColorInactive="#333333"
+                            app:trackColorInactive="@color/pulse_track_inactive"
                             app:haloColor="@color/pulse_yellow_halo"
                             android:layout_marginTop="16dp" />
 
@@ -190,7 +190,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:layout_marginEnd="4dp"
-                                android:text="6k" />
+                                android:text="@string/preset_goal_6k" />
 
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btn_preset_8k"
@@ -199,7 +199,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:layout_marginHorizontal="2dp"
-                                android:text="8k" />
+                                android:text="@string/preset_goal_8k" />
 
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btn_preset_10k"
@@ -208,7 +208,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:layout_marginHorizontal="2dp"
-                                android:text="10k" />
+                                android:text="@string/preset_goal_10k" />
 
                             <com.google.android.material.button.MaterialButton
                                 android:id="@+id/btn_preset_12k"
@@ -217,7 +217,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:layout_marginStart="4dp"
-                                android:text="12k" />
+                                android:text="@string/preset_goal_12k" />
                         </LinearLayout>
 
                     </LinearLayout>

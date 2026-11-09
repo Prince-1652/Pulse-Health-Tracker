@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 
@@ -16,6 +17,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+
+import java.util.Calendar;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 34)
@@ -91,5 +94,101 @@ public class WaterReminderReceiverTest {
         int target = WaterReminderManager.resolveTodayTargetMl(context);
         assertTrue("Target should be within [1200, 5000]", target >= 1200 && target <= 5000);
         assertEquals(0, target % 50);
+    }
+
+    @Test
+    public void testClinicalPacingIntervalCalculation_daytimeDistribution() {
+        // Daytime 9:00 AM, goal 2500 ml, intake 0 ml (remaining 10 servings of 250 ml, 13 hours waking time)
+        Calendar morning = Calendar.getInstance();
+        morning.set(Calendar.HOUR_OF_DAY, 9);
+        morning.set(Calendar.MINUTE, 0);
+        morning.set(Calendar.SECOND, 0);
+
+        long nextTrigger = WaterReminderManager.calculateNextReminderMillis(morning, 0, 2500);
+        long deltaMinutes = (nextTrigger - morning.getTimeInMillis()) / (60 * 1000);
+
+        // 13 hours / 10 servings = 1.3 hours = 78 minutes (clamped between 60 and 150)
+        assertEquals(78, deltaMinutes);
+    }
+
+    @Test
+    public void testClinicalPacingIntervalCalculation_nighttimeScheduleToMorning() {
+        // Late night 23:00 (11:00 PM) -> should schedule to 8:00 AM tomorrow
+        Calendar night = Calendar.getInstance();
+        night.set(Calendar.HOUR_OF_DAY, 23);
+        night.set(Calendar.MINUTE, 30);
+
+        long nextTrigger = WaterReminderManager.calculateNextReminderMillis(night, 500, 2500);
+        Calendar target = Calendar.getInstance();
+        target.setTimeInMillis(nextTrigger);
+
+        assertEquals(WaterReminderManager.START_HOUR, target.get(Calendar.HOUR_OF_DAY));
+        assertEquals(0, target.get(Calendar.MINUTE));
+        assertTrue(target.after(night));
+    }
+
+    @Test
+    public void testClinicalPacingIntervalCalculation_goalReachedSilencesUntilTomorrow() {
+        // Goal achieved during daytime (e.g. 2500 / 2500) -> schedules for 8:00 AM tomorrow
+        Calendar noon = Calendar.getInstance();
+        noon.set(Calendar.HOUR_OF_DAY, 12);
+        noon.set(Calendar.MINUTE, 0);
+
+        long nextTrigger = WaterReminderManager.calculateNextReminderMillis(noon, 2500, 2500);
+        Calendar target = Calendar.getInstance();
+        target.setTimeInMillis(nextTrigger);
+
+        assertEquals(WaterReminderManager.START_HOUR, target.get(Calendar.HOUR_OF_DAY));
+        assertEquals(0, target.get(Calendar.MINUTE));
+        assertTrue(target.after(noon));
+    }
+
+    @Test
+    public void testEvidenceBasedMessageCopyForTimeOfDay() {
+        // Morning (9 AM)
+        WaterReminderManager.EvidenceMessage morningMsg = WaterReminderManager.resolveEvidenceMessage(
+                context, 500, 2500, 9
+        );
+        assertTrue(morningMsg.title.contains("Morning"));
+
+        // Midday (13 PM)
+        WaterReminderManager.EvidenceMessage middayMsg = WaterReminderManager.resolveEvidenceMessage(
+                context, 1000, 2500, 13
+        );
+        assertTrue(middayMsg.title.contains("Midday"));
+
+        // Afternoon (16 PM)
+        WaterReminderManager.EvidenceMessage afternoonMsg = WaterReminderManager.resolveEvidenceMessage(
+                context, 1500, 2500, 16
+        );
+        assertTrue(afternoonMsg.title.contains("Afternoon"));
+
+        // Evening (19 PM)
+        WaterReminderManager.EvidenceMessage eveningMsg = WaterReminderManager.resolveEvidenceMessage(
+                context, 2000, 2500, 19
+        );
+        assertTrue(eveningMsg.title.contains("Evening"));
+
+        // Goal reached
+        WaterReminderManager.EvidenceMessage goalMsg = WaterReminderManager.resolveEvidenceMessage(
+                context, 2500, 2500, 14
+        );
+        assertTrue(goalMsg.title.contains("Goal Achieved"));
+    }
+
+    @Test
+    public void testQuickAddWaterWhenGoalReached_showsCelebratoryNotification() {
+        int target = WaterReminderManager.resolveTodayTargetMl(context);
+        WaterRepository.setWaterIntake(context, target - 200);
+
+        Intent addIntent = new Intent(WaterReminderReceiver.ACTION_QUICK_ADD_WATER);
+        addIntent.putExtra(WaterReminderReceiver.EXTRA_AMOUNT_ML, 250);
+        receiver.onReceive(context, addIntent);
+
+        assertTrue(WaterRepository.getTodayIntakeMl(context) >= target);
+
+        NotificationManager nm = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        assertNotNull(nm);
+        assertEquals(1, nm.getActiveNotifications().length);
     }
 }

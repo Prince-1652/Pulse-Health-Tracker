@@ -28,7 +28,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Daily Hydration"
+                android:text="@string/onboarding_hydration_title"
                 android:textSize="28sp"
                 android:fontFamily="sans-serif"
                 android:textStyle="bold"
@@ -38,7 +38,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:text="Evidence-based water turnover tailored specifically to your body mass, stature, and target steps."
+                android:text="@string/onboarding_hydration_desc"
                 android:textSize="14sp"
                 android:fontFamily="sans-serif"
                 android:lineSpacingExtra="2dp"
@@ -70,21 +70,21 @@
                     android:layout_marginBottom="12dp">
 
                     <ImageView
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
+                        android:layout_width="26dp"
+                        android:layout_height="26dp"
                         android:src="@drawable/ic_water_drop"
-                        app:tint="#121212"
+                        app:tint="@color/pulse_on_sky_blue"
                         android:contentDescription="@null"
                         android:layout_marginEnd="12dp" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Estimated Intake"
+                        android:text="@string/onboarding_estimated_intake"
                         android:textSize="18sp"
                         android:fontFamily="sans-serif-medium"
                         android:textStyle="bold"
-                        android:textColor="#121212" />
+                        android:textColor="@color/pulse_on_sky_blue" />
                 </LinearLayout>
 
                 <TextView
@@ -95,17 +95,17 @@
                     android:textSize="38sp"
                     android:fontFamily="sans-serif"
                     android:textStyle="bold"
-                    android:textColor="#121212"
+                    android:textColor="@color/pulse_on_sky_blue"
                     android:includeFontPadding="false" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
-                    android:text="Optimal daily fluid replacement target"
+                    android:text="@string/onboarding_optimal_fluid_target"
                     android:textSize="13sp"
                     android:fontFamily="sans-serif"
-                    android:textColor="#333333" />
+                    android:textColor="@color/pulse_on_container_secondary" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -130,7 +130,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Clinical Calculation Breakdown"
+                    android:text="@string/onboarding_clinical_breakdown"
                     android:textAppearance="@style/TextAppearance.Pulse.TitleLarge"
                     android:textStyle="bold"
                     android:textColor="@color/pulse_text_primary"
@@ -162,10 +162,10 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="BASE NEED"
+                                android:text="@string/onboarding_breakdown_base"
                                 android:textSize="10sp"
                                 android:fontFamily="sans-serif-medium"
-                                android:textColor="#8E8E93" />
+                                android:textColor="@color/pulse_text_secondary" />
 
                             <TextView
                                 android:id="@+id/tv_hydration_base"
@@ -199,10 +199,10 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="ACTIVITY"
+                                android:text="@string/onboarding_breakdown_activity"
                                 android:textSize="10sp"
                                 android:fontFamily="sans-serif-medium"
-                                android:textColor="#8E8E93" />
+                                android:textColor="@color/pulse_text_secondary" />
 
                             <TextView
                                 android:id="@+id/tv_hydration_activity"
@@ -236,10 +236,10 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="BODY SURFACE"
+                                android:text="@string/onboarding_breakdown_bsa"
                                 android:textSize="10sp"
                                 android:fontFamily="sans-serif-medium"
-                                android:textColor="#8E8E93" />
+                                android:textColor="@color/pulse_text_secondary" />
 
                             <TextView
                                 android:id="@+id/tv_hydration_bsa_age"
@@ -258,7 +258,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="Formulated in accordance with European Food Safety Authority (EFSA) and IOM Dietary Reference Intakes."
+                    android:text="@string/onboarding_breakdown_disclaimer"
                     android:textSize="12sp"
                     android:fontFamily="sans-serif"
                     android:lineSpacingExtra="2dp"

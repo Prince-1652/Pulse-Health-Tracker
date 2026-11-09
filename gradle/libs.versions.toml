@@ -12,6 +12,7 @@ mpandroidchart = "v3.2.0"
 fragment = "1.8.6"
 recyclerview = "1.4.0"
 lifecycle = "2.8.7"
+media = "1.7.0"
 robolectric = "4.14.1"
 androidxTestCore = "1.6.1"
 coreTesting = "2.2.0"
@@ -34,6 +35,7 @@ fragment = { group = "androidx.fragment", name = "fragment", version.ref = "frag
 recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
 lifecycle-viewmodel = { group = "androidx.lifecycle", name = "lifecycle-viewmodel", version.ref = "lifecycle" }
 lifecycle-livedata = { group = "androidx.lifecycle", name = "lifecycle-livedata", version.ref = "lifecycle" }
+media = { group = "androidx.media", name = "media", version.ref = "media" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

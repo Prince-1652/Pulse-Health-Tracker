@@ -28,7 +28,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Your Height"
+                android:text="@string/onboarding_height_title"
                 android:textSize="28sp"
                 android:fontFamily="sans-serif"
                 android:textStyle="bold"
@@ -38,7 +38,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:text="Pulse calculates your personal walking stride length from height."
+                android:text="@string/onboarding_height_desc"
                 android:textSize="14sp"
                 android:fontFamily="sans-serif"
                 android:lineSpacingExtra="2dp"
@@ -72,8 +72,8 @@
                     android:layout_marginBottom="@dimen/space_16">
 
                     <ImageView
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
                         android:src="@drawable/ic_sliders"
                         app:tint="@color/pulse_sky_blue"
                         android:contentDescription="@null"
@@ -82,7 +82,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Height Calibration"
+                        android:text="@string/onboarding_height_calibration_title"
                         android:textAppearance="@style/TextAppearance.Pulse.TitleLarge"
                         android:textStyle="bold"
                         android:textColor="@color/pulse_text_primary" />
@@ -116,7 +116,7 @@
                                 android:layout_weight="1"
                                 android:text="@string/profile_height"
                                 android:textAppearance="@style/TextAppearance.Pulse.TitleMedium"
-                                android:textColor="#8E8E93"
+                                android:textColor="@color/pulse_text_secondary"
                                 android:textStyle="bold" />
 
                             <LinearLayout
@@ -140,11 +140,11 @@
                                     android:id="@+id/text_onboarding_height_unit"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text=" cm"
+                                    android:text="@string/unit_suffix_cm_spaced"
                                     android:textSize="16sp"
                                     android:fontFamily="sans-serif-medium"
                                     android:textStyle="bold"
-                                    android:textColor="#8E8E93"
+                                    android:textColor="@color/pulse_text_secondary"
                                     android:includeFontPadding="false"
                                     android:layout_marginStart="4dp" />
                             </LinearLayout>
@@ -156,7 +156,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="6dp"
-                            android:text="Estimated stride: 70.6 cm"
+                            android:text="@string/onboarding_stride_preview_default"
                             android:textSize="13sp"
                             android:fontFamily="sans-serif-medium"
                             android:textColor="@color/pulse_sky_blue" />

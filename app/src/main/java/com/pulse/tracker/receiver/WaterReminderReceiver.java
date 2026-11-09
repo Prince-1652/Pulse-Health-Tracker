@@ -38,7 +38,7 @@ public class WaterReminderReceiver extends BroadcastReceiver {
     }
 
     private void handleReminderTick(Context context) {
-        // 1. Immediately schedule the next alarm in the chain
+        // 1. Immediately schedule the next dynamic alarm in the chain
         WaterReminderManager.scheduleNextReminder(context);
 
         if (!WaterRepository.isRemindersEnabled(context)) {
@@ -60,11 +60,12 @@ public class WaterReminderReceiver extends BroadcastReceiver {
 
         Log.d(TAG, "Current water intake: " + currentIntake + " ml / Target: " + targetMl + " ml");
 
-        // 4. Fire notification only if under target
+        // 4. Fire notification: if under target, show dynamic reminder; if reached, show celebratory notification
         if (currentIntake < targetMl) {
             WaterReminderManager.showHydrationNotification(context, currentIntake, targetMl);
         } else {
-            Log.i(TAG, "Target reached (" + currentIntake + "/" + targetMl + " ml); suppressing reminder");
+            Log.i(TAG, "Target reached (" + currentIntake + "/" + targetMl + " ml); celebratory notification");
+            WaterReminderManager.showGoalAchievedNotification(context, currentIntake, targetMl);
         }
     }
 
@@ -74,6 +75,17 @@ public class WaterReminderReceiver extends BroadcastReceiver {
         int targetMl = WaterReminderManager.resolveTodayTargetMl(context);
 
         Log.i(TAG, "Quick logged " + amount + " ml from notification. New total: " + updatedTotal + " ml");
-        WaterReminderManager.showIntakeLoggedNotification(context, updatedTotal, targetMl, amount);
+
+        // Instantly refresh notification drawer with updated intake
+        if (updatedTotal >= targetMl) {
+            // Goal reached: silence future reminders with celebratory notification
+            WaterReminderManager.showGoalAchievedNotification(context, updatedTotal, targetMl);
+        } else {
+            // Post updated reminder reflecting current intake and remaining goal
+            WaterReminderManager.showHydrationNotification(context, updatedTotal, targetMl);
+        }
+
+        // Dynamically reschedule next alarm based on remaining intake
+        WaterReminderManager.scheduleNextReminder(context);
     }
 }

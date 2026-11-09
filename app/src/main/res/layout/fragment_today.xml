@@ -40,21 +40,22 @@
                     android:id="@+id/text_greeting_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Hi Prince!"
+                    android:text="@string/today_greeting_default"
+                    tools:text="Hi Prince!"
                     android:textSize="20sp"
                     android:fontFamily="sans-serif"
                     android:textStyle="bold"
-                    android:textColor="#FFFFFF" />
+                    android:textColor="@color/pulse_text_primary" />
 
                 <TextView
                     android:id="@+id/text_greeting_subtitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="2dp"
-                    android:text="Welcome back"
+                    android:text="@string/today_greeting_subtitle"
                     android:textSize="13sp"
                     android:fontFamily="sans-serif"
-                    android:textColor="#8E8E93" />
+                    android:textColor="@color/pulse_text_secondary" />
             </LinearLayout>
 
             <!-- Circular Notification toggle button (42dp x 42dp circle card) -->
@@ -66,11 +67,11 @@
                 app:cardElevation="0dp"
                 app:cardMaxElevation="0dp"
                 app:strokeWidth="0dp"
-                app:cardBackgroundColor="#FFFFFF"
+                app:cardBackgroundColor="@color/white"
                 android:clickable="true"
                 android:focusable="true"
                 android:foreground="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Toggle Step Tracking Notification">
+                android:contentDescription="@string/today_notification_toggle_desc">
 
                 <ImageView
                     android:id="@+id/icon_notification_toggle"
@@ -78,7 +79,7 @@
                     android:layout_height="20dp"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_notification"
-                    app:tint="#121212"
+                    app:tint="@color/pulse_on_nav_active"
                     android:contentDescription="@null" />
             </com.google.android.material.card.MaterialCardView>
         </LinearLayout>
@@ -116,9 +117,9 @@
                     app:cpv_currentSteps="0"
                     app:cpv_progress="0.0"
                     app:cpv_strokeWidth="19dp"
-                    app:cpv_trackColor="#26000000"
-                    app:cpv_progressColor="#121212"
-                    app:cpv_percentTextColor="#121212"
+                    app:cpv_trackColor="@color/pulse_progress_track"
+                    app:cpv_progressColor="@color/pulse_on_green"
+                    app:cpv_percentTextColor="@color/pulse_on_green"
                     app:cpv_percentTextSize="28sp"
                     app:cpv_centerPercentageOnly="true" />
 
@@ -133,10 +134,10 @@
                         android:id="@+id/label_hero_steps"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Steps today"
+                        android:text="@string/today_hero_steps_label"
                         android:textSize="15sp"
                         android:fontFamily="sans-serif-medium"
-                        android:textColor="#333333" />
+                        android:textColor="@color/pulse_on_container_secondary" />
 
                     <TextView
                         android:id="@+id/text_hero_steps"
@@ -147,7 +148,7 @@
                         android:fontFamily="sans-serif"
                         android:textStyle="bold"
                         android:fontFeatureSettings="tnum"
-                        android:textColor="#121212"
+                        android:textColor="@color/pulse_on_green"
                         android:includeFontPadding="false"
                         tools:text="0" />
 
@@ -164,10 +165,10 @@
                             android:id="@+id/text_hero_out_of"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="out of "
+                            android:text="@string/common_out_of"
                             android:textSize="14sp"
                             android:fontFamily="sans-serif-medium"
-                            android:textColor="#444444" />
+                            android:textColor="@color/pulse_on_container_tertiary" />
 
                         <TextView
                             android:id="@+id/text_hero_goal"
@@ -176,7 +177,8 @@
                             android:textSize="22sp"
                             android:fontFamily="sans-serif"
                             android:textStyle="bold"
-                            android:textColor="#121212"
+                            android:layout_marginLeft="8dp"
+                            android:textColor="@color/pulse_on_green"
                             tools:text="10,000" />
                     </LinearLayout>
                 </LinearLayout>
@@ -381,7 +383,7 @@
                         android:layout_width="26dp"
                         android:layout_height="26dp"
                         android:src="@drawable/ic_calories"
-                        app:tint="#121212"
+                        app:tint="@color/pulse_on_orange"
                         android:contentDescription="@string/calories_label"
                         android:layout_marginBottom="12dp" />
 
@@ -399,7 +401,7 @@
                             android:textSize="20sp"
                             android:textStyle="bold"
                             android:fontFamily="sans-serif"
-                            android:textColor="#121212"
+                            android:textColor="@color/pulse_on_orange"
                             android:fontFeatureSettings="tnum"
                             android:includeFontPadding="false" />
 
@@ -407,12 +409,12 @@
                             android:id="@+id/text_calories_unit"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text=" kcal"
+                            android:text="@string/unit_suffix_kcal"
                             android:layout_marginStart="2dp"
                             android:textSize="12sp"
                             android:textStyle="bold"
                             android:fontFamily="sans-serif-medium"
-                            android:textColor="#2D2D2D"
+                            android:textColor="@color/pulse_on_container_unit"
                             android:includeFontPadding="false" />
                     </LinearLayout>
                 </LinearLayout>
@@ -442,7 +444,7 @@
                         android:layout_width="26dp"
                         android:layout_height="26dp"
                         android:src="@drawable/ic_distance"
-                        app:tint="#121212"
+                        app:tint="@color/pulse_on_sky_blue"
                         android:contentDescription="@string/distance_label"
                         android:layout_marginBottom="12dp" />
 
@@ -460,7 +462,7 @@
                             android:textSize="20sp"
                             android:textStyle="bold"
                             android:fontFamily="sans-serif"
-                            android:textColor="#121212"
+                            android:textColor="@color/pulse_on_sky_blue"
                             android:fontFeatureSettings="tnum"
                             android:includeFontPadding="false" />
 
@@ -468,12 +470,12 @@
                             android:id="@+id/text_distance_unit"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            tools:text=" km"
+                            android:text="@string/unit_suffix_km"
                             android:layout_marginStart="2dp"
                             android:textSize="12sp"
                             android:textStyle="bold"
                             android:fontFamily="sans-serif-medium"
-                            android:textColor="#2D2D2D"
+                            android:textColor="@color/pulse_on_container_unit"
                             android:includeFontPadding="false" />
                     </LinearLayout>
                 </LinearLayout>
@@ -502,7 +504,7 @@
                         android:layout_width="26dp"
                         android:layout_height="26dp"
                         android:src="@drawable/ic_active_time"
-                        app:tint="#121212"
+                        app:tint="@color/pulse_on_yellow"
                         android:contentDescription="@string/active_time_label"
                         android:layout_marginBottom="12dp" />
 
@@ -520,7 +522,7 @@
                             android:textSize="20sp"
                             android:textStyle="bold"
                             android:fontFamily="sans-serif"
-                            android:textColor="#121212"
+                            android:textColor="@color/pulse_on_yellow"
                             android:fontFeatureSettings="tnum"
                             android:includeFontPadding="false" />
 
@@ -528,12 +530,12 @@
                             android:id="@+id/text_active_time_unit"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text=" min"
+                            android:text="@string/unit_suffix_min"
                             android:layout_marginStart="2dp"
                             android:textSize="12sp"
                             android:textStyle="bold"
                             android:fontFamily="sans-serif-medium"
-                            android:textColor="#2D2D2D"
+                            android:textColor="@color/pulse_on_container_unit"
                             android:includeFontPadding="false" />
                     </LinearLayout>
                 </LinearLayout>
@@ -624,17 +626,17 @@
                             app:cardCornerRadius="20dp"
                             app:cardElevation="0dp"
                             app:strokeWidth="1dp"
-                            app:strokeColor="#33FFFFFF"
-                            app:cardBackgroundColor="#2A2A2E">
+                            app:strokeColor="@color/pulse_divider"
+                            app:cardBackgroundColor="@color/pulse_surface_contrast_subtle">
 
                             <TextView
                                 android:id="@+id/text_chart_empty"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="No activity recorded yet • Start walking"
+                                android:text="@string/today_chart_empty_prompt"
                                 android:textSize="12sp"
                                 android:fontFamily="sans-serif-medium"
-                                android:textColor="#8E8E93"
+                                android:textColor="@color/pulse_text_secondary"
                                 android:paddingHorizontal="16dp"
                                 android:paddingVertical="8dp" />
                         </com.google.android.material.card.MaterialCardView>

@@ -180,6 +180,14 @@ public class MainActivity extends AppCompatActivity {
                 startService(serviceIntent);
             }
         }
+
+        if (getIntent() != null && getIntent().getBooleanExtra("show_test_water_notification", false)) {
+            com.pulse.tracker.receiver.WaterReminderManager.showHydrationNotification(
+                    this,
+                    com.pulse.tracker.data.repository.WaterRepository.getTodayIntakeMl(this),
+                    com.pulse.tracker.receiver.WaterReminderManager.resolveTodayTargetMl(this)
+            );
+        }
     }
 
     private void bindViews() {
@@ -846,6 +854,13 @@ public class MainActivity extends AppCompatActivity {
         super.onNewIntent(intent);
         setIntent(intent);
         if (intent != null) {
+            if (intent.getBooleanExtra("show_test_water_notification", false)) {
+                com.pulse.tracker.receiver.WaterReminderManager.showHydrationNotification(
+                        this,
+                        com.pulse.tracker.data.repository.WaterRepository.getTodayIntakeMl(this),
+                        com.pulse.tracker.receiver.WaterReminderManager.resolveTodayTargetMl(this)
+                );
+            }
             if (intent.hasExtra(KEY_ACTIVE_POSITION)) {
                 int targetPos = intent.getIntExtra(KEY_ACTIVE_POSITION, POSITION_STEPS);
                 selectTab(targetPos, true);

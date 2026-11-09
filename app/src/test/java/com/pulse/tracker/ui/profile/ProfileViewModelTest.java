@@ -270,7 +270,7 @@ public class ProfileViewModelTest {
     public void testSaveDailyStepGoal_validationAndRoomUpdate() {
         String today = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
 
-        // Valid goal (500 to 100,000 steps)
+        // Valid goal (500 to 50,000 steps)
         assertTrue(viewModel.saveDailyStepGoal(8500L));
         assertEquals(8500L, (long) viewModel.getDailyStepGoal().getValue());
         assertEquals(8500L, settingsRepository.getDailyStepTarget());
@@ -280,20 +280,20 @@ public class ProfileViewModelTest {
         assertNotNull(todayEntity);
         assertEquals(8500L, todayEntity.getStepGoal());
 
-        // Update goal again
-        assertTrue(viewModel.saveDailyStepGoal(12000L));
+        // Update goal to upper bound
+        assertTrue(viewModel.saveDailyStepGoal(50000L));
         todayEntity = dailyMetricsDao.getMetricsForDate(today);
         assertNotNull(todayEntity);
-        assertEquals(12000L, todayEntity.getStepGoal());
+        assertEquals(50000L, todayEntity.getStepGoal());
 
         // Invalid goals rejected; existing preserved
         assertFalse(viewModel.saveDailyStepGoal(499L));
-        assertEquals(12000L, (long) viewModel.getDailyStepGoal().getValue());
-        assertEquals(12000L, dailyMetricsDao.getMetricsForDate(today).getStepGoal());
+        assertEquals(50000L, (long) viewModel.getDailyStepGoal().getValue());
+        assertEquals(50000L, dailyMetricsDao.getMetricsForDate(today).getStepGoal());
 
-        assertFalse(viewModel.saveDailyStepGoal(100001L));
-        assertEquals(12000L, (long) viewModel.getDailyStepGoal().getValue());
-        assertEquals(12000L, dailyMetricsDao.getMetricsForDate(today).getStepGoal());
+        assertFalse(viewModel.saveDailyStepGoal(50001L));
+        assertEquals(50000L, (long) viewModel.getDailyStepGoal().getValue());
+        assertEquals(50000L, dailyMetricsDao.getMetricsForDate(today).getStepGoal());
     }
 
     @Test

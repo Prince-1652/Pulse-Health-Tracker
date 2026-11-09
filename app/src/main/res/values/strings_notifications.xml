@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Step Tracking Notification Strings -->
+    <string name="notification_step_tracking_active">Tracking active</string>
+    <string name="notification_step_tracking_paused">Tracking paused</string>
+    <string name="notification_step_goal_reached">Goal Reached</string>
+    <string name="notification_step_pause_action">Pause Tracking</string>
+    <string name="notification_step_resume_action">Resume Tracking</string>
+    <string name="notification_step_open_app">Open Pulse</string>
+    <string name="notification_step_remaining_format">%s remaining</string>
+    <string name="notification_step_goal_format">Goal: %s</string>
+
+    <!-- Water Reminder Notification Strings (Simple reminder line) -->
+    <!-- Morning (8:00 AM - 11:59 AM) -->
+    <string name="water_notification_morning_title">Morning Water Reminder</string>
+    <string name="water_notification_morning_body">Time for a glass of water to kickstart your day.</string>
+
+    <!-- Midday (12:00 PM - 2:59 PM) -->
+    <string name="water_notification_midday_title">Midday Water Reminder</string>
+    <string name="water_notification_midday_body">Drink a glass of water to recharge and stay focused.</string>
+
+    <!-- Afternoon (3:00 PM - 5:59 PM) -->
+    <string name="water_notification_afternoon_title">Afternoon Water Reminder</string>
+    <string name="water_notification_afternoon_body">Time for a water break! Drink a fresh glass now.</string>
+
+    <!-- Evening (6:00 PM - 10:00 PM) -->
+    <string name="water_notification_evening_title">Evening Water Reminder</string>
+    <string name="water_notification_evening_body">Have a relaxing glass of water to wind down.</string>
+
+    <!-- Celebratory Goal Reached -->
+    <string name="water_notification_goal_reached_title">Hydration Goal Achieved!</string>
+    <string name="water_notification_goal_reached_body">Great job! You reached your daily hydration goal.</string>
+
+    <!-- Quick Log Confirmation -->
+    <string name="water_notification_logged_title">Logged +%1$d ml</string>
+    <string name="water_notification_logged_body">Hydration logged. Keep it up!</string>
+
+    <!-- Quick Actions -->
+    <string name="water_notification_action_add_250">+250</string>
+    <string name="water_notification_action_open">Open Pulse</string>
+</resources>

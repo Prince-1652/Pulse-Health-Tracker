@@ -1,14 +1,18 @@
 package com.pulse.tracker.ui.home;
 
+import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
+import android.app.ForegroundServiceStartNotAllowedException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.content.res.Configuration;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -67,6 +71,8 @@ import java.util.Locale;
  */
 public class TodayFragment extends Fragment {
 
+    private static final String TAG = "TodayFragment";
+
     private HomeViewModel viewModel;
 
     // Top Header & Actions
@@ -106,6 +112,7 @@ public class TodayFragment extends Fragment {
     private SettingsRepository.UnitSystem currentUnitSystem = SettingsRepository.UnitSystem.METRIC;
 
     private ActivityResultLauncher<String[]> permissionLauncher;
+    private ActivityResultLauncher<String> notificationPermissionLauncher;
 
     public TodayFragment() {
         // Required empty public constructor
@@ -124,6 +131,22 @@ public class TodayFragment extends Fragment {
                 result -> {
                     if (viewModel != null) {
                         viewModel.refresh();
+                    }
+                }
+        );
+
+        notificationPermissionLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestPermission(),
+                isGranted -> {
+                    Context context = getContext();
+                    if (context == null) {
+                        return;
+                    }
+                    if (isGranted) {
+                        startNotificationUpdateService(context, true);
+                    } else {
+                        SettingsRepository.getInstance(context).setNotificationEnabled(false);
+                        updateNotificationToggleVisuals();
                     }
                 }
         );
@@ -201,9 +224,20 @@ public class TodayFragment extends Fragment {
                 } else {
                     context.startService(resumeIntent);
                 }
+            } catch (SecurityException e) {
+                Log.w(TAG, "SecurityException starting service: " + e.getMessage());
+            } catch (IllegalStateException e) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && e instanceof ForegroundServiceStartNotAllowedException) {
+                    Log.w(TAG, "ForegroundServiceStartNotAllowedException resuming service: " + e.getMessage());
+                } else {
+                    Log.w(TAG, "IllegalStateException resuming service: " + e.getMessage());
+                }
+                try {
+                    context.startService(resumeIntent);
+                } catch (Exception ignored) {
+                }
             } catch (Exception e) {
-                // Fallback to regular startService if background restrictions apply
-                context.startService(resumeIntent);
+                Log.e(TAG, "Failed to start service: " + e.getMessage(), e);
             }
             if (viewModel != null) {
                 viewModel.checkTrackingStatus();
@@ -221,7 +255,6 @@ public class TodayFragment extends Fragment {
         SettingsRepository settings = SettingsRepository.getInstance(context);
         boolean enabled = !settings.isNotificationEnabled();
         settings.setNotificationEnabled(enabled);
-
         updateNotificationToggleVisuals();
 
         if (!enabled) {
@@ -231,6 +264,19 @@ public class TodayFragment extends Fragment {
             }
         }
 
+        if (enabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (!PermissionUtils.hasNotificationPermission(context)) {
+                if (notificationPermissionLauncher != null) {
+                    notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+                }
+                return;
+            }
+        }
+
+        startNotificationUpdateService(context, enabled);
+    }
+
+    private void startNotificationUpdateService(@NonNull Context context, boolean enabled) {
         Intent updateIntent = new Intent(context, StepTrackingService.class);
         updateIntent.setAction(StepTrackingService.ACTION_UPDATE_NOTIFICATION);
         try {
@@ -239,8 +285,20 @@ public class TodayFragment extends Fragment {
             } else {
                 context.startService(updateIntent);
             }
-        } catch (Exception ignored) {
-            context.startService(updateIntent);
+        } catch (SecurityException e) {
+            Log.w(TAG, "SecurityException starting StepTrackingService for notification update: " + e.getMessage());
+        } catch (IllegalStateException e) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && e instanceof ForegroundServiceStartNotAllowedException) {
+                Log.w(TAG, "ForegroundServiceStartNotAllowedException starting StepTrackingService: " + e.getMessage());
+            } else {
+                Log.w(TAG, "IllegalStateException starting StepTrackingService: " + e.getMessage());
+            }
+            try {
+                context.startService(updateIntent);
+            } catch (Exception ignored) {
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Unexpected error starting StepTrackingService: " + e.getMessage(), e);
         }
     }
 
@@ -588,14 +646,15 @@ public class TodayFragment extends Fragment {
         chartEmptyPlaceholder.setVisibility(View.GONE);
 
         final int peakColor = ContextCompat.getColor(requireContext(), R.color.pulse_orange);
-        final int regularBarColor = (peakColor & 0x00FFFFFF) | 0x66000000; // 40% opacity for weekday activity
+        final int regularBarColor = (peakColor & 0x00FFFFFF) | 0x66000000; // 40% opacity for previous weekday activity
+        final int todayIndex = last7Days.size() - 1;
 
         for (int i = 0; i < last7Days.size(); i++) {
             DailyMetricsEntity item = last7Days.get(i);
             entries.add(new BarEntry(i, (float) item.getSteps()));
 
-            if (i == peakIndex && maxSteps > 0) {
-                colors.add(peakColor);
+            if (i == todayIndex) {
+                colors.add(peakColor); // Highlight today's bar
             } else {
                 colors.add(regularBarColor);
             }
@@ -660,11 +719,10 @@ public class TodayFragment extends Fragment {
         dataSet.setValueTextSize(10f);
         dataSet.setValueTypeface(Typeface.create("sans-serif", Typeface.BOLD));
 
-        final int targetPeakIndex = peakIndex;
-        final long targetPeakSteps = maxSteps;
+        final long todaySteps = (todayIndex >= 0 && todayIndex < last7Days.size()) ? last7Days.get(todayIndex).getSteps() : 0L;
         dataSet.setValueFormatter((value, entry, dataSetIndex, viewPortHandler) -> {
-            if (entry != null && (int) entry.getX() == targetPeakIndex && targetPeakSteps > 0) {
-                return NumberFormat.getIntegerInstance(Locale.getDefault()).format(targetPeakSteps) + " \u25B2";
+            if (entry != null && (int) entry.getX() == todayIndex) {
+                return NumberFormat.getIntegerInstance(Locale.getDefault()).format(todaySteps) + " \u25B2";
             }
             return "";
         });

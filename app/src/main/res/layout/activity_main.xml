@@ -33,7 +33,7 @@
         app:cardMaxElevation="10dp"
         app:cardBackgroundColor="@color/pulse_surface"
         app:strokeWidth="1dp"
-        app:strokeColor="#38383A"
+        app:strokeColor="@color/pulse_nav_stroke"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">

@@ -34,10 +34,13 @@ import com.pulse.tracker.domain.StepCounterProcessor;
 import com.pulse.tracker.domain.StepProcessingResult;
 import com.pulse.tracker.util.BootUtils;
 import com.pulse.tracker.util.PermissionUtils;
+import com.pulse.tracker.util.UnitFormatter;
 
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -99,6 +102,11 @@ public class StepTrackingService extends Service implements SensorEventListener,
     private volatile boolean isPaused = false;
     private volatile TrackingStateEntity cachedTrackingState = null;
     private volatile long currentTodaySteps = 0L;
+    private volatile double currentTodayDistanceMeters = 0.0;
+    private volatile double currentTodayCaloriesKcal = 0.0;
+    private volatile long lastNotificationTimeMs = 0L;
+    private volatile long lastNotificationSteps = 0L;
+    private volatile boolean goalReachedNotified = false;
 
     private final Runnable sessionTimeoutRunnable = new Runnable() {
         @Override
@@ -151,6 +159,9 @@ public class StepTrackingService extends Service implements SensorEventListener,
             DailyMetricsEntity todayEntity = metricsRepository.getMetricsForDateSync(today);
             if (todayEntity != null) {
                 currentTodaySteps = todayEntity.getSteps();
+                currentTodayDistanceMeters = todayEntity.getDistanceMeters();
+                currentTodayCaloriesKcal = todayEntity.getActiveCaloriesKcal();
+                updateNotificationView(true);
             }
         });
     }
@@ -204,7 +215,7 @@ public class StepTrackingService extends Service implements SensorEventListener,
             if (notifEnabled) {
                 promoteToForeground();
             }
-            updateNotificationView();
+            updateNotificationView(true);
         } else {
             // Default: ACTION_START or null action
             handleActionStart();
@@ -226,7 +237,25 @@ public class StepTrackingService extends Service implements SensorEventListener,
         }
 
         long goal = settingsRepository != null ? settingsRepository.getDailyStepTarget() : 10000L;
-        Notification notification = notificationManager.buildNotification(currentTodaySteps, goal, isPaused);
+        double distanceMeters = currentTodayDistanceMeters;
+        double caloriesKcal = currentTodayCaloriesKcal;
+
+        if (distanceMeters <= 0.0 && currentTodaySteps > 0 && settingsRepository != null) {
+            distanceMeters = DistanceCalculator.calculateDistanceMeters(
+                    currentTodaySteps, settingsRepository.getStrideLengthCm()
+            );
+        }
+        if (caloriesKcal <= 0.0 && currentTodaySteps > 0 && settingsRepository != null) {
+            double bmr = CalorieCalculator.calculateBmr(
+                    settingsRepository.getWeightKg(), settingsRepository.getHeightCm(),
+                    settingsRepository.getAge(), settingsRepository.getGender()
+            );
+            caloriesKcal = CalorieCalculator.calculateNetActiveCalories(bmr, 0L);
+        }
+
+        Notification notification = notificationManager.buildNotification(
+                currentTodaySteps, goal, distanceMeters, caloriesKcal, isPaused
+        );
 
         try {
             if (Build.VERSION.SDK_INT >= 34) {
@@ -239,6 +268,8 @@ public class StepTrackingService extends Service implements SensorEventListener,
             } else {
                 startForeground(StepNotificationManager.NOTIFICATION_ID, notification);
             }
+            lastNotificationTimeMs = SystemClock.elapsedRealtime();
+            lastNotificationSteps = currentTodaySteps;
         } catch (Exception e) {
             Log.e(TAG, "ForegroundService promotion failed: " + e.getMessage(), e);
             stopSelf();
@@ -251,7 +282,7 @@ public class StepTrackingService extends Service implements SensorEventListener,
         if (!isPaused) {
             registerSensor();
         }
-        updateNotificationView();
+        updateNotificationView(true);
     }
 
     private synchronized void handleActionPause() {
@@ -271,15 +302,10 @@ public class StepTrackingService extends Service implements SensorEventListener,
                 applySessionUpdateToDatabase(update);
             }
         }
-        // Remove ongoing notification completely from notification shade when off
-        try {
-            ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE);
-            if (notificationManager != null) {
-                notificationManager.cancelNotification();
-            }
-        } catch (Exception e) {
-            Log.w(TAG, "Failed to remove notification on pause: " + e.getMessage());
+        if (settingsRepository.isNotificationEnabled()) {
+            promoteToForeground();
         }
+        updateNotificationView(true);
     }
 
     private synchronized void handleActionResume() {
@@ -289,7 +315,7 @@ public class StepTrackingService extends Service implements SensorEventListener,
             promoteToForeground();
         }
         registerSensor();
-        updateNotificationView();
+        updateNotificationView(true);
     }
 
     private synchronized void handleActionStop() {
@@ -369,6 +395,10 @@ public class StepTrackingService extends Service implements SensorEventListener,
     }
 
     private void updateNotificationView() {
+        updateNotificationView(false);
+    }
+
+    private void updateNotificationView(boolean forceImmediate) {
         if (settingsRepository == null || notificationManager == null) {
             return;
         }
@@ -380,8 +410,47 @@ public class StepTrackingService extends Service implements SensorEventListener,
             }
             return;
         }
+
         long goal = settingsRepository.getDailyStepTarget();
-        notificationManager.updateNotification(currentTodaySteps, goal, isPaused, true);
+        long stepDelta = Math.abs(currentTodaySteps - lastNotificationSteps);
+        long elapsedMs = SystemClock.elapsedRealtime() - lastNotificationTimeMs;
+        boolean justReachedGoal = (goal > 0 && currentTodaySteps >= goal && !goalReachedNotified);
+
+        if (justReachedGoal) {
+            goalReachedNotified = true;
+        } else if (goal > 0 && currentTodaySteps < goal) {
+            goalReachedNotified = false;
+        }
+
+        // Throttle: update at most once per 1.5s or 5 steps unless forced or goal reached
+        if (!forceImmediate && !justReachedGoal) {
+            if (stepDelta < 5 && elapsedMs < 1500L) {
+                return;
+            }
+        }
+
+        lastNotificationTimeMs = SystemClock.elapsedRealtime();
+        lastNotificationSteps = currentTodaySteps;
+
+        double distanceMeters = currentTodayDistanceMeters;
+        double caloriesKcal = currentTodayCaloriesKcal;
+
+        if (distanceMeters <= 0.0 && currentTodaySteps > 0 && settingsRepository != null) {
+            distanceMeters = DistanceCalculator.calculateDistanceMeters(
+                    currentTodaySteps, settingsRepository.getStrideLengthCm()
+            );
+        }
+        if (caloriesKcal <= 0.0 && currentTodaySteps > 0 && settingsRepository != null) {
+            double bmr = CalorieCalculator.calculateBmr(
+                    settingsRepository.getWeightKg(), settingsRepository.getHeightCm(),
+                    settingsRepository.getAge(), settingsRepository.getGender()
+            );
+            caloriesKcal = CalorieCalculator.calculateNetActiveCalories(bmr, 0L);
+        }
+
+        notificationManager.updateNotification(
+                currentTodaySteps, goal, distanceMeters, caloriesKcal, isPaused, true
+        );
     }
 
     @Override
@@ -407,7 +476,7 @@ public class StepTrackingService extends Service implements SensorEventListener,
                         }
                     }
                 }
-                updateNotificationView();
+                updateNotificationView(true);
             });
         }
     }
@@ -566,8 +635,13 @@ public class StepTrackingService extends Service implements SensorEventListener,
             DailyMetricsEntity updatedDaily = metricsRepository.getMetricsForDateSync(result.getTargetDate());
             if (updatedDaily != null) {
                 currentTodaySteps = updatedDaily.getSteps();
+                currentTodayDistanceMeters = updatedDaily.getDistanceMeters();
+                currentTodayCaloriesKcal = updatedDaily.getActiveCaloriesKcal();
             } else {
                 currentTodaySteps += result.getStepDelta();
+                currentTodayDistanceMeters += distanceDelta;
+                long activeSec = sessionUpdate.getActiveSecondsDelta();
+                currentTodayCaloriesKcal += CalorieCalculator.calculateNetActiveCalories(bmr, activeSec);
             }
 
             updateNotificationView();
@@ -579,6 +653,8 @@ public class StepTrackingService extends Service implements SensorEventListener,
             DailyMetricsEntity todayMetrics = metricsRepository.getMetricsForDateSync(result.getTargetDate());
             if (todayMetrics != null) {
                 currentTodaySteps = todayMetrics.getSteps();
+                currentTodayDistanceMeters = todayMetrics.getDistanceMeters();
+                currentTodayCaloriesKcal = todayMetrics.getActiveCaloriesKcal();
             }
             updateNotificationView();
         }

@@ -50,6 +50,7 @@
     <!-- Text & Outline Tokens -->
     <color name="pulse_text_primary">#FFFFFF</color>
     <color name="pulse_text_secondary">#8E8E93</color>
+    <color name="pulse_text_tertiary">#666666</color>
     <color name="pulse_outline">#2C2C2E</color>
     <color name="pulse_charcoal">#222222</color>
     <color name="pulse_error">#F2B8B5</color>
@@ -62,4 +63,18 @@
     <color name="pulse_coral">#F48B6E</color>
     <color name="pulse_cobalt">#7CB5FF</color>
     <color name="pulse_cream">#FBF4D8</color>
+
+    <!-- Subtle Outlines, Dividers & Component Tokens -->
+    <color name="pulse_nav_stroke">#38383A</color>
+    <color name="pulse_outline_subtle">#1FFFFFFF</color>
+    <color name="pulse_divider">#33FFFFFF</color>
+    <color name="pulse_progress_track">#26000000</color>
+    <color name="pulse_track_inactive">#333333</color>
+    <color name="pulse_surface_contrast_subtle">#2A2A2E</color>
+
+    <!-- Contrast text on light/pastel bento containers -->
+    <color name="pulse_on_container_primary">#121212</color>
+    <color name="pulse_on_container_secondary">#333333</color>
+    <color name="pulse_on_container_tertiary">#444444</color>
+    <color name="pulse_on_container_unit">#2D2D2D</color>
 </resources>

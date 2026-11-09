@@ -2,6 +2,7 @@
 .gradle
 /local.properties
 .idea/
+.vscode/
 .DS_Store
 build/
 app/build/
@@ -11,3 +12,24 @@ captures/
 local.properties
 color_backups/
 
+# Built binaries & packages
+*.apk
+*.ap_
+*.aab
+*.dex
+*.class
+
+# Keystores & credentials
+*.jks
+*.keystore
+*.p12
+*.pem
+*.key
+google-services.json
+secrets.properties
+
+# Temp files & logs
+*.log
+*.tmp
+temp_screen.png
+window_dump.xml

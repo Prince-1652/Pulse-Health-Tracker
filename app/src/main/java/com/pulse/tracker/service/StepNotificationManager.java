@@ -9,24 +9,28 @@ import android.content.Intent;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.ContextCompat;
 
 import com.pulse.tracker.MainActivity;
 import com.pulse.tracker.R;
+import com.pulse.tracker.data.repository.SettingsRepository;
+import com.pulse.tracker.util.UnitFormatter;
 
 import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.Objects;
 
 /**
- * Manages the ongoing, non-dismissible notification for StepTrackingService.
- * Configures the low-importance notification channel and handles dynamic
- * step count, goal remaining, and pause/resume action updates.
+ * Manages the ongoing, non-dismissible standard notification for StepTrackingService.
+ * Clean, standard Android notification displaying step progress, daily goal remaining,
+ * secondary metrics (distance & calories), and quick pause/resume controls.
  */
 public class StepNotificationManager {
 
-    public static final String CHANNEL_ID = "pulse_tracking_channel";
+    public static final String CHANNEL_ID = "pulse_tracking_channel_v2";
     public static final String SILENT_CHANNEL_ID = "pulse_silent_channel";
     public static final int NOTIFICATION_ID = 1001;
     public static final int REQUEST_CODE_MAIN = 101;
@@ -50,6 +54,12 @@ public class StepNotificationManager {
                 return;
             }
 
+            // Cleanup legacy channel if present
+            try {
+                systemManager.deleteNotificationChannel("pulse_tracking_channel");
+            } catch (Exception ignored) {
+            }
+
             // 1) Visible ongoing tracking channel
             String name;
             String description;
@@ -60,7 +70,7 @@ public class StepNotificationManager {
                 name = "Step Tracking";
                 description = "Continuous background pedometer and daily activity updates";
             }
-            int importance = NotificationManager.IMPORTANCE_LOW;
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
 
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
             channel.setDescription(description);
@@ -84,12 +94,43 @@ public class StepNotificationManager {
     }
 
     /**
-     * Builds the ongoing notification reflecting the current tracking state and step progress.
+     * Builds standard ongoing notification reflecting current steps, daily goal, and pause state.
      */
     @NonNull
     public Notification buildNotification(long currentSteps, long goal, boolean isPaused) {
+        double defaultStride = 76.0;
+        try {
+            SettingsRepository settings = SettingsRepository.getInstance(context);
+            defaultStride = settings.getStrideLengthCm();
+        } catch (Exception ignored) {
+        }
+        double estimatedDistanceMeters = (Math.max(0, currentSteps) * defaultStride) / 100.0;
+        double estimatedCalories = Math.max(0, currentSteps) * 0.04;
+        return buildNotification(currentSteps, goal, estimatedDistanceMeters, estimatedCalories, isPaused);
+    }
+
+    /**
+     * Compatibility overload accepting optional token (delegates to standard notification).
+     */
+    @NonNull
+    public Notification buildNotification(long currentSteps, long goal, boolean isPaused,
+                                          @Nullable Object unusedToken) {
+        return buildNotification(currentSteps, goal, isPaused);
+    }
+
+    /**
+     * Builds standard ongoing notification with rich secondary metrics (distance and calories).
+     */
+    @NonNull
+    public Notification buildNotification(long currentSteps, long goal, double distanceMeters,
+                                          double caloriesKcal, boolean isPaused) {
+        long safeSteps = Math.max(0, currentSteps);
+        long safeGoal = Math.max(0, goal);
+        double safeDistance = Math.max(0.0, distanceMeters);
+        double safeCalories = Math.max(0.0, caloriesKcal);
+
         NumberFormat numberFormat = NumberFormat.getIntegerInstance(Locale.getDefault());
-        String formattedSteps = numberFormat.format(Math.max(0, currentSteps));
+        String formattedSteps = numberFormat.format(safeSteps);
 
         String pausedStatus = "Tracking paused";
         String activeStatus = "Tracking active";
@@ -103,16 +144,17 @@ public class StepNotificationManager {
 
         String title;
         String contentText;
+        boolean isGoalReached = (safeGoal > 0 && safeSteps >= safeGoal);
 
         if (isPaused) {
             title = "Pulse • " + pausedStatus;
             contentText = formattedSteps + " steps today • Paused";
         } else {
             title = "Pulse • " + activeStatus;
-            if (goal > 0 && currentSteps >= goal) {
+            if (isGoalReached) {
                 contentText = formattedSteps + " steps today • " + goalReached;
-            } else if (goal > 0) {
-                long remaining = Math.max(0, goal - currentSteps);
+            } else if (safeGoal > 0) {
+                long remaining = Math.max(0, safeGoal - safeSteps);
                 String formattedRemaining = numberFormat.format(remaining);
                 contentText = formattedSteps + " steps today • " + formattedRemaining + " remaining";
             } else {
@@ -130,36 +172,41 @@ public class StepNotificationManager {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
 
+        int maxProgress = (safeGoal > 0) ? (int) Math.min(Integer.MAX_VALUE, safeGoal) : 10000;
+        int currentProgress = (int) Math.min(maxProgress, Math.max(0, safeSteps));
+
+        String formattedDistance = UnitFormatter.formatDistance(safeDistance, SettingsRepository.UnitSystem.METRIC);
+        String formattedCalories = safeCalories > 0 ? UnitFormatter.formatCalories(safeCalories) : "0 kcal";
+
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_footprints)
-                .setColor(androidx.core.content.ContextCompat.getColor(context, R.color.pulse_primary))
+                .setColor(ContextCompat.getColor(context, R.color.pulse_green))
                 .setContentTitle(title)
                 .setContentText(contentText)
+                .setSubText(formattedDistance + " • " + formattedCalories)
+                .setProgress(maxProgress, currentProgress, false)
                 .setContentIntent(contentPendingIntent)
                 .setOngoing(true)
                 .setOnlyAlertOnce(true)
-                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setCategory(NotificationCompat.CATEGORY_SERVICE)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setShowWhen(false)
                 .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE);
 
-        // Action button: Pause / Resume
-        Intent serviceActionIntent = new Intent(context, StepTrackingService.class);
-        serviceActionIntent.setAction(isPaused ? StepTrackingService.ACTION_RESUME : StepTrackingService.ACTION_PAUSE);
-        PendingIntent actionPendingIntent = PendingIntent.getService(
-                context,
-                REQUEST_CODE_ACTION,
-                serviceActionIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-        );
-
-        String actionTitle = isPaused ? "Resume" : "Pause";
-        builder.addAction(0, actionTitle, actionPendingIntent);
-
         Notification notification = builder.build();
         notification.flags |= Notification.FLAG_ONGOING_EVENT | Notification.FLAG_NO_CLEAR;
         return notification;
+    }
+
+    /**
+     * Compatibility overload accepting optional token (delegates to standard notification).
+     */
+    @NonNull
+    public Notification buildNotification(long currentSteps, long goal, double distanceMeters,
+                                          double caloriesKcal, boolean isPaused,
+                                          @Nullable Object unusedToken) {
+        return buildNotification(currentSteps, goal, distanceMeters, caloriesKcal, isPaused);
     }
 
     /**
@@ -182,7 +229,7 @@ public class StepNotificationManager {
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, SILENT_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_footprints)
-                .setColor(androidx.core.content.ContextCompat.getColor(context, R.color.pulse_primary))
+                .setColor(ContextCompat.getColor(context, R.color.pulse_green))
                 .setContentTitle("Pulse • Tracking active")
                 .setContentText(formattedSteps + " steps")
                 .setContentIntent(contentPendingIntent)
@@ -221,15 +268,46 @@ public class StepNotificationManager {
      * If isNotificationEnabled is false, cancels the notification completely.
      */
     public void updateNotification(long currentSteps, long goal, boolean isPaused, boolean isNotificationEnabled) {
+        double defaultStride = 76.0;
+        try {
+            SettingsRepository settings = SettingsRepository.getInstance(context);
+            defaultStride = settings.getStrideLengthCm();
+        } catch (Exception ignored) {
+        }
+        double estimatedDistanceMeters = (Math.max(0, currentSteps) * defaultStride) / 100.0;
+        double estimatedCalories = Math.max(0, currentSteps) * 0.04;
+        updateNotification(currentSteps, goal, estimatedDistanceMeters, estimatedCalories, isPaused, isNotificationEnabled);
+    }
+
+    /**
+     * Posts an updated notification with full secondary metrics.
+     */
+    public void updateNotification(long currentSteps, long goal, double distanceMeters,
+                                   double caloriesKcal, boolean isPaused, boolean isNotificationEnabled) {
         if (!isNotificationEnabled) {
             cancelNotification();
             return;
         }
         try {
-            Notification notification = buildNotification(currentSteps, goal, isPaused);
+            Notification notification = buildNotification(currentSteps, goal, distanceMeters, caloriesKcal, isPaused);
             notificationManager.notify(NOTIFICATION_ID, notification);
         } catch (SecurityException e) {
             // Notification permission denied or revoked
+        } catch (Throwable t) {
+            try {
+                Notification fallback = buildSilentNotification(currentSteps, goal);
+                notificationManager.notify(NOTIFICATION_ID, fallback);
+            } catch (Throwable ignored) {
+            }
         }
+    }
+
+    /**
+     * Compatibility overload accepting optional token (delegates to standard notification).
+     */
+    public void updateNotification(long currentSteps, long goal, double distanceMeters,
+                                   double caloriesKcal, boolean isPaused, boolean isNotificationEnabled,
+                                   @Nullable Object unusedToken) {
+        updateNotification(currentSteps, goal, distanceMeters, caloriesKcal, isPaused, isNotificationEnabled);
     }
 }

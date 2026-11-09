@@ -120,8 +120,14 @@ public class SettingsRepositoryTest {
         assertFalse(repository.setDailyStepTarget(50L));
         assertEquals(8500L, repository.getDailyStepTarget());
 
+        assertTrue(repository.setDailyStepTarget(50000L));
+        assertEquals(50000L, repository.getDailyStepTarget());
+
+        assertFalse(repository.setDailyStepTarget(50001L));
+        assertEquals(50000L, repository.getDailyStepTarget());
+
         assertFalse(repository.setDailyStepTarget(200000L));
-        assertEquals(8500L, repository.getDailyStepTarget());
+        assertEquals(50000L, repository.getDailyStepTarget());
     }
 
     @Test

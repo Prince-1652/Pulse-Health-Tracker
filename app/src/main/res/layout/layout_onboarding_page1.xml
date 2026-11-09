@@ -81,8 +81,8 @@
                     android:layout_marginBottom="@dimen/space_12">
 
                     <ImageView
-                        android:layout_width="22dp"
-                        android:layout_height="22dp"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
                         android:src="@drawable/ic_tab_profile"
                         app:tint="@color/pulse_sky_blue"
                         android:contentDescription="@null"
@@ -91,7 +91,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Display Name"
+                        android:text="@string/profile_display_name"
                         android:textAppearance="@style/TextAppearance.Pulse.TitleLarge"
                         android:textStyle="bold"
                         android:textColor="@color/pulse_text_primary" />
@@ -114,7 +114,7 @@
                         android:paddingHorizontal="16dp"
                         android:paddingVertical="12dp"
                         android:hint="@string/onboarding_name_hint"
-                        android:textColorHint="#666666"
+                        android:textColorHint="@color/pulse_text_tertiary"
                         android:textColor="@color/pulse_text_primary"
                         android:textSize="16sp"
                         android:fontFamily="sans-serif-medium"
