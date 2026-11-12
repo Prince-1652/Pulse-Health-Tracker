@@ -28,9 +28,9 @@ import java.util.Objects;
 public class ActivitySessionCalculator {
 
     /**
-     * Threshold in milliseconds required to confirm candidate movement as an active session (10s).
+     * Threshold in milliseconds required to confirm candidate movement as an active session (5s).
      */
-    public static final long CONFIRMATION_THRESHOLD_MS = 10_000L;
+    public static final long CONFIRMATION_THRESHOLD_MS = 5_000L;
 
     /**
      * Threshold in milliseconds of inactivity before a session ends (30s).
@@ -181,6 +181,22 @@ public class ActivitySessionCalculator {
      */
     @NonNull
     public synchronized SessionUpdate onMovement(long eventMonotonicMs, long eventWallTimeMs, @Nullable ZoneId zoneId) {
+        return onMovement(eventMonotonicMs, eventWallTimeMs, zoneId, 1L);
+    }
+
+    /**
+     * Processes an incoming positive movement event with step delta count.
+     * Confirms candidate session immediately if batched movement steps (>= 5 steps)
+     * or elapsed candidate time >= 5s.
+     *
+     * @param eventMonotonicMs Monotonic timestamp of the movement event (milliseconds).
+     * @param eventWallTimeMs  Wall-clock timestamp corresponding to the movement event (milliseconds).
+     * @param zoneId           Time zone for date attribution.
+     * @param stepDelta        Number of steps taken in this movement event.
+     * @return SessionUpdate containing active seconds delta, date attribution, and session status flags.
+     */
+    @NonNull
+    public synchronized SessionUpdate onMovement(long eventMonotonicMs, long eventWallTimeMs, @Nullable ZoneId zoneId, long stepDelta) {
         if (eventMonotonicMs <= 0) {
             return SessionUpdate.empty(sessionActive, candidateActive, candidateStartMonotonicMs, lastMovementMonotonicMs);
         }
@@ -190,21 +206,27 @@ public class ActivitySessionCalculator {
         if ((candidateActive || sessionActive) && lastMovementMonotonicMs > 0) {
             long idleMs = eventMonotonicMs - lastMovementMonotonicMs;
             if (idleMs >= INACTIVITY_TIMEOUT_MS) {
-                // Finalize previous timed-out session or discard unconfirmed candidate
+                // Finalize previous timed-out session or credit candidate movement
                 SessionUpdate timeoutUpdate = handleTimeoutInternal(eventMonotonicMs, eventWallTimeMs, effectiveZoneId);
 
                 // Start fresh candidate at this event
                 startCandidate(eventMonotonicMs);
 
-                // Return timeout delta (e.g. tail seconds) combined with new candidate state
+                // If batched steps >= 5, confirm immediately
+                if (stepDelta >= 5) {
+                    sessionActive = true;
+                    candidateActive = false;
+                }
+
+                // Return timeout delta (e.g. tail seconds) combined with new session/candidate state
                 return new SessionUpdate(
                         timeoutUpdate.getActiveSecondsDelta(),
                         timeoutUpdate.getDateSplits(),
-                        false,
-                        true,
+                        sessionActive,
+                        candidateActive,
                         candidateStartMonotonicMs,
                         lastMovementMonotonicMs,
-                        false,
+                        sessionActive,
                         timeoutUpdate.isSessionJustEnded()
                 );
             }
@@ -214,6 +236,12 @@ public class ActivitySessionCalculator {
         if (!candidateActive && !sessionActive) {
             // First step starts candidate session
             startCandidate(eventMonotonicMs);
+            if (stepDelta >= 5) {
+                sessionActive = true;
+                candidateActive = false;
+                return new SessionUpdate(0L, Collections.emptyMap(), true, false,
+                        candidateStartMonotonicMs, lastMovementMonotonicMs, true, false);
+            }
             return SessionUpdate.empty(false, true, candidateStartMonotonicMs, lastMovementMonotonicMs);
         }
 
@@ -222,8 +250,8 @@ public class ActivitySessionCalculator {
             lastMovementMonotonicMs = eventMonotonicMs;
             long durationFromStart = eventMonotonicMs - candidateStartMonotonicMs;
 
-            if (durationFromStart >= CONFIRMATION_THRESHOLD_MS) {
-                // Movement continued for >= 10s: CONFIRM SESSION!
+            if (durationFromStart >= CONFIRMATION_THRESHOLD_MS || stepDelta >= 5) {
+                // Movement continued for >= 5s or batched steps >= 5: CONFIRM SESSION!
                 // Include candidate start time in session duration
                 sessionActive = true;
                 candidateActive = false;
@@ -252,7 +280,7 @@ public class ActivitySessionCalculator {
                         false
                 );
             } else {
-                // Still candidate (< 10s)
+                // Still candidate (< 5s)
                 return SessionUpdate.empty(false, true, candidateStartMonotonicMs, lastMovementMonotonicMs);
             }
         }
@@ -528,20 +556,38 @@ public class ActivitySessionCalculator {
                     true
             );
         } else if (candidateActive) {
-            // Unconfirmed candidate (< 10s of movement); no tail credited
             long oldStart = candidateStartMonotonicMs;
             long oldLast = lastMovementMonotonicMs;
+
+            long deltaSeconds = 0L;
+            Map<String, Long> splits = Collections.emptyMap();
+
+            // If movement occurred during candidate, credit actual duration (lastMovementMonotonicMs - candidateStartMonotonicMs) / 1000L
+            if (oldLast > oldStart) {
+                long uncreditedMs = oldLast - oldStart;
+                deltaSeconds = uncreditedMs / 1000L;
+                if (deltaSeconds == 0) {
+                    deltaSeconds = Math.round(uncreditedMs / 1000.0);
+                }
+                if (deltaSeconds > 0) {
+                    accumulatedSessionSeconds += deltaSeconds;
+                    long startWall = currentWallTimeMs - (currentMonotonicMs - oldStart);
+                    long endWall = currentWallTimeMs - (currentMonotonicMs - oldLast);
+                    splits = splitDurationByDate(startWall, endWall, effectiveZoneId);
+                }
+            }
+
             resetSession();
 
             return new SessionUpdate(
-                    0L,
-                    Collections.emptyMap(),
+                    deltaSeconds,
+                    splits,
                     false,
                     false,
                     oldStart,
                     oldLast,
                     false,
-                    false
+                    deltaSeconds > 0
             );
         } else {
             return SessionUpdate.empty(false, false, 0L, 0L);

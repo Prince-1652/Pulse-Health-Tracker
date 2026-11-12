@@ -291,5 +291,98 @@ public class StepCounterProcessorTest {
         assertEquals(0L, result.getStepDelta());
         assertEquals(1_001_000L, result.getUpdatedTrackingState().getLastCumulativeSteps());
     }
+
+    @Test
+    public void falseBootChanged_withIncreasingCumulative_neverPhantomAwardsSteps() {
+        long oldBootMarker = 100_000L;
+        long newBootMarker = 999_999L; // Marker changed (e.g. process restart / NTP drift)
+        long wallTimeMs = 1700000000000L;
+        long elapsedNanos = 20_000_000_000L;
+
+        TrackingStateEntity state = TrackingStateEntity.createInitial().toBuilder()
+                .setBaselineInitialized(true)
+                .setLastCumulativeSteps(15_000L)
+                .setBootSessionMarker(oldBootMarker)
+                .setLastEventTimestamp(wallTimeMs - 10_000L)
+                .build();
+
+        // Safe cumulative is 15,025 (user took 25 steps). Counter did NOT reset!
+        StepProcessingResult result = processor.processStepEvent(
+                15_025L,
+                elapsedNanos,
+                newBootMarker,
+                wallTimeMs,
+                elapsedNanos,
+                testZoneId,
+                state
+        );
+
+        // ALWAYS calculate delta = safeCumulative - previousCumulative = 25.
+        // NEVER phantom award 15,025!
+        assertEquals(25L, result.getStepDelta());
+        assertEquals(15_025L, result.getUpdatedTrackingState().getLastCumulativeSteps());
+        assertEquals(newBootMarker, result.getUpdatedTrackingState().getBootSessionMarker());
+    }
+
+    @Test
+    public void counterReset_boundedByMaxPlausibleSingleDelta() {
+        long oldBootMarker = 100_000L;
+        long newBootMarker = 200_000L;
+        long wallTimeMs = 1700000000000L;
+        long elapsedNanos = 5_000_000_000L;
+
+        TrackingStateEntity state = TrackingStateEntity.createInitial().toBuilder()
+                .setBaselineInitialized(true)
+                .setLastCumulativeSteps(80_000L)
+                .setBootSessionMarker(oldBootMarker)
+                .build();
+
+        // Hardware counter reset to an implausibly large number (e.g. 90,000 steps)
+        // Wait, counter reset means safeCumulative < previousCumulative:
+        // Say safeCumulative is 60,000 (< 80,000), but > MAX_PLAUSIBLE_SINGLE_DELTA (50,000)
+        StepProcessingResult result = processor.processStepEvent(
+                60_000L,
+                elapsedNanos,
+                newBootMarker,
+                wallTimeMs,
+                elapsedNanos,
+                testZoneId,
+                state
+        );
+
+        // Clamped to MAX_PLAUSIBLE_SINGLE_DELTA (50,000)
+        assertEquals(StepCounterProcessor.MAX_PLAUSIBLE_SINGLE_DELTA, result.getStepDelta());
+        assertEquals(60_000L, result.getUpdatedTrackingState().getLastCumulativeSteps());
+    }
+
+    @Test
+    public void anomalousOldTimestamp_clampedByMaxAgeNanos() {
+        // Wall time: 2026-11-10 12:00:00 UTC
+        long wallTimeMs = Instant.parse("2026-11-10T12:00:00.000Z").toEpochMilli();
+        long elapsedRealtimeNanos = 100_000_000_000_000L; // ~27.7 hours uptime
+        // Anomalous sensor event timestamp: 0 (which would be 27+ hours ago without clamping)
+        long anomalousMonotonicNanos = 0L;
+
+        TrackingStateEntity state = TrackingStateEntity.createInitial().toBuilder()
+                .setBaselineInitialized(true)
+                .setLastCumulativeSteps(100L)
+                .setBootSessionMarker(1L)
+                .build();
+
+        StepProcessingResult result = processor.processStepEvent(
+                110L,
+                anomalousMonotonicNanos,
+                1L,
+                wallTimeMs,
+                elapsedRealtimeNanos,
+                testZoneId,
+                state
+        );
+
+        // Event wall time is clamped and assigned to today instead of 0 timestamp
+        assertEquals(110L, result.getUpdatedTrackingState().getLastCumulativeSteps());
+        assertEquals(10L, result.getStepDelta());
+        assertNotNull(result.getTargetDate());
+    }
 }
 

@@ -90,30 +90,33 @@ public final class WaterReminderManager {
      * - Daytime window: 8:00 AM to 10:00 PM (clamped between 60m and 150m)
      * - Nighttime buffer: after 10:00 PM or before 8:00 AM schedules to 8:00 AM
      * - Goal reached: schedules to 8:00 AM next day
+     * - Guaranteed strictly in the future (> now + 60s)
      */
     public static long calculateNextReminderMillis(@NonNull Calendar now, int currentIntake, int dailyGoal) {
         int hour = now.get(Calendar.HOUR_OF_DAY);
+        int minute = now.get(Calendar.MINUTE);
 
         // If goal already reached or exceeded for today, silence until tomorrow morning
         if (dailyGoal > 0 && currentIntake >= dailyGoal) {
-            return getMorningTimestamp(now, true);
-        }
-
-        // Pre-daytime (before 8:00 AM) -> trigger at 8:00 AM today
-        if (hour < START_HOUR) {
-            return getMorningTimestamp(now, false);
+            return ensureStrictlyFuture(getMorningTimestamp(now, true), now);
         }
 
         // Post-daytime (at or after 10:00 PM) -> trigger at 8:00 AM tomorrow
         if (hour >= END_HOUR) {
-            return getMorningTimestamp(now, true);
+            return ensureStrictlyFuture(getMorningTimestamp(now, true), now);
         }
 
-        // Within daytime window [8:00 AM, 10:00 PM)
+        // Pre-daytime (before 8:00 AM) -> trigger at 8:00 AM today.
+        // Exception: 7:55-7:59 AM (jitter buffer) enters daytime pacing.
+        if (hour < START_HOUR && !(hour == 7 && minute >= 55)) {
+            return ensureStrictlyFuture(getMorningTimestamp(now, false), now);
+        }
+
+        // Within daytime window [8:00 AM, 10:00 PM) (including 7:55 AM jitter window)
         int remainingMl = Math.max(0, dailyGoal - currentIntake);
         int remainingServings = (int) Math.ceil((double) remainingMl / (double) SERVING_SIZE_ML);
         if (remainingServings <= 0) {
-            return getMorningTimestamp(now, true);
+            return ensureStrictlyFuture(getMorningTimestamp(now, true), now);
         }
 
         // Calculate remaining waking milliseconds until 22:00 today
@@ -135,10 +138,18 @@ public final class WaterReminderManager {
 
         // If next trigger lands at or past 22:00, clamp to tomorrow morning to avoid sleep disruption
         if (nextTrigger >= endOfDay.getTimeInMillis()) {
-            return getMorningTimestamp(now, true);
+            return ensureStrictlyFuture(getMorningTimestamp(now, true), now);
         }
 
-        return nextTrigger;
+        return ensureStrictlyFuture(nextTrigger, now);
+    }
+
+    private static long ensureStrictlyFuture(long trigger, @NonNull Calendar now) {
+        long minAllowed = now.getTimeInMillis() + 60000L;
+        if (trigger <= minAllowed) {
+            return minAllowed + 1000L;
+        }
+        return trigger;
     }
 
     private static long getMorningTimestamp(@NonNull Calendar base, boolean tomorrow) {
@@ -150,6 +161,9 @@ public final class WaterReminderManager {
         morning.set(Calendar.MINUTE, 0);
         morning.set(Calendar.SECOND, 0);
         morning.set(Calendar.MILLISECOND, 0);
+        if (morning.getTimeInMillis() <= base.getTimeInMillis()) {
+            morning.add(Calendar.DAY_OF_YEAR, 1);
+        }
         return morning.getTimeInMillis();
     }
 
@@ -262,7 +276,7 @@ public final class WaterReminderManager {
             return new EvidenceMessage(title, body);
         }
 
-        if (hourOfDay >= 8 && hourOfDay < 12) {
+        if (hourOfDay < 12) {
             String title = context.getString(R.string.water_notification_morning_title);
             String body = context.getString(R.string.water_notification_morning_body, currentStr, targetStr);
             return new EvidenceMessage(title, body);
@@ -331,7 +345,7 @@ public final class WaterReminderManager {
                 .setContentText(message.body)
                 .setContentIntent(openPendingIntent)
                 .setAutoCancel(true)
-                .setOnlyAlertOnce(false)
+                .setOnlyAlertOnce(true)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .addAction(R.drawable.ic_water_drop, addActionTitle, addPendingIntent)
                 .addAction(R.drawable.ic_tab_water, openActionTitle, openPendingIntent);
@@ -373,6 +387,7 @@ public final class WaterReminderManager {
                 .setContentIntent(openPendingIntent)
                 .setAutoCancel(true)
                 .setOnlyAlertOnce(true)
+                .setTimeoutAfter(5000L)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .addAction(R.drawable.ic_tab_water, openActionTitle, openPendingIntent);
 
@@ -398,16 +413,12 @@ public final class WaterReminderManager {
         );
 
         NumberFormat nf = NumberFormat.getIntegerInstance(Locale.getDefault());
+        String addedStr = nf.format(addedMl);
         String totalStr = nf.format(newTotalMl);
         String targetStr = nf.format(targetMl);
 
-        String title = (newTotalMl >= targetMl) ? "Goal achieved!" : "Logged +" + addedMl + " ml";
-        String message;
-        try {
-            message = context.getString(R.string.water_notification_logged_body, totalStr, targetStr);
-        } catch (Exception e) {
-            message = "Nice work! " + totalStr + " of " + targetStr + " ml reached today.";
-        }
+        String title = (newTotalMl >= targetMl) ? "Goal achieved!" : "Logged +" + addedStr + " ml";
+        String message = totalStr + " / " + targetStr + " ml reached today";
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_water_drop)
@@ -416,7 +427,8 @@ public final class WaterReminderManager {
                 .setContentText(message)
                 .setContentIntent(openPendingIntent)
                 .setAutoCancel(true)
-                .setTimeoutAfter(6000L)
+                .setOnlyAlertOnce(true)
+                .setTimeoutAfter(3000L)
                 .setPriority(NotificationCompat.PRIORITY_LOW);
 
         manager.notify(NOTIFICATION_ID, builder.build());

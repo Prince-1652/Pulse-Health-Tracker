@@ -178,5 +178,28 @@ public class MetricsRepositoryTest {
         assertEquals(0.0, emptyAnalytics.getAveragePaceMinPerKm(), 0.001);
         assertNull(emptyAnalytics.getPersonalBest());
     }
+
+    @Test
+    public void testCalculateMonthlyAnalytics_missingSubMetrics_usesFallbacksWhenStepsPresent() {
+        dao.insertOrUpdate(new DailyMetricsEntity("2026-11-01", 2000L, 0.0, 0L, 0.0, 10000L, 1L));
+
+        MetricsRepository.MonthlyAnalytics analytics = repository.calculateMonthlyAnalyticsSync("2026-11");
+
+        assertEquals(2000L, analytics.getTotalSteps());
+
+        // Fallback distance: 2000 steps * 70.0cm = 1400.0m
+        assertEquals(1400.0, analytics.getTotalDistanceMeters(), 0.001);
+
+        // Fallback active seconds: Math.max(1, Math.round(2000 * 0.55)) = 1100s
+        assertEquals(1100L, analytics.getTotalActiveSeconds());
+
+        // Fallback calories: CalorieCalculator.calculateStepCalories(2000, 70.0, 70.0)
+        double expectedKcal = com.pulse.tracker.domain.CalorieCalculator.calculateStepCalories(2000L, 70.0, 70.0);
+        assertEquals(expectedKcal, analytics.getTotalCalories(), 0.001);
+
+        // Average pace: 1100s / 1.4km = 785.71s / km = 13.095 min/km
+        double expectedPace = (1100.0 / 60.0) / 1.4;
+        assertEquals(expectedPace, analytics.getAveragePaceMinPerKm(), 0.01);
+    }
 }
 

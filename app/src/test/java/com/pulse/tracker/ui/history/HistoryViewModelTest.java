@@ -2,6 +2,7 @@ package com.pulse.tracker.ui.history;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
@@ -297,6 +298,160 @@ public class HistoryViewModelTest {
         } finally {
             viewModel.getSelectedDateMetrics().removeObserver(metricsObserver);
             viewModel.getCalendarDays().removeObserver(daysObserver);
+        }
+    }
+
+    @Test
+    public void testMidnightRollover_advancesSelectedDateAndRebuildsGrid() {
+        AtomicReference<List<CalendarDayModel>> observedDays = new AtomicReference<>();
+        Observer<List<CalendarDayModel>> daysObserver = observedDays::set;
+        viewModel.getCalendarDays().observeForever(daysObserver);
+
+        try {
+            LocalDate initialToday = LocalDate.of(2026, 11, 12);
+            viewModel.handleMidnightRollover(initialToday);
+            assertEquals(initialToday, viewModel.getSelectedDate().getValue());
+
+            // Midnight strikes: advance to Nov 13
+            LocalDate nextDay = LocalDate.of(2026, 11, 13);
+            viewModel.handleMidnightRollover(nextDay);
+
+            assertEquals(nextDay, viewModel.getSelectedDate().getValue());
+
+            List<CalendarDayModel> days = observedDays.get();
+            assertNotNull(days);
+            for (CalendarDayModel m : days) {
+                if (m.isInMonth()) {
+                    if (m.getDayNumber() == 13) {
+                        assertTrue("Day 13 should be marked as today", m.isToday());
+                        assertTrue("Day 13 should be marked as selected", m.isSelected());
+                    } else if (m.getDayNumber() == 12) {
+                        assertFalse("Day 12 should no longer be today", m.isToday());
+                        assertFalse("Day 12 should no longer be selected", m.isSelected());
+                    }
+                }
+            }
+        } finally {
+            viewModel.getCalendarDays().removeObserver(daysObserver);
+        }
+    }
+
+    @Test
+    public void testMidnightRollover_acrossMonthBoundary() {
+        LocalDate endOfMonth = LocalDate.of(2026, 11, 30);
+        viewModel.handleMidnightRollover(endOfMonth);
+        assertEquals(endOfMonth, viewModel.getSelectedDate().getValue());
+        assertEquals(YearMonth.of(2026, 11), viewModel.getSelectedMonth().getValue());
+
+        // Rollover to Dec 1
+        LocalDate firstOfNextMonth = LocalDate.of(2026, 12, 1);
+        viewModel.handleMidnightRollover(firstOfNextMonth);
+
+        assertEquals(firstOfNextMonth, viewModel.getSelectedDate().getValue());
+        assertEquals(YearMonth.of(2026, 12), viewModel.getSelectedMonth().getValue());
+    }
+
+    @Test
+    public void testMidnightRollover_whenHistoricalDateSelected_preservesSelectedDate() {
+        LocalDate initialToday = LocalDate.of(2026, 11, 12);
+        viewModel.handleMidnightRollover(initialToday);
+
+        // User manually selected a historical date: Nov 4
+        LocalDate historicalDate = LocalDate.of(2026, 11, 4);
+        viewModel.selectDate(historicalDate);
+        assertEquals(historicalDate, viewModel.getSelectedDate().getValue());
+
+        // Midnight rollover to Nov 13
+        LocalDate nextDay = LocalDate.of(2026, 11, 13);
+        viewModel.handleMidnightRollover(nextDay);
+
+        // Historical selected date should be preserved
+        assertEquals(historicalDate, viewModel.getSelectedDate().getValue());
+    }
+
+    @Test
+    public void testPaddingDaySelection_doesNotResetToFirstDayOfMonth() {
+        // ViewModel starts in Nov 2026
+        viewModel.setSelectedMonth(YearMonth.of(2026, 11));
+
+        // Click a padding day from October: 2026-10-31
+        LocalDate octPaddingDay = LocalDate.of(2026, 10, 31);
+        viewModel.selectDate(octPaddingDay);
+
+        // Selected month must advance to October, and selected date must be Oct 31 (NOT Oct 1)
+        assertEquals(YearMonth.of(2026, 10), viewModel.getSelectedMonth().getValue());
+        assertEquals(octPaddingDay, viewModel.getSelectedDate().getValue());
+
+        // Click a trailing padding day from December: 2026-12-05
+        LocalDate decPaddingDay = LocalDate.of(2026, 12, 5);
+        viewModel.selectDate(decPaddingDay);
+
+        assertEquals(YearMonth.of(2026, 12), viewModel.getSelectedMonth().getValue());
+        assertEquals(decPaddingDay, viewModel.getSelectedDate().getValue());
+    }
+
+    @Test
+    public void testStaleDataFlash_emitsEmptyEntityImmediatelyOnDateChange() {
+        dailyMetricsDao.insertOrUpdate(new DailyMetricsEntity(
+                "2026-11-04", 10000L, 7500.0, 3600L, 350.0, 8000L, 1L));
+
+        List<DailyMetricsEntity> emittedEntities = new ArrayList<>();
+        Observer<DailyMetricsEntity> observer = emittedEntities::add;
+        viewModel.getSelectedDateMetrics().observeForever(observer);
+
+        try {
+            // Select Nov 4
+            viewModel.selectDate(LocalDate.of(2026, 11, 4));
+            assertFalse(emittedEntities.isEmpty());
+            assertEquals(10000L, emittedEntities.get(emittedEntities.size() - 1).getSteps());
+
+            // Clear emitted list to track emissions during transition to Nov 5
+            emittedEntities.clear();
+
+            // Select Nov 5 (not yet queried in DB)
+            viewModel.selectDate(LocalDate.of(2026, 11, 5));
+
+            // First emission must immediately be the empty placeholder for Nov 5 (0 steps)
+            assertFalse("Must immediately emit for new date", emittedEntities.isEmpty());
+            DailyMetricsEntity firstEmission = emittedEntities.get(0);
+            assertEquals("2026-11-05", firstEmission.getDate());
+            assertEquals(0L, firstEmission.getSteps());
+        } finally {
+            viewModel.getSelectedDateMetrics().removeObserver(observer);
+        }
+    }
+
+    @Test
+    public void testSettingsSync_stepTargetAndUnitSystemChanges() {
+        AtomicReference<List<CalendarDayModel>> observedDays = new AtomicReference<>();
+        Observer<List<CalendarDayModel>> daysObserver = observedDays::set;
+        viewModel.getCalendarDays().observeForever(daysObserver);
+
+        AtomicReference<SettingsRepository.UnitSystem> observedUnit = new AtomicReference<>();
+        Observer<SettingsRepository.UnitSystem> unitObserver = observedUnit::set;
+        viewModel.getUnitSystem().observeForever(unitObserver);
+
+        try {
+            viewModel.setSelectedMonth(YearMonth.of(2026, 11));
+
+            // Default target is 10000
+            List<CalendarDayModel> days = observedDays.get();
+            assertNotNull(days);
+            assertEquals(10000L, days.get(0).getStepGoal());
+
+            // Update daily step target setting
+            settingsRepository.setDailyStepTarget(12500L);
+
+            days = observedDays.get();
+            assertNotNull(days);
+            assertEquals(12500L, days.get(0).getStepGoal());
+
+            // Update unit system setting
+            settingsRepository.setUnitSystem(SettingsRepository.UnitSystem.IMPERIAL);
+            assertEquals(SettingsRepository.UnitSystem.IMPERIAL, observedUnit.get());
+        } finally {
+            viewModel.getCalendarDays().removeObserver(daysObserver);
+            viewModel.getUnitSystem().removeObserver(unitObserver);
         }
     }
 }

@@ -13,6 +13,8 @@ import java.util.UUID;
  */
 public final class BootUtils {
 
+    public static final long BOOT_DRIFT_TOLERANCE_MS = 30_000L;
+
     private static volatile Long cachedBootMarker = null;
 
     private BootUtils() {
@@ -20,9 +22,17 @@ public final class BootUtils {
 
     /**
      * Returns a stable 64-bit boot session marker.
-     * Prefers Linux kernel boot_id if accessible; falls back to rounded boot time.
+     * Prefers Linux kernel boot_id if accessible; falls back to stable boot time.
      */
     public static long getBootSessionMarker() {
+        return getBootSessionMarker(0L);
+    }
+
+    /**
+     * Returns a stable 64-bit boot session marker, reconciling with an existing
+     * persisted marker if within fuzzy tolerance.
+     */
+    public static long getBootSessionMarker(long persistedBootMarker) {
         if (cachedBootMarker != null) {
             return cachedBootMarker;
         }
@@ -34,14 +44,31 @@ public final class BootUtils {
 
             long marker = readKernelBootId();
             if (marker == 0L) {
-                // Fallback: round (wallTime - elapsedRealtime) to 1-minute blocks to absorb NTP drift
+                // Fallback: check against persisted marker with 30s fuzzy tolerance to absorb clock drift / restarts
                 long bootTime = System.currentTimeMillis() - SystemClock.elapsedRealtime();
-                marker = (bootTime / 60_000L) * 60_000L;
+                if (persistedBootMarker != 0L && Math.abs(bootTime - persistedBootMarker) <= BOOT_DRIFT_TOLERANCE_MS) {
+                    marker = persistedBootMarker;
+                } else {
+                    marker = bootTime;
+                }
             }
 
             cachedBootMarker = marker;
             return marker;
         }
+    }
+
+    /**
+     * Determines whether two boot markers belong to the same boot session within fuzzy tolerance.
+     */
+    public static boolean isSameBootSession(long marker1, long marker2) {
+        if (marker1 == marker2) {
+            return true;
+        }
+        if (marker1 == 0L || marker2 == 0L) {
+            return false;
+        }
+        return Math.abs(marker1 - marker2) <= BOOT_DRIFT_TOLERANCE_MS;
     }
 
     private static long readKernelBootId() {

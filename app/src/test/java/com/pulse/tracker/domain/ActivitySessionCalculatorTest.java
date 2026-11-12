@@ -31,7 +31,7 @@ public class ActivitySessionCalculatorTest {
     }
 
     @Test
-    public void testCandidateSession_9sVs10sConfirmation() {
+    public void testCandidateSession_4sVs5sConfirmation() {
         long wallBase = 1_000_000L;
 
         // t = 0: first movement begins candidate
@@ -42,22 +42,54 @@ public class ActivitySessionCalculatorTest {
         assertTrue(start.isCandidateActive());
         assertEquals(0L, start.getActiveSecondsDelta());
 
-        // t = 10,000ms (9s elapsed since start 1000ms)
-        ActivitySessionCalculator.SessionUpdate u9s = calculator.onMovement(10_000L, wallBase + 9000L, testZoneId);
-        // 9s is less than 10s threshold: still unconfirmed candidate!
-        assertFalse(u9s.isSessionActive());
-        assertTrue(u9s.isCandidateActive());
-        assertFalse(u9s.isSessionJustConfirmed());
-        assertEquals(0L, u9s.getActiveSecondsDelta());
+        // t = 5,000ms (4s elapsed since start 1000ms)
+        ActivitySessionCalculator.SessionUpdate u4s = calculator.onMovement(5_000L, wallBase + 4000L, testZoneId);
+        // 4s is less than 5s threshold: still unconfirmed candidate!
+        assertFalse(u4s.isSessionActive());
+        assertTrue(u4s.isCandidateActive());
+        assertFalse(u4s.isSessionJustConfirmed());
+        assertEquals(0L, u4s.getActiveSecondsDelta());
 
-        // Now advance to t = 11,000ms (10s elapsed since start 1000ms)
-        ActivitySessionCalculator.SessionUpdate u10s = calculator.onMovement(11_000L, wallBase + 10_000L, testZoneId);
-        // 10s reached: CONFIRMED!
-        assertTrue(u10s.isSessionActive());
-        assertFalse(u10s.isCandidateActive());
-        assertTrue(u10s.isSessionJustConfirmed());
-        // Candidate start time included: 10 full seconds credited
-        assertEquals(10L, u10s.getActiveSecondsDelta());
+        // Now advance to t = 6,000ms (5s elapsed since start 1000ms)
+        ActivitySessionCalculator.SessionUpdate u5s = calculator.onMovement(6_000L, wallBase + 5_000L, testZoneId);
+        // 5s reached: CONFIRMED!
+        assertTrue(u5s.isSessionActive());
+        assertFalse(u5s.isCandidateActive());
+        assertTrue(u5s.isSessionJustConfirmed());
+        // Candidate start time included: 5 full seconds credited
+        assertEquals(5L, u5s.getActiveSecondsDelta());
+    }
+
+    @Test
+    public void testCandidateSession_batchedSteps_confirmsImmediately() {
+        long wallBase = 1_000_000L;
+
+        // Batched movement steps (>= 5 steps) confirms session immediately
+        ActivitySessionCalculator.SessionUpdate start = calculator.onMovement(1000L, wallBase, testZoneId, 8L);
+        assertTrue(start.isSessionActive());
+        assertFalse(start.isCandidateActive());
+        assertTrue(start.isSessionJustConfirmed());
+    }
+
+    @Test
+    public void testCandidateSession_timeoutCreditsCandidateMovementDuration() {
+        long wallBase = 1_000_000L;
+
+        // Candidate starts at 1000ms
+        calculator.onMovement(1000L, wallBase, testZoneId);
+        // Movement event at 4000ms (3s duration, less than 5s threshold)
+        calculator.onMovement(4000L, wallBase + 3000L, testZoneId);
+
+        // Inactivity timeout occurs 30s after last movement (34_000ms)
+        ActivitySessionCalculator.SessionUpdate timeout = calculator.checkInactivityTimeout(
+                34_000L, wallBase + 33_000L, testZoneId
+        );
+
+        // Actual movement duration of candidate (4000 - 1000 = 3s) is credited instead of discarded
+        assertFalse(timeout.isSessionActive());
+        assertFalse(timeout.isCandidateActive());
+        assertEquals(3L, timeout.getActiveSecondsDelta());
+        assertEquals(1, timeout.getDateSplits().size());
     }
 
     @Test

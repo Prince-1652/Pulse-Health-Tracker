@@ -24,6 +24,12 @@ public class StepCounterProcessor {
      */
     public static final long MAX_PLAUSIBLE_SINGLE_DELTA = 50_000L;
 
+    /**
+     * Maximum plausible event age in nanoseconds (24 hours).
+     * Guards against anomalous sensor event timestamps assigning steps to days in the distant past.
+     */
+    public static final long MAX_EVENT_AGE_NANOS = 24L * 60 * 60 * 1_000_000_000L;
+
     public StepCounterProcessor() {
     }
 
@@ -57,11 +63,13 @@ public class StepCounterProcessor {
         if (eventMonotonicTimestampNanos <= 0 || elapsedRealtimeNanos <= 0) {
             eventWallTimeMs = currentWallTimeMs;
         } else {
-            long ageNanos = elapsedRealtimeNanos - eventMonotonicTimestampNanos;
-            if (ageNanos < 0) {
+            long rawAgeNanos = elapsedRealtimeNanos - eventMonotonicTimestampNanos;
+            if (rawAgeNanos < 0) {
                 // Sensor event timestamp is slightly ahead of elapsedRealtime due to clock jitter
                 eventWallTimeMs = currentWallTimeMs;
             } else {
+                // Clamp ageNanos so anomalous event timestamps do not assign steps to past days
+                long ageNanos = Math.min(rawAgeNanos, MAX_EVENT_AGE_NANOS);
                 eventWallTimeMs = currentWallTimeMs - (ageNanos / 1_000_000L);
                 if (eventWallTimeMs > currentWallTimeMs) {
                     eventWallTimeMs = currentWallTimeMs;
@@ -92,30 +100,24 @@ public class StepCounterProcessor {
             return new StepProcessingResult(0L, targetDate, newState, true);
         }
 
-        // 4. Baseline is already established. Detect counter reset or device reboot.
+        // 4. Baseline is already established. Calculate delta or recover from hardware counter reset.
         long previousCumulative = persistedState.getLastCumulativeSteps();
-        long previousBootMarker = persistedState.getBootSessionMarker();
-
-        boolean bootChanged = (currentBootSessionMarker != 0L && previousBootMarker != 0L
-                && currentBootSessionMarker != previousBootMarker);
-        boolean counterReset = (safeCumulative < previousCumulative);
 
         long stepDelta;
-        if (bootChanged || counterReset) {
-            // Device rebooted or hardware counter rolled over / reset to zero:
-            // Re-baseline safely. All cumulative steps since this new boot are counted as new steps.
-            stepDelta = safeCumulative;
-        } else {
-            // Normal event in same boot session
+        if (safeCumulative >= previousCumulative) {
+            // When safeCumulative >= previousCumulative, ALWAYS calculate delta = safeCumulative - previousCumulative.
+            // NEVER phantom-award safeCumulative on false bootChanged when counter did not decrease.
             long delta = safeCumulative - previousCumulative;
-            if (delta < 0) {
-                stepDelta = 0L;
-            } else if (delta > MAX_PLAUSIBLE_SINGLE_DELTA) {
-                // Implausible sensor anomaly: recover without inventing phantom steps
+            if (delta > MAX_PLAUSIBLE_SINGLE_DELTA) {
+                // Implausible single step jump: recover without inventing phantom steps
                 stepDelta = 0L;
             } else {
                 stepDelta = delta;
             }
+        } else {
+            // Only when safeCumulative < previousCumulative did hardware counter reset to 0 (device reboot / rollover);
+            // in that case clamp stepDelta to safeCumulative bounded by MAX_PLAUSIBLE_SINGLE_DELTA.
+            stepDelta = Math.min(safeCumulative, MAX_PLAUSIBLE_SINGLE_DELTA);
         }
 
         // Guard against any negative delta

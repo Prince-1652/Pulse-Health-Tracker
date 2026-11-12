@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Interpolator;
 import android.view.animation.OvershootInterpolator;
 import android.widget.ImageView;
@@ -753,13 +754,15 @@ public class MainActivity extends AppCompatActivity {
         if (fragment != null && fragment.getView() != null) {
             View view = fragment.getView();
             view.animate().cancel();
+            view.setPivotX(view.getWidth() / 2f);
+            view.setPivotY(0f);
             view.setScaleX(0.985f);
             view.setScaleY(0.985f);
             view.animate()
                     .scaleX(1.0f)
                     .scaleY(1.0f)
-                    .setDuration(280)
-                    .setInterpolator(new OvershootInterpolator(1.8f))
+                    .setDuration(240)
+                    .setInterpolator(new DecelerateInterpolator(1.5f))
                     .start();
         }
     }

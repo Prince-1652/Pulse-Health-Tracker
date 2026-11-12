@@ -286,6 +286,7 @@ public class CircularProgressView extends View {
     public void setProgress(float progress) {
         this.progress = progress;
         this.animatedProgress = progress;
+        this.currentSteps = Math.max(0, Math.round(progress * max));
         if (progressAnimator != null && progressAnimator.isRunning()) {
             progressAnimator.cancel();
         }
@@ -300,6 +301,9 @@ public class CircularProgressView extends View {
     public void setMax(int max) {
         this.max = Math.max(1, max);
         updateProgressRatio();
+        if (progressAnimator == null || !progressAnimator.isRunning()) {
+            this.animatedProgress = this.progress;
+        }
         invalidate();
         updateAccessibilityDescription();
     }
@@ -311,6 +315,9 @@ public class CircularProgressView extends View {
     public void setCurrentSteps(long steps) {
         this.currentSteps = Math.max(0, steps);
         updateProgressRatio();
+        if (progressAnimator == null || !progressAnimator.isRunning()) {
+            this.animatedProgress = this.progress;
+        }
         invalidate();
         updateAccessibilityDescription();
     }

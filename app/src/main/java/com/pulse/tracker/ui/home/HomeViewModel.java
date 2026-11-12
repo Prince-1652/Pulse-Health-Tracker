@@ -1,12 +1,16 @@
 package com.pulse.tracker.ui.home;
 
 import android.app.Application;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
@@ -46,6 +50,7 @@ public class HomeViewModel extends AndroidViewModel {
     private final MutableLiveData<TrackingStatus> trackingStatus = new MutableLiveData<>();
     private final MutableLiveData<SettingsRepository.UnitSystem> unitSystem = new MutableLiveData<>();
     private final MutableLiveData<Long> dailyStepTarget = new MutableLiveData<>();
+    private final BroadcastReceiver timeChangeReceiver;
 
     private LiveData<DailyMetricsEntity> currentRoomSource = null;
 
@@ -95,6 +100,30 @@ public class HomeViewModel extends AndroidViewModel {
         String today = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
         setLiveValue(currentDateLive, today);
 
+        // Register broadcast receiver for midnight / date / timezone transitions
+        timeChangeReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent != null) {
+                    String action = intent.getAction();
+                    if (Intent.ACTION_DATE_CHANGED.equals(action)
+                            || Intent.ACTION_TIME_CHANGED.equals(action)
+                            || Intent.ACTION_TIMEZONE_CHANGED.equals(action)) {
+                        refresh();
+                    }
+                }
+            }
+        };
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_DATE_CHANGED);
+        filter.addAction(Intent.ACTION_TIME_CHANGED);
+        filter.addAction(Intent.ACTION_TIMEZONE_CHANGED);
+        try {
+            ContextCompat.registerReceiver(application, timeChangeReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED);
+        } catch (Exception ignored) {
+        }
+
         checkTrackingStatus();
         reload7DaysMetrics();
     }
@@ -130,6 +159,7 @@ public class HomeViewModel extends AndroidViewModel {
     public void refresh() {
         String today = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
         if (!Objects.equals(today, currentDateLive.getValue())) {
+            setLiveValue(todayMetrics, null);
             setLiveValue(currentDateLive, today);
         }
         setLiveValue(unitSystem, settingsRepository.getUnitSystem());
@@ -179,8 +209,16 @@ public class HomeViewModel extends AndroidViewModel {
 
     @VisibleForTesting
     public void setDateForTesting(@NonNull String dateStr) {
-        setLiveValue(currentDateLive, dateStr);
+        if (!Objects.equals(dateStr, currentDateLive.getValue())) {
+            setLiveValue(todayMetrics, null);
+            setLiveValue(currentDateLive, dateStr);
+        }
         reload7DaysMetrics();
+    }
+
+    @VisibleForTesting
+    public BroadcastReceiver getTimeChangeReceiver() {
+        return timeChangeReceiver;
     }
 
     private <T> void setLiveValue(MutableLiveData<T> liveData, @Nullable T value) {
@@ -199,6 +237,10 @@ public class HomeViewModel extends AndroidViewModel {
     protected void onCleared() {
         super.onCleared();
         settingsRepository.unregisterListener(settingsChangeListener);
+        try {
+            getApplication().unregisterReceiver(timeChangeReceiver);
+        } catch (Exception ignored) {
+        }
     }
 }
 

@@ -246,11 +246,9 @@ public class StepTrackingService extends Service implements SensorEventListener,
             );
         }
         if (caloriesKcal <= 0.0 && currentTodaySteps > 0 && settingsRepository != null) {
-            double bmr = CalorieCalculator.calculateBmr(
-                    settingsRepository.getWeightKg(), settingsRepository.getHeightCm(),
-                    settingsRepository.getAge(), settingsRepository.getGender()
+            caloriesKcal = CalorieCalculator.calculateStepCalories(
+                    currentTodaySteps, settingsRepository.getWeightKg(), settingsRepository.getStrideLengthCm()
             );
-            caloriesKcal = CalorieCalculator.calculateNetActiveCalories(bmr, 0L);
         }
 
         Notification notification = notificationManager.buildNotification(
@@ -441,11 +439,9 @@ public class StepTrackingService extends Service implements SensorEventListener,
             );
         }
         if (caloriesKcal <= 0.0 && currentTodaySteps > 0 && settingsRepository != null) {
-            double bmr = CalorieCalculator.calculateBmr(
-                    settingsRepository.getWeightKg(), settingsRepository.getHeightCm(),
-                    settingsRepository.getAge(), settingsRepository.getGender()
+            caloriesKcal = CalorieCalculator.calculateStepCalories(
+                    currentTodaySteps, settingsRepository.getWeightKg(), settingsRepository.getStrideLengthCm()
             );
-            caloriesKcal = CalorieCalculator.calculateNetActiveCalories(bmr, 0L);
         }
 
         notificationManager.updateNotification(
@@ -543,12 +539,13 @@ public class StepTrackingService extends Service implements SensorEventListener,
         long eventTimestampNanos = event.timestamp;
         long elapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos();
         long currentWallTimeMs = System.currentTimeMillis();
-        long bootMarker = BootUtils.getBootSessionMarker();
-
         // Ensure state is loaded
         if (cachedTrackingState == null) {
             cachedTrackingState = metricsRepository.getTrackingStateSync();
         }
+
+        long persistedBootMarker = (cachedTrackingState != null) ? cachedTrackingState.getBootSessionMarker() : 0L;
+        long bootMarker = BootUtils.getBootSessionMarker(persistedBootMarker);
 
         StepProcessingResult result = stepProcessor.processStepEvent(
                 rawSteps,
@@ -575,7 +572,8 @@ public class StepTrackingService extends Service implements SensorEventListener,
             ActivitySessionCalculator.SessionUpdate sessionUpdate = sessionCalculator.onMovement(
                     eventMonotonicMs,
                     currentWallTimeMs,
-                    ZoneId.systemDefault()
+                    ZoneId.systemDefault(),
+                    result.getStepDelta()
             );
 
             // Reschedule 30s session timeout check on sensor thread
@@ -595,6 +593,12 @@ public class StepTrackingService extends Service implements SensorEventListener,
                     settingsRepository.getGender()
             );
 
+            double stepCaloriesFloor = CalorieCalculator.calculateStepCalories(
+                    result.getStepDelta(),
+                    settingsRepository.getWeightKg(),
+                    settingsRepository.getStrideLengthCm()
+            );
+
             Map<String, Long> dateSplits = sessionUpdate.getDateSplits();
             if (dateSplits.size() > 1) {
                 // Multi-date session attribution (crossover at local midnight)
@@ -606,6 +610,9 @@ public class StepTrackingService extends Service implements SensorEventListener,
                     boolean isTargetDate = splitDate.equals(result.getTargetDate());
                     long stepsForDate = isTargetDate ? result.getStepDelta() : 0L;
                     double distForDate = isTargetDate ? distanceDelta : 0.0;
+                    if (isTargetDate && stepsForDate > 0) {
+                        calDelta = Math.max(calDelta, stepCaloriesFloor);
+                    }
 
                     metricsRepository.applyStepDeltaAtomicSync(
                             splitDate,
@@ -619,7 +626,21 @@ public class StepTrackingService extends Service implements SensorEventListener,
                 }
             } else {
                 long activeSecondsDelta = sessionUpdate.getActiveSecondsDelta();
-                double caloriesDelta = CalorieCalculator.calculateNetActiveCalories(bmr, activeSecondsDelta);
+                if (activeSecondsDelta == 0) {
+                    long minActive = Math.max(1L, Math.round(result.getStepDelta() * 0.55));
+                    if (cachedTrackingState != null && cachedTrackingState.getUpdatedAtMillis() > 0) {
+                        long elapsedSec = (currentWallTimeMs - cachedTrackingState.getUpdatedAtMillis()) / 1000L;
+                        if (elapsedSec > 0) {
+                            minActive = Math.min(minActive, Math.max(1L, elapsedSec));
+                        }
+                    }
+                    activeSecondsDelta = minActive;
+                }
+
+                double caloriesDelta = Math.max(
+                        CalorieCalculator.calculateNetActiveCalories(bmr, activeSecondsDelta),
+                        stepCaloriesFloor
+                );
 
                 metricsRepository.applyStepDeltaAtomicSync(
                         result.getTargetDate(),
@@ -632,16 +653,21 @@ public class StepTrackingService extends Service implements SensorEventListener,
                 );
             }
 
-            DailyMetricsEntity updatedDaily = metricsRepository.getMetricsForDateSync(result.getTargetDate());
+            String todayDate = LocalDate.now(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_LOCAL_DATE);
+            DailyMetricsEntity updatedDaily = metricsRepository.getMetricsForDateSync(todayDate);
             if (updatedDaily != null) {
                 currentTodaySteps = updatedDaily.getSteps();
                 currentTodayDistanceMeters = updatedDaily.getDistanceMeters();
                 currentTodayCaloriesKcal = updatedDaily.getActiveCaloriesKcal();
-            } else {
+            } else if (todayDate.equals(result.getTargetDate())) {
                 currentTodaySteps += result.getStepDelta();
                 currentTodayDistanceMeters += distanceDelta;
                 long activeSec = sessionUpdate.getActiveSecondsDelta();
-                currentTodayCaloriesKcal += CalorieCalculator.calculateNetActiveCalories(bmr, activeSec);
+                if (activeSec == 0) {
+                    activeSec = Math.max(1L, Math.round(result.getStepDelta() * 0.55));
+                }
+                double calDelta = Math.max(CalorieCalculator.calculateNetActiveCalories(bmr, activeSec), stepCaloriesFloor);
+                currentTodayCaloriesKcal += calDelta;
             }
 
             updateNotificationView();
@@ -650,7 +676,8 @@ public class StepTrackingService extends Service implements SensorEventListener,
                 cachedTrackingState = sessionCalculator.syncToTrackingState(cachedTrackingState, currentWallTimeMs);
                 metricsRepository.saveTrackingStateSync(cachedTrackingState);
             }
-            DailyMetricsEntity todayMetrics = metricsRepository.getMetricsForDateSync(result.getTargetDate());
+            String todayDate = LocalDate.now(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_LOCAL_DATE);
+            DailyMetricsEntity todayMetrics = metricsRepository.getMetricsForDateSync(todayDate);
             if (todayMetrics != null) {
                 currentTodaySteps = todayMetrics.getSteps();
                 currentTodayDistanceMeters = todayMetrics.getDistanceMeters();

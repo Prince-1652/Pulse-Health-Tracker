@@ -33,14 +33,33 @@ public class CalorieCalculatorTest {
     }
 
     @Test
-    public void testCalculateBmr_unspecifiedGender_returnsZeroWithoutAssumption() {
-        // Unspecified gender must not make silent gender assumptions
+    public void testCalculateBmr_unspecifiedGender_usesGenderNeutralMidpointEquation() {
+        // Unspecified gender uses gender-neutral midpoint equation base - 78.0
+        // base = 700 + 1093.75 - 150 = 1643.75 -> 1643.75 - 78.0 = 1565.75
         double bmr = CalorieCalculator.calculateBmr(70.0, 175.0, 30, SettingsRepository.Gender.UNSPECIFIED);
-        assertEquals(0.0, bmr, EPSILON);
+        assertEquals(1565.75, bmr, EPSILON);
 
-        // Null gender
+        // Null gender also uses gender-neutral midpoint equation
         double bmrNull = CalorieCalculator.calculateBmr(70.0, 175.0, 30, null);
-        assertEquals(0.0, bmrNull, EPSILON);
+        assertEquals(1565.75, bmrNull, EPSILON);
+    }
+
+    @Test
+    public void testCalculateStepCalories() {
+        // 1000 steps, 70kg, 74cm stride: distance = 0.74 km, kcal = 0.74 * 70 * 0.75 = 38.85
+        double kcal = CalorieCalculator.calculateStepCalories(1000, 70.0, 74.0);
+        assertEquals(38.85, kcal, EPSILON);
+
+        // Fallback when weight or stride missing: 1000 * 0.04 = 40.0
+        double kcalFallback = CalorieCalculator.calculateStepCalories(1000, 0.0, 0.0);
+        assertEquals(40.0, kcalFallback, EPSILON);
+
+        // Overload using default step calculation
+        assertEquals(40.0, CalorieCalculator.calculateStepCalories(1000), EPSILON);
+
+        // Zero or negative steps
+        assertEquals(0.0, CalorieCalculator.calculateStepCalories(0, 70.0, 74.0), EPSILON);
+        assertEquals(0.0, CalorieCalculator.calculateStepCalories(-10), EPSILON);
     }
 
     @Test
@@ -88,11 +107,15 @@ public class CalorieCalculatorTest {
 
     @Test
     public void testCalculateNetActiveCalories_zeroOrNegativeInputs() {
-        assertEquals(0.0, CalorieCalculator.calculateNetActiveCalories(0.0, 1800L, 3.0), EPSILON);
-        assertEquals(0.0, CalorieCalculator.calculateNetActiveCalories(-1500.0, 1800L, 3.0), EPSILON);
+        // Zero or negative BMR falls back to safe adult BMR (1550.0)
+        // (1550 / 1440) * 2.0 * 30 = 64.58 kcal
+        assertEquals(64.58, CalorieCalculator.calculateNetActiveCalories(0.0, 1800L, 3.0), EPSILON);
+        assertEquals(64.58, CalorieCalculator.calculateNetActiveCalories(-1500.0, 1800L, 3.0), EPSILON);
+        assertEquals(64.58, CalorieCalculator.calculateNetActiveCalories(Double.NaN, 1800L, 3.0), EPSILON);
+
+        // Zero or negative active seconds must always return 0.0
         assertEquals(0.0, CalorieCalculator.calculateNetActiveCalories(1600.0, 0L, 3.0), EPSILON);
         assertEquals(0.0, CalorieCalculator.calculateNetActiveCalories(1600.0, -100L, 3.0), EPSILON);
-        assertEquals(0.0, CalorieCalculator.calculateNetActiveCalories(Double.NaN, 1800L, 3.0), EPSILON);
     }
 
     @Test
@@ -106,10 +129,11 @@ public class CalorieCalculatorTest {
         );
         assertEquals(137.3958, kcal, 0.05);
 
-        // Unspecified gender returns 0.0 (unavailable)
+        // Unspecified gender uses gender-neutral BMR 1565.75
+        // activeKcal = (1565.75 / 1440) * 2.0 * 60 = 130.479 kcal
         double kcalUnspecified = CalorieCalculator.calculateActiveCalories(
                 70.0, 175.0, 30, SettingsRepository.Gender.UNSPECIFIED, 3600L
         );
-        assertEquals(0.0, kcalUnspecified, EPSILON);
+        assertEquals(130.48, kcalUnspecified, 0.05);
     }
 }

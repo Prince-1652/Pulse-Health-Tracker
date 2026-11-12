@@ -57,6 +57,36 @@ public class TodayFragmentTest {
         assertTrue("Description should include steps", contentDesc.toString().contains("8,500"));
         assertTrue("Description should include max", contentDesc.toString().contains("10,000"));
         assertTrue("Description should include percent", contentDesc.toString().contains("85"));
+
+        // Test setProgress synchronizing currentSteps
+        progressView.setProgress(0.6f);
+        assertEquals(6000L, progressView.getCurrentSteps());
+
+        // Test setMax keeping animatedProgress in sync
+        progressView.setMax(20000);
+        assertEquals(0.3f, progressView.getProgress(), 0.01f);
+    }
+
+    @Test
+    public void testTodayFragment_rapidSuccessiveEmissions_smoothlyUpdatesWithoutStaleOverwrite() {
+        ActivityController<MainActivity> controller = Robolectric.buildActivity(MainActivity.class);
+        MainActivity activity = controller.create().start().resume().visible().get();
+
+        TodayFragment fragment = (TodayFragment) activity.getFragmentByTagCompat("tag_today");
+        assertNotNull(fragment);
+        View root = fragment.getView();
+        assertNotNull(root);
+
+        TextView textHeroSteps = root.findViewById(R.id.text_hero_steps);
+        assertNotNull(textHeroSteps);
+
+        // Rapid emissions: 0 steps, then immediately 8,420 steps
+        fragment.updateMetrics(0L, 10000, 0.0, 0.0, 0L);
+        fragment.updateMetrics(8420L, 10000, 6000.0, 350.0, 3000L);
+        fragment.endEntranceAnimations();
+
+        // Must display 8,420 and NEVER overwrite with stale 0
+        assertEquals("8,420", textHeroSteps.getText().toString());
     }
 
     @Test
@@ -99,6 +129,12 @@ public class TodayFragmentTest {
         assertEquals("320", textCalories.getText().toString());
         assertEquals("40", textActiveTime.getText().toString()); // 2400s / 60 = 40 min
         assertEquals("5.40", textDistance.getText().toString());
+
+        // Test fallback active minutes and calories when steps recorded but active metrics are 0
+        fragment.updateMetrics(150L, 10000, 110.0, 0.0, 10L);
+        fragment.endEntranceAnimations();
+        assertEquals("1", textActiveTime.getText().toString()); // steps >= 100 gives 1 min fallback
+        org.junit.Assert.assertNotEquals("0", textCalories.getText().toString()); // fallback step calories > 0
     }
 
     @Test

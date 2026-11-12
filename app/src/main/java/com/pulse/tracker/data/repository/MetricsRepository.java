@@ -12,6 +12,8 @@ import com.pulse.tracker.data.local.dao.DailyMetricsDao;
 import com.pulse.tracker.data.local.dao.TrackingStateDao;
 import com.pulse.tracker.data.local.entity.DailyMetricsEntity;
 import com.pulse.tracker.data.local.entity.TrackingStateEntity;
+import com.pulse.tracker.domain.CalorieCalculator;
+import com.pulse.tracker.domain.DistanceCalculator;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -346,10 +348,27 @@ public class MetricsRepository {
 
         if (monthMetrics != null) {
             for (DailyMetricsEntity entity : monthMetrics) {
-                totalSteps += entity.getSteps();
-                totalDistance += entity.getDistanceMeters();
-                totalActiveSeconds += entity.getActiveSeconds();
-                totalCalories += entity.getActiveCaloriesKcal();
+                long steps = entity.getSteps();
+                double distance = entity.getDistanceMeters();
+                long activeSeconds = entity.getActiveSeconds();
+                double calories = entity.getActiveCaloriesKcal();
+
+                if (steps > 0) {
+                    if (distance <= 0.0) {
+                        distance = DistanceCalculator.calculateDistanceMeters(steps, 70.0);
+                    }
+                    if (activeSeconds <= 0) {
+                        activeSeconds = Math.max(1L, Math.round(steps * 0.55));
+                    }
+                    if (calories <= 0.0) {
+                        calories = CalorieCalculator.calculateStepCalories(steps, 70.0, 70.0);
+                    }
+                }
+
+                totalSteps += steps;
+                totalDistance += distance;
+                totalActiveSeconds += activeSeconds;
+                totalCalories += calories;
             }
         }
 

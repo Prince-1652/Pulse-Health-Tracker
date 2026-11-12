@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -21,6 +22,7 @@ import com.pulse.tracker.R;
 import com.pulse.tracker.data.local.entity.DailyMetricsEntity;
 import com.pulse.tracker.data.repository.MetricsRepository;
 import com.pulse.tracker.data.repository.SettingsRepository;
+import com.pulse.tracker.domain.CalorieCalculator;
 import com.pulse.tracker.domain.DistanceCalculator;
 import com.pulse.tracker.util.UnitFormatter;
 
@@ -161,6 +163,30 @@ public class HistoryFragment extends Fragment {
         viewModel.getMonthlyAnalytics().observe(getViewLifecycleOwner(), this::bindMonthlyAnalytics);
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (viewModel != null) {
+            viewModel.handleMidnightRollover();
+            DailyMetricsEntity currentEntity = viewModel.getSelectedDateMetrics().getValue();
+            if (currentEntity != null) {
+                bindSelectedDateMetrics(currentEntity);
+            }
+            MetricsRepository.MonthlyAnalytics currentAnalytics = viewModel.getMonthlyAnalytics().getValue();
+            if (currentAnalytics != null) {
+                bindMonthlyAnalytics(currentAnalytics);
+            }
+            List<CalendarDayModel> days = viewModel.getCalendarDays().getValue();
+            if (days != null) {
+                updateGoalAchievementRate(days);
+            }
+            YearMonth currentMonth = viewModel.getSelectedMonth().getValue();
+            if (currentMonth != null) {
+                bindSelectedMonth(currentMonth);
+            }
+        }
+    }
+
     private void bindSelectedMonth(@NonNull YearMonth month) {
         String formatted = month.format(DateTimeFormatter.ofPattern("MMMM yyyy", Locale.getDefault()));
         textSelectedMonth.setText(formatted);
@@ -196,7 +222,7 @@ public class HistoryFragment extends Fragment {
                 textSummaryGoalRateLabel.setText(String.format(Locale.getDefault(), "%d/%d Days", goalReachedCount, elapsedDays));
             }
         } else {
-            textSummaryGoalRate.setText("0%");
+            textSummaryGoalRate.setText(R.string.history_empty_placeholder);
             if (textSummaryGoalRateLabel != null) {
                 textSummaryGoalRateLabel.setText(R.string.history_summary_goal_rate_label);
             }
@@ -239,15 +265,33 @@ public class HistoryFragment extends Fragment {
                     UnitFormatter.formatSteps(goal)));
         }
 
+        // Settings for biometrics and stride fallbacks
+        SettingsRepository settings = SettingsRepository.getInstance(context);
+
         // Sub-metrics: Distance, Active Time, Calories formatted with baseline-aligned values & units
-        String formattedDist = UnitFormatter.formatDistance(entity.getDistanceMeters(), currentUnitSystem);
+        // Detail Card Zero Fallback: If distanceMeters <= 0.0 but steps > 0, calculate distance from stride length fallback
+        double distanceMeters = entity.getDistanceMeters();
+        if (distanceMeters <= 0.0 && steps > 0) {
+            double strideCm = (settings != null) ? settings.getStrideLengthCm() : 70.0;
+            if (strideCm <= 0.0) {
+                strideCm = 70.0;
+            }
+            distanceMeters = DistanceCalculator.calculateDistanceMeters(steps, strideCm);
+        }
+
+        String formattedDist = UnitFormatter.formatDistance(distanceMeters, currentUnitSystem);
         String[] distParts = formattedDist.split(" ", 2);
         textSelectedDayDistance.setText(distParts[0]);
         if (textSelectedDayDistanceUnit != null) {
             textSelectedDayDistanceUnit.setText(distParts.length > 1 ? (" " + distParts[1]) : " km");
         }
 
+        // Detail Card Zero Fallback: If activeSeconds <= 0 but steps > 0, compute fallback active seconds (Math.max(1, Math.round(steps * 0.55)))
         long seconds = entity.getActiveSeconds();
+        if (seconds <= 0 && steps > 0) {
+            seconds = Math.max(1L, Math.round(steps * 0.55));
+        }
+
         if (seconds <= 0) {
             textSelectedDayActiveTime.setText("0");
             if (textSelectedDayActiveTimeUnit != null) textSelectedDayActiveTimeUnit.setText(" min");
@@ -266,7 +310,14 @@ public class HistoryFragment extends Fragment {
             }
         }
 
+        // Detail Card Zero Fallback: If activeCaloriesKcal <= 0.0 but steps > 0, compute fallback step calories via CalorieCalculator.calculateStepCalories(steps, weight, stride)
         double kcal = entity.getActiveCaloriesKcal();
+        if ((kcal <= 0.0 || Double.isNaN(kcal) || Double.isInfinite(kcal)) && steps > 0) {
+            double weight = (settings != null) ? settings.getWeightKg() : SettingsRepository.DEFAULT_WEIGHT_KG;
+            double stride = (settings != null) ? settings.getStrideLengthCm() : 70.0;
+            kcal = CalorieCalculator.calculateStepCalories(steps, weight, stride);
+        }
+
         if (kcal <= 0.0 || Double.isNaN(kcal) || Double.isInfinite(kcal)) {
             textSelectedDayCalories.setText("0");
             if (textSelectedDayCaloriesUnit != null) textSelectedDayCaloriesUnit.setText(" kcal");
@@ -282,11 +333,23 @@ public class HistoryFragment extends Fragment {
         if (context == null) return;
 
         // 1. Monthly Total steps
-        textMonthlyTotalValue.setText(UnitFormatter.formatSteps(analytics.getTotalSteps()));
+        if (textMonthlyTotalValue != null) {
+            textMonthlyTotalValue.setText(UnitFormatter.formatSteps(analytics.getTotalSteps()));
+        }
 
-        // 2. 3-Column Summary Card: Col 1 Distance walked
+        // 2. 3-Column Summary Card: Col 1 Distance walked with fallback
+        double totalDistance = analytics.getTotalDistanceMeters();
+        if (totalDistance <= 0.0 && analytics.getTotalSteps() > 0) {
+            SettingsRepository settings = SettingsRepository.getInstance(context);
+            double strideCm = (settings != null) ? settings.getStrideLengthCm() : 70.0;
+            if (strideCm <= 0.0) {
+                strideCm = 70.0;
+            }
+            totalDistance = DistanceCalculator.calculateDistanceMeters(analytics.getTotalSteps(), strideCm);
+        }
+
         if (textSummaryDistance != null) {
-            textSummaryDistance.setText(UnitFormatter.formatDistance(analytics.getTotalDistanceMeters(), currentUnitSystem));
+            textSummaryDistance.setText(UnitFormatter.formatDistance(totalDistance, currentUnitSystem));
         }
 
         // 3. 3-Column Summary Card: Col 3 Personal Best
@@ -294,34 +357,60 @@ public class HistoryFragment extends Fragment {
         if (pb != null && pb.getSteps() > 0) {
             long pbSteps = pb.getSteps();
             if (pbSteps >= 10000) {
-                textPersonalBestValue.setText(String.format(Locale.getDefault(), "%.1fk", pbSteps / 1000.0));
+                if (textPersonalBestValue != null) {
+                    textPersonalBestValue.setText(String.format(Locale.getDefault(), "%.1fk", pbSteps / 1000.0));
+                }
             } else {
-                textPersonalBestValue.setText(UnitFormatter.formatSteps(pbSteps));
+                if (textPersonalBestValue != null) {
+                    textPersonalBestValue.setText(UnitFormatter.formatSteps(pbSteps));
+                }
             }
-            textPersonalBestSubtitle.setText(R.string.history_summary_pb_label);
+            if (textPersonalBestSubtitle != null) {
+                textPersonalBestSubtitle.setText(R.string.history_summary_pb_label);
+            }
         } else {
-            textPersonalBestValue.setText(R.string.history_empty_placeholder);
-            textPersonalBestSubtitle.setText(R.string.history_summary_pb_label);
+            if (textPersonalBestValue != null) {
+                textPersonalBestValue.setText(R.string.history_empty_placeholder);
+            }
+            if (textPersonalBestSubtitle != null) {
+                textPersonalBestSubtitle.setText(R.string.history_summary_pb_label);
+            }
         }
 
         // 4. Average Pace
-        double totalDistance = analytics.getTotalDistanceMeters();
         long totalSeconds = analytics.getTotalActiveSeconds();
 
-        if (totalDistance > 0.0 && totalSeconds > 0) {
-            double distance = (currentUnitSystem == SettingsRepository.UnitSystem.IMPERIAL)
-                    ? DistanceCalculator.metersToMiles(totalDistance)
-                    : DistanceCalculator.metersToKilometers(totalDistance);
+        // If totalDistance > 0.0 but totalSeconds == 0, estimate active seconds from totalSteps so pace does not display empty "--" when user actually walked.
+        if (totalDistance > 0.0 && totalSeconds <= 0 && analytics.getTotalSteps() > 0) {
+            totalSeconds = Math.max(1L, Math.round(analytics.getTotalSteps() * 0.55));
+        }
 
-            if (distance > 0.0001) {
-                double paceSeconds = totalSeconds / distance;
+        if (totalDistance > 0.0 && totalSeconds > 0) {
+            double distanceKm = DistanceCalculator.metersToKilometers(totalDistance);
+            if (distanceKm > 0.0001) {
+                double paceSecondsPerKm = totalSeconds / distanceKm;
+                // Clamp pace to reasonable bounds [2:00/km, 30:00/km] (120 to 1800 seconds per km)
+                if (paceSecondsPerKm < 120.0) {
+                    paceSecondsPerKm = 120.0;
+                } else if (paceSecondsPerKm > 1800.0) {
+                    paceSecondsPerKm = 1800.0;
+                }
+
+                double paceSeconds = (currentUnitSystem == SettingsRepository.UnitSystem.IMPERIAL)
+                        ? paceSecondsPerKm * (DistanceCalculator.METERS_PER_MILE / DistanceCalculator.METERS_PER_KILOMETER)
+                        : paceSecondsPerKm;
+
                 long paceMin = (long) (paceSeconds / 60);
                 long paceSec = (long) (paceSeconds % 60);
 
-                textPaceValue.setText(String.format(Locale.getDefault(), "%d'%02d\"", paceMin, paceSec));
-                textPaceUnit.setText(currentUnitSystem == SettingsRepository.UnitSystem.IMPERIAL
-                        ? " " + getString(R.string.history_avg_pace_unit_mi)
-                        : " " + getString(R.string.history_avg_pace_unit));
+                if (textPaceValue != null) {
+                    textPaceValue.setText(String.format(Locale.getDefault(), "%d'%02d\"", paceMin, paceSec));
+                }
+                if (textPaceUnit != null) {
+                    textPaceUnit.setText(currentUnitSystem == SettingsRepository.UnitSystem.IMPERIAL
+                            ? " " + getString(R.string.history_avg_pace_unit_mi)
+                            : " " + getString(R.string.history_avg_pace_unit));
+                }
             } else {
                 setEmptyPace();
             }
@@ -331,9 +420,68 @@ public class HistoryFragment extends Fragment {
     }
 
     private void setEmptyPace() {
-        textPaceValue.setText(R.string.history_empty_placeholder);
-        textPaceUnit.setText(currentUnitSystem == SettingsRepository.UnitSystem.IMPERIAL
-                ? " " + getString(R.string.history_avg_pace_unit_mi)
-                : " " + getString(R.string.history_avg_pace_unit));
+        if (textPaceValue != null) {
+            textPaceValue.setText(R.string.history_empty_placeholder);
+        }
+        if (textPaceUnit != null) {
+            textPaceUnit.setText(currentUnitSystem == SettingsRepository.UnitSystem.IMPERIAL
+                    ? " " + getString(R.string.history_avg_pace_unit_mi)
+                    : " " + getString(R.string.history_avg_pace_unit));
+        }
+    }
+
+    @VisibleForTesting
+    void bindSelectedDateMetricsForTest(@NonNull DailyMetricsEntity entity) {
+        bindSelectedDateMetrics(entity);
+    }
+
+    @VisibleForTesting
+    void bindMonthlyAnalyticsForTest(@NonNull MetricsRepository.MonthlyAnalytics analytics) {
+        bindMonthlyAnalytics(analytics);
+    }
+
+    @VisibleForTesting
+    void updateGoalAchievementRateForTest(@Nullable List<CalendarDayModel> days) {
+        updateGoalAchievementRate(days);
+    }
+
+    @VisibleForTesting
+    TextView getTextSummaryDistance() {
+        return textSummaryDistance;
+    }
+
+    @VisibleForTesting
+    TextView getTextSummaryGoalRate() {
+        return textSummaryGoalRate;
+    }
+
+    @VisibleForTesting
+    TextView getTextPersonalBestValue() {
+        return textPersonalBestValue;
+    }
+
+    @VisibleForTesting
+    TextView getTextSelectedDayDistance() {
+        return textSelectedDayDistance;
+    }
+
+    @VisibleForTesting
+    TextView getTextSelectedDayActiveTime() {
+        return textSelectedDayActiveTime;
+    }
+
+    @VisibleForTesting
+    TextView getTextSelectedDayCalories() {
+        return textSelectedDayCalories;
+    }
+
+    @VisibleForTesting
+    TextView getTextPaceValue() {
+        return textPaceValue;
+    }
+
+    @VisibleForTesting
+    TextView getTextPaceUnit() {
+        return textPaceUnit;
     }
 }

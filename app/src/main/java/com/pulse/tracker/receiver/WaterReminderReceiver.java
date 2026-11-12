@@ -46,11 +46,13 @@ public class WaterReminderReceiver extends BroadcastReceiver {
             return;
         }
 
-        // 2. Daytime window gate: 8:00 AM to 10:00 PM (8 to 22)
+        // 2. Daytime window gate: 8:00 AM to 10:00 PM (end of window is 22:00; do not post at or after 22:00)
+        // If alarm fires slightly before 8:00 AM (7:55 - 7:59 AM due to AlarmManager jitter), treat 7:55+ as morning reminder.
         Calendar now = Calendar.getInstance();
         int hour = now.get(Calendar.HOUR_OF_DAY);
-        if (hour < WaterReminderManager.START_HOUR || hour > WaterReminderManager.END_HOUR) {
-            Log.d(TAG, "Current hour " + hour + " is outside daytime window [8, 22]; skipping notification");
+        int minute = now.get(Calendar.MINUTE);
+        if (!isDaytimeNotificationWindow(hour, minute)) {
+            Log.d(TAG, "Current time (" + hour + ":" + minute + ") is outside daytime window [8, 22); skipping notification");
             return;
         }
 
@@ -69,6 +71,10 @@ public class WaterReminderReceiver extends BroadcastReceiver {
         }
     }
 
+    static boolean isDaytimeNotificationWindow(int hour, int minute) {
+        return (hour == 7 && minute >= 55) || (hour >= WaterReminderManager.START_HOUR && hour < WaterReminderManager.END_HOUR);
+    }
+
     private void handleQuickAddWater(Context context, Intent intent) {
         int amount = intent.getIntExtra(EXTRA_AMOUNT_ML, 250);
         int updatedTotal = WaterRepository.addWaterIntake(context, amount);
@@ -76,13 +82,13 @@ public class WaterReminderReceiver extends BroadcastReceiver {
 
         Log.i(TAG, "Quick logged " + amount + " ml from notification. New total: " + updatedTotal + " ml");
 
-        // Instantly refresh notification drawer with updated intake
+        // Instantly refresh notification drawer with auto-dismissing logged confirmation or celebration
         if (updatedTotal >= targetMl) {
             // Goal reached: silence future reminders with celebratory notification
             WaterReminderManager.showGoalAchievedNotification(context, updatedTotal, targetMl);
         } else {
-            // Post updated reminder reflecting current intake and remaining goal
-            WaterReminderManager.showHydrationNotification(context, updatedTotal, targetMl);
+            // Show 3-second auto-dismissing logged confirmation showing current intake and target
+            WaterReminderManager.showIntakeLoggedNotification(context, updatedTotal, targetMl, amount);
         }
 
         // Dynamically reschedule next alarm based on remaining intake

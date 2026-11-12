@@ -7,6 +7,9 @@
     android:layout_height="match_parent"
     android:fillViewport="true"
     android:clipToPadding="false"
+    android:scrollbars="none"
+    android:overScrollMode="never"
+    android:scrollbarStyle="insideOverlay"
     android:background="@color/pulse_background">
 
     <LinearLayout
@@ -25,7 +28,6 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:paddingHorizontal="4dp"
             android:layout_marginTop="@dimen/space_8"
             android:layout_marginBottom="@dimen/space_16">
 
@@ -574,6 +576,8 @@
                             android:id="@+id/text_summary_monthly_distance"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:maxLines="1"
+                            android:ellipsize="end"
                             tools:text="0.0 km"
                             android:textColor="@color/pulse_text_primary"
                             android:textSize="22sp"
@@ -612,6 +616,8 @@
                             android:id="@+id/text_summary_goal_rate"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:maxLines="1"
+                            android:ellipsize="end"
                             tools:text="0%"
                             android:textColor="@color/pulse_green"
                             android:textSize="22sp"
@@ -650,6 +656,8 @@
                             android:id="@+id/text_history_personal_best_value"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:maxLines="1"
+                            android:ellipsize="end"
                             tools:text="—"
                             android:textColor="@color/pulse_yellow"
                             android:textSize="22sp"

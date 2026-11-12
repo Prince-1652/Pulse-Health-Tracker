@@ -47,6 +47,7 @@ import com.pulse.tracker.MainActivity;
 import com.pulse.tracker.R;
 import com.pulse.tracker.data.local.entity.DailyMetricsEntity;
 import com.pulse.tracker.data.repository.SettingsRepository;
+import com.pulse.tracker.domain.CalorieCalculator;
 import com.pulse.tracker.domain.DistanceCalculator;
 import com.pulse.tracker.service.StepNotificationManager;
 import com.pulse.tracker.service.StepTrackingService;
@@ -107,6 +108,10 @@ public class TodayFragment extends Fragment {
     private boolean initialEntranceAnimated = false;
     private boolean chartEntranceAnimated = false;
     private ValueAnimator metricsCountAnimator;
+    private long lastDisplayedSteps = 0L;
+    private double lastDisplayedCalories = 0.0;
+    private double lastDisplayedDistance = 0.0;
+    private long lastDisplayedActiveSeconds = 0L;
     private long currentSteps = 0L;
     private long dailyGoal = 10000L;
     private SettingsRepository.UnitSystem currentUnitSystem = SettingsRepository.UnitSystem.METRIC;
@@ -168,6 +173,15 @@ public class TodayFragment extends Fragment {
         updateGreeting();
 
         viewModel = new ViewModelProvider(this).get(HomeViewModel.class);
+
+        // Immediately populate views with latest Room metrics if available to prevent stuck at 0
+        DailyMetricsEntity initialMetrics = viewModel.getTodayMetrics().getValue();
+        if (initialMetrics != null) {
+            long goal = initialMetrics.getStepGoal() > 0 ? initialMetrics.getStepGoal() : dailyGoal;
+            applyDirectMetrics(initialMetrics.getSteps(), (int) goal, initialMetrics.getDistanceMeters(),
+                    initialMetrics.getActiveCaloriesKcal(), initialMetrics.getActiveSeconds());
+        }
+
         observeViewModel();
     }
 
@@ -407,9 +421,96 @@ public class TodayFragment extends Fragment {
     }
 
     /**
+     * Immediately applies display metrics without running animations.
+     * Used on fragment initial view binding and resume to prevent views being stuck at 0.
+     */
+    private void applyDirectMetrics(long steps, int goal, double distanceMeters, double caloriesKcal, long activeSeconds) {
+        if (metricsCountAnimator != null) {
+            metricsCountAnimator.removeAllListeners();
+            metricsCountAnimator.removeAllUpdateListeners();
+            metricsCountAnimator.cancel();
+            metricsCountAnimator = null;
+        }
+
+        this.currentSteps = steps;
+        this.dailyGoal = goal > 0 ? goal : this.dailyGoal;
+        this.lastDisplayedSteps = steps;
+        this.lastDisplayedCalories = caloriesKcal;
+        this.lastDisplayedDistance = distanceMeters;
+        this.lastDisplayedActiveSeconds = activeSeconds;
+
+        String formattedGoal = UnitFormatter.formatSteps(this.dailyGoal);
+        float targetProgress = this.dailyGoal > 0 ? (float) steps / this.dailyGoal : 0f;
+
+        if (heroProgressView != null) {
+            heroProgressView.setMax((int) this.dailyGoal);
+            heroProgressView.setProgress(targetProgress);
+            heroProgressView.setCurrentSteps(steps);
+            heroProgressView.setSubtitle(getString(R.string.today_hero_subtitle_format, formattedGoal));
+        }
+
+        if (textHeroGoal != null) {
+            textHeroGoal.setText(formattedGoal);
+        }
+
+        if (textHeroSteps != null) {
+            textHeroSteps.setText(NumberFormat.getIntegerInstance(Locale.getDefault()).format(steps));
+        }
+
+        double displayCalories = resolveDisplayCalories(caloriesKcal, steps);
+        this.lastDisplayedCalories = displayCalories;
+
+        if (textCaloriesValue != null) {
+            int roundedKcal = (int) Math.round(Math.max(0.0, displayCalories));
+            textCaloriesValue.setText(String.valueOf(roundedKcal));
+        }
+
+        updateDistanceDisplay(distanceMeters);
+
+        if (textActiveTimeValue != null) {
+            long minutes = resolveDisplayActiveMinutes(activeSeconds, steps);
+            textActiveTimeValue.setText(String.valueOf(minutes));
+        }
+
+        if (textCaloriesUnit != null) {
+            textCaloriesUnit.setText(" " + getString(R.string.calories_unit));
+        }
+
+        if (textActiveTimeUnit != null) {
+            textActiveTimeUnit.setText(" " + getString(R.string.active_time_unit));
+        }
+    }
+
+    private double resolveDisplayCalories(double caloriesKcal, long steps) {
+        if (caloriesKcal > 0.0) {
+            return caloriesKcal;
+        }
+        if (steps <= 0) {
+            return 0.0;
+        }
+        Context context = getContext();
+        SettingsRepository settings = (context != null) ? SettingsRepository.getInstance(context) : null;
+        double weight = (settings != null) ? settings.getWeightKg() : 70.0;
+        double stride = (settings != null) ? settings.getStrideLengthCm() : 74.0;
+        return CalorieCalculator.calculateStepCalories(steps, weight, stride);
+    }
+
+    private long resolveDisplayActiveMinutes(long activeSeconds, long steps) {
+        return (activeSeconds >= 30) ? Math.round(activeSeconds / 60.0) : (steps >= 100 ? 1 : 0);
+    }
+
+    /**
      * Updates display metrics atomically from repository/service.
      */
     public void updateMetrics(long steps, int goal, double distanceMeters, double caloriesKcal, long activeSeconds) {
+        // Cancel any running animator and detach all listeners to prevent race conditions
+        if (metricsCountAnimator != null) {
+            metricsCountAnimator.removeAllListeners();
+            metricsCountAnimator.removeAllUpdateListeners();
+            metricsCountAnimator.cancel();
+            metricsCountAnimator = null;
+        }
+
         this.currentSteps = steps;
         this.dailyGoal = goal > 0 ? goal : this.dailyGoal;
         String formattedGoal = UnitFormatter.formatSteps(dailyGoal);
@@ -424,83 +525,109 @@ public class TodayFragment extends Fragment {
             textHeroGoal.setText(formattedGoal);
         }
 
+        if (textCaloriesUnit != null) {
+            textCaloriesUnit.setText(" " + getString(R.string.calories_unit));
+        }
+
+        if (textActiveTimeUnit != null) {
+            textActiveTimeUnit.setText(" " + getString(R.string.active_time_unit));
+        }
+
         float targetProgress = dailyGoal > 0 ? (float) steps / dailyGoal : 0f;
+        long stepDifference = Math.abs(steps - lastDisplayedSteps);
+        final NumberFormat numberFormat = NumberFormat.getIntegerInstance(Locale.getDefault());
 
-        if (!initialEntranceAnimated && isAdded()) {
-            initialEntranceAnimated = true;
+        double displayCalories = resolveDisplayCalories(caloriesKcal, steps);
 
-            // 1. Smooth 60 FPS Ease-in-out ring fill from 0%
-            if (heroProgressView != null) {
-                heroProgressView.animateProgress(0f, targetProgress, 1100L);
-            }
+        // If difference is small or view not added, update directly without animation
+        if (stepDifference < 5 || !isAdded()) {
+            lastDisplayedSteps = steps;
+            lastDisplayedCalories = displayCalories;
+            lastDisplayedDistance = distanceMeters;
+            lastDisplayedActiveSeconds = activeSeconds;
 
-            // 2. Smooth 60 FPS Ease-in-out count-up animation for all numeric metrics
-            if (metricsCountAnimator != null && metricsCountAnimator.isRunning()) {
-                metricsCountAnimator.cancel();
-            }
-
-            final NumberFormat numberFormat = NumberFormat.getIntegerInstance(Locale.getDefault());
-            metricsCountAnimator = ValueAnimator.ofFloat(0f, 1f);
-            metricsCountAnimator.setDuration(1100L);
-            metricsCountAnimator.setInterpolator(new FastOutSlowInInterpolator());
-            metricsCountAnimator.addUpdateListener(animation -> {
-                float fraction = (float) animation.getAnimatedValue();
-                long animSteps = Math.round(steps * fraction);
-                if (textHeroSteps != null) {
-                    textHeroSteps.setText(numberFormat.format(animSteps));
-                }
-                if (textCaloriesValue != null) {
-                    int animKcal = (int) Math.round(caloriesKcal * fraction);
-                    textCaloriesValue.setText(String.valueOf(animKcal));
-                }
-                if (textDistanceValue != null) {
-                    updateDistanceDisplay(distanceMeters * fraction);
-                }
-                if (textActiveTimeValue != null) {
-                    long animSecs = Math.round(activeSeconds * fraction);
-                    textActiveTimeValue.setText(String.valueOf(animSecs / 60L));
-                }
-            });
-            metricsCountAnimator.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    if (textHeroSteps != null) {
-                        textHeroSteps.setText(numberFormat.format(steps));
-                    }
-                    if (textCaloriesValue != null) {
-                        textCaloriesValue.setText(String.valueOf((int) Math.round(Math.max(0.0, caloriesKcal))));
-                    }
-                    updateDistanceDisplay(distanceMeters);
-                    if (textActiveTimeValue != null) {
-                        textActiveTimeValue.setText(String.valueOf(Math.max(0, activeSeconds / 60L)));
-                    }
-                }
-            });
-            metricsCountAnimator.start();
-        } else {
             if (heroProgressView != null) {
                 heroProgressView.setProgress(targetProgress);
             }
             if (textHeroSteps != null) {
-                textHeroSteps.setText(NumberFormat.getIntegerInstance(Locale.getDefault()).format(steps));
+                textHeroSteps.setText(numberFormat.format(steps));
             }
             if (textCaloriesValue != null) {
-                int roundedKcal = (int) Math.round(Math.max(0.0, caloriesKcal));
+                int roundedKcal = (int) Math.round(Math.max(0.0, displayCalories));
                 textCaloriesValue.setText(String.valueOf(roundedKcal));
             }
             updateDistanceDisplay(distanceMeters);
             if (textActiveTimeValue != null) {
-                long minutes = Math.max(0, activeSeconds / 60);
+                long minutes = resolveDisplayActiveMinutes(activeSeconds, steps);
                 textActiveTimeValue.setText(String.valueOf(minutes));
             }
+            return;
         }
 
-        if (textCaloriesUnit != null) {
-            textCaloriesUnit.setText(" " + getString(R.string.calories_unit));
+        // Animate smoothly from last displayed to new target steps
+        final long startSteps = lastDisplayedSteps;
+        final double startCalories = lastDisplayedCalories;
+        final double startDistance = lastDisplayedDistance;
+        final long startActiveSecs = lastDisplayedActiveSeconds;
+        final float startProgress = dailyGoal > 0 ? (float) startSteps / dailyGoal : 0f;
+        final double finalTargetCalories = displayCalories;
+
+        long duration = !initialEntranceAnimated ? 1100L : 400L;
+        initialEntranceAnimated = true;
+
+        if (heroProgressView != null) {
+            heroProgressView.animateProgress(startProgress, targetProgress, duration);
         }
-        if (textActiveTimeUnit != null) {
-            textActiveTimeUnit.setText(" " + getString(R.string.active_time_unit));
-        }
+
+        ValueAnimator animator = ValueAnimator.ofFloat(0f, 1f);
+        animator.setDuration(duration);
+        animator.setInterpolator(new FastOutSlowInInterpolator());
+        animator.addUpdateListener(animation -> {
+            float fraction = (float) animation.getAnimatedValue();
+            long animSteps = Math.round(startSteps + (steps - startSteps) * fraction);
+            lastDisplayedSteps = animSteps;
+            if (textHeroSteps != null) {
+                textHeroSteps.setText(numberFormat.format(animSteps));
+            }
+            if (textCaloriesValue != null) {
+                int animKcal = (int) Math.round(startCalories + (finalTargetCalories - startCalories) * fraction);
+                textCaloriesValue.setText(String.valueOf(Math.max(0, animKcal)));
+            }
+            if (textDistanceValue != null) {
+                updateDistanceDisplay(Math.max(0.0, startDistance + (distanceMeters - startDistance) * fraction));
+            }
+            if (textActiveTimeValue != null) {
+                long animSecs = Math.round(startActiveSecs + (activeSeconds - startActiveSecs) * fraction);
+                long minutes = resolveDisplayActiveMinutes(animSecs, animSteps);
+                textActiveTimeValue.setText(String.valueOf(minutes));
+            }
+        });
+        animator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                lastDisplayedSteps = steps;
+                lastDisplayedCalories = finalTargetCalories;
+                lastDisplayedDistance = distanceMeters;
+                lastDisplayedActiveSeconds = activeSeconds;
+
+                if (heroProgressView != null) {
+                    heroProgressView.setProgress(targetProgress);
+                }
+                if (textHeroSteps != null) {
+                    textHeroSteps.setText(numberFormat.format(steps));
+                }
+                if (textCaloriesValue != null) {
+                    textCaloriesValue.setText(String.valueOf((int) Math.round(Math.max(0.0, finalTargetCalories))));
+                }
+                updateDistanceDisplay(distanceMeters);
+                if (textActiveTimeValue != null) {
+                    long minutes = resolveDisplayActiveMinutes(activeSeconds, steps);
+                    textActiveTimeValue.setText(String.valueOf(minutes));
+                }
+            }
+        });
+        metricsCountAnimator = animator;
+        animator.start();
     }
 
     private void updateDistanceDisplay(double meters) {
@@ -746,6 +873,12 @@ public class TodayFragment extends Fragment {
         updateGreeting();
         if (viewModel != null) {
             viewModel.refresh();
+            DailyMetricsEntity current = viewModel.getTodayMetrics().getValue();
+            if (current != null) {
+                long goal = current.getStepGoal() > 0 ? current.getStepGoal() : dailyGoal;
+                applyDirectMetrics(current.getSteps(), (int) goal, current.getDistanceMeters(),
+                        current.getActiveCaloriesKcal(), current.getActiveSeconds());
+            }
         }
     }
 
@@ -762,9 +895,18 @@ public class TodayFragment extends Fragment {
 
     @Override
     public void onDestroyView() {
-        if (metricsCountAnimator != null && metricsCountAnimator.isRunning()) {
+        if (metricsCountAnimator != null) {
+            metricsCountAnimator.removeAllListeners();
+            metricsCountAnimator.removeAllUpdateListeners();
             metricsCountAnimator.cancel();
+            metricsCountAnimator = null;
         }
+        initialEntranceAnimated = false;
+        chartEntranceAnimated = false;
+        lastDisplayedSteps = 0L;
+        lastDisplayedCalories = 0.0;
+        lastDisplayedDistance = 0.0;
+        lastDisplayedActiveSeconds = 0L;
         super.onDestroyView();
     }
 

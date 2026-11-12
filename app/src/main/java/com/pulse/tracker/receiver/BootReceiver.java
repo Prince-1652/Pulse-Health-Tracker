@@ -27,11 +27,13 @@ public class BootReceiver extends BroadcastReceiver {
         }
 
         String action = intent.getAction();
-        if (!Intent.ACTION_BOOT_COMPLETED.equals(action)) {
+        if (!Intent.ACTION_BOOT_COMPLETED.equals(action)
+                && !Intent.ACTION_MY_PACKAGE_REPLACED.equals(action)
+                && !"android.intent.action.QUICKBOOT_POWERON".equals(action)) {
             return;
         }
 
-        Log.i(TAG, "BOOT_COMPLETED received");
+        Log.i(TAG, "Boot / package restore broadcast received: " + action);
 
         // Reschedule periodic daytime hydration reminders
         WaterReminderManager.scheduleNextReminder(context);

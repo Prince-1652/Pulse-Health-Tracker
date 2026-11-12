@@ -1,11 +1,16 @@
 package com.pulse.tracker.ui.history;
 
 import android.app.Application;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
@@ -43,6 +48,8 @@ public class HistoryViewModel extends AndroidViewModel {
     private LiveData<List<DailyMetricsEntity>> currentMonthRoomSource = null;
     private LiveData<DailyMetricsEntity> currentDateRoomSource = null;
     private List<DailyMetricsEntity> cachedMonthEntities = new ArrayList<>();
+    private LocalDate currentToday = LocalDate.now();
+    private final BroadcastReceiver midnightReceiver;
 
     public HistoryViewModel(@NonNull Application application) {
         this(application, MetricsRepository.getInstance(application), SettingsRepository.getInstance(application));
@@ -55,17 +62,38 @@ public class HistoryViewModel extends AndroidViewModel {
         this.metricsRepository = Objects.requireNonNull(metricsRepository);
         this.settingsRepository = Objects.requireNonNull(settingsRepository);
 
+        currentToday = LocalDate.now();
         setLiveValue(unitSystem, settingsRepository.getUnitSystem());
 
         settingsChangeListener = key -> {
-            if (SettingsRepository.KEY_UNIT_SYSTEM.equals(key)) {
-                postLiveValue(unitSystem, settingsRepository.getUnitSystem());
-            } else if (SettingsRepository.KEY_DAILY_STEP_TARGET.equals(key)) {
+            if (SettingsRepository.KEY_UNIT_SYSTEM.equals(key) || SettingsRepository.KEY_DAILY_STEP_TARGET.equals(key)) {
+                if (SettingsRepository.KEY_UNIT_SYSTEM.equals(key)) {
+                    postLiveValue(unitSystem, settingsRepository.getUnitSystem());
+                }
                 rebuildCalendarDays();
                 refreshSelectedDateMetrics();
+                YearMonth month = selectedMonth.getValue();
+                if (month != null) {
+                    refreshMonthlyAnalytics(month);
+                }
             }
         };
         settingsRepository.registerListener(settingsChangeListener);
+
+        midnightReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                handleMidnightRollover();
+            }
+        };
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_DATE_CHANGED);
+        filter.addAction(Intent.ACTION_TIME_CHANGED);
+        filter.addAction(Intent.ACTION_TIMEZONE_CHANGED);
+        try {
+            ContextCompat.registerReceiver(application, midnightReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED);
+        } catch (Exception ignored) {
+        }
 
         // When selected month changes, refresh Room sources and analytics
         calendarDays.addSource(selectedMonth, month -> {
@@ -74,9 +102,13 @@ public class HistoryViewModel extends AndroidViewModel {
             }
         });
 
-        // When selected date changes, re-evaluate selection state in grid and observe date metrics
+        // When selected date changes, re-evaluate selection state in grid
         calendarDays.addSource(selectedDate, date -> {
             rebuildCalendarDays();
+        });
+
+        // When selected date changes, observe date metrics
+        selectedDateMetrics.addSource(selectedDate, date -> {
             if (date != null) {
                 observeSelectedDateMetrics(date);
             }
@@ -84,7 +116,7 @@ public class HistoryViewModel extends AndroidViewModel {
 
         // Default initial month and date
         YearMonth currentYearMonth = YearMonth.now();
-        LocalDate today = LocalDate.now();
+        LocalDate today = currentToday;
         setLiveValue(selectedMonth, currentYearMonth);
         setLiveValue(selectedDate, today);
     }
@@ -93,7 +125,7 @@ public class HistoryViewModel extends AndroidViewModel {
         // Adjust selected date if it is outside this month
         LocalDate currentSelected = selectedDate.getValue();
         if (currentSelected == null || !YearMonth.from(currentSelected).equals(month)) {
-            LocalDate today = LocalDate.now();
+            LocalDate today = (currentToday != null) ? currentToday : LocalDate.now();
             if (YearMonth.from(today).equals(month)) {
                 setLiveValue(selectedDate, today);
             } else {
@@ -122,9 +154,11 @@ public class HistoryViewModel extends AndroidViewModel {
             selectedDateMetrics.removeSource(currentDateRoomSource);
         }
         String dateStr = date.toString();
+        long defaultGoal = settingsRepository.getDailyStepTarget();
+        setLiveValue(selectedDateMetrics, DailyMetricsEntity.empty(dateStr, defaultGoal));
+
         currentDateRoomSource = metricsRepository.getTodayMetricsLive(dateStr);
         selectedDateMetrics.addSource(currentDateRoomSource, entity -> {
-            long defaultGoal = settingsRepository.getDailyStepTarget();
             DailyMetricsEntity safeEntity = (entity != null)
                     ? entity
                     : DailyMetricsEntity.empty(dateStr, defaultGoal);
@@ -156,7 +190,7 @@ public class HistoryViewModel extends AndroidViewModel {
         }
 
         LocalDate selected = selectedDate.getValue();
-        LocalDate today = LocalDate.now();
+        LocalDate today = (currentToday != null) ? currentToday : LocalDate.now();
         long defaultGoal = settingsRepository.getDailyStepTarget();
 
         Map<String, DailyMetricsEntity> entityMap = new HashMap<>();
@@ -237,14 +271,46 @@ public class HistoryViewModel extends AndroidViewModel {
         Objects.requireNonNull(date);
         YearMonth monthOfDate = YearMonth.from(date);
         YearMonth currentMonth = selectedMonth.getValue();
-        if (currentMonth != null && !currentMonth.equals(monthOfDate)) {
+        setLiveValue(selectedDate, date);
+        if (currentMonth == null || !currentMonth.equals(monthOfDate)) {
             setLiveValue(selectedMonth, monthOfDate);
         }
-        setLiveValue(selectedDate, date);
     }
 
     public void setSelectedDate(@NonNull LocalDate date) {
         selectDate(date);
+    }
+
+    @VisibleForTesting
+    public void handleMidnightRollover() {
+        handleMidnightRollover(LocalDate.now());
+    }
+
+    @VisibleForTesting
+    public void handleMidnightRollover(@NonNull LocalDate newToday) {
+        Objects.requireNonNull(newToday);
+        LocalDate prevToday = (currentToday != null) ? currentToday : LocalDate.now();
+        currentToday = newToday;
+
+        LocalDate currentSelected = selectedDate.getValue();
+        YearMonth currentSelectedMonth = selectedMonth.getValue();
+
+        boolean wasToday = (currentSelected != null && currentSelected.equals(prevToday));
+        boolean monthRolledOver = !YearMonth.from(newToday).equals(YearMonth.from(prevToday));
+
+        if (wasToday) {
+            setLiveValue(selectedDate, newToday);
+        }
+
+        if (monthRolledOver && (wasToday || (currentSelectedMonth != null && currentSelectedMonth.equals(YearMonth.from(prevToday))))) {
+            setLiveValue(selectedMonth, YearMonth.from(newToday));
+        }
+
+        rebuildCalendarDays();
+        YearMonth month = selectedMonth.getValue();
+        if (month != null) {
+            refreshMonthlyAnalytics(month);
+        }
     }
 
     @NonNull
@@ -293,6 +359,10 @@ public class HistoryViewModel extends AndroidViewModel {
     protected void onCleared() {
         super.onCleared();
         settingsRepository.unregisterListener(settingsChangeListener);
+        try {
+            getApplication().unregisterReceiver(midnightReceiver);
+        } catch (Exception ignored) {
+        }
     }
 }
 

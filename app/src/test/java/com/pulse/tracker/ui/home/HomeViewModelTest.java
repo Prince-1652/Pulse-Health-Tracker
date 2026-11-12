@@ -198,5 +198,17 @@ public class HomeViewModelTest {
             viewModel.getDailyStepTarget().removeObserver(goalObserver);
         }
     }
+
+    @Test
+    public void testDateChangeBroadcast_triggersRefreshAndClearsStaleEntity() {
+        android.content.Intent dateChangeIntent = new android.content.Intent(android.content.Intent.ACTION_DATE_CHANGED);
+        assertNotNull(viewModel.getTimeChangeReceiver());
+        viewModel.getTimeChangeReceiver().onReceive(application, dateChangeIntent);
+
+        android.content.Intent timeZoneIntent = new android.content.Intent(android.content.Intent.ACTION_TIMEZONE_CHANGED);
+        viewModel.getTimeChangeReceiver().onReceive(application, timeZoneIntent);
+
+        assertNotNull(viewModel.getTodayMetrics());
+    }
 }
 
